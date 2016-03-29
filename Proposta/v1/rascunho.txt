@@ -1,24 +1,26 @@
 1	INTRODUÇÃO
-Veículos de frotas são frequentemente conduzidos por diferentes motoristas e estão sujeitos a um desgaste acelerado, os condutores nem sempre cuidam dos veículos da empresa da mesma maneira que cuidariam de seus próprios, de forma que estes veículos estão sujeitos a condições incomuns como rodar 24 horas, serem carregados com peso excessivo e mantidos em serviço até acumular milhares de quilometros (CLEMENTE, 2008, p. 10).
-Conforme DOU (RESOLUÇÃO Nº 354, DE 13 DE DEZEMBRO 2004, p. 62-63) "Considerando que a alteração da regulagem das características dos veículos resultantes de seu uso contribui para o mau funcionamento dos sistemas de controle de emissão e resulta em aumento dos níveis de emissão de poluentes atmosféricos"
+Considera-se que veículos sofrem alteração da regulagem de seus componentes, com o passar do tempo, contribuindo para o mau funcionamento dos sistemas de controle de emissão e resultando em aumento dos níveis de emissão de poluentes atmosféricos (RESOLUÇÃO CONAMA nº 354, 13 de dezembro de 2004).
+
+Veículos de frotas são frequentemente conduzidos por diferentes motoristas e estão sujeitos a um desgaste acelerado, os condutores nem sempre cuidam dos veículos da empresa da mesma maneira que cuidariam de seus próprios, de forma que estes veículos estão sujeitos a condições incomuns como rodar 24 horas, serem carregados com peso excessivo e mantidos em serviço até acumular milhares de quilômetros (CLEMENTE, 2008, p. 10).
+
+Diante do exposto, este trabalho propõe o desenvolvimento de um protótipo para coletar as informações do sistema de diagnose de bordo e disponibilizar, em uma página WEB, o histórico de suas leituras, possibilitando a análise dos dados pelo dono do veículo, profissionais de mecânica automotiva e/ou sistemas especialistas.
 
 
-[A introdução deve despertar no leitor o interesse pelo texto, apresentando os assuntos que serão tratados e o enfoque que será dado ao tema central. Segundo Vergara (2000), a introdução deve ser curta, proporcional ao número de páginas da proposta. Deve iniciar com uma contextualização do trabalho, explicando claramente sua motivação. Deve finalizar com a formulação do problema a ser investigado.]
-[Em outras palavras, o tema da pesquisa deve ser abordado de forma clara e sucinta, identificando a situação ou o contexto no qual o problema está inserido. A visão geral do tema deve então ser afunilada até o problema a ser pesquisado. E, após o problema ter sido identificado, deve-se delimitar que aspectos ou elementos serão tratados. Em resumo, deve-se deixar bem claro o problema que se quer resolver com o desenvolvimento do trabalho.]
-[Observa-se que apresentação (formatação), as citações e as referências bibliográficas na proposta de Trabalho de Conclusão de Curso (TCC) devem seguir as normas descritas pela Associação Brasileira de Normas Técnicas (ABNT), que podem ser encontradas na biblioteca da Universidade Regional de Blumenau (FURB). As normas que orientam a confecção da proposta são NBR 6023 (ASSOCIAÇÃO BRASILEIRA DE NORMAS TÉNICAS, 2002a), NBR 6024 (ASSOCIAÇÃO BRASILEIRA DE NORMAS TÉNICAS, 2003), NBR 10520 (ASSOCIAÇÃO BRASILEIRA DE NORMAS TÉNICAS, 2002b) e NBR 14724 (ASSOCIAÇÃO BRASILEIRA DE NORMAS TÉNICAS, 2002c).]
 
-1.1	A PERGUNTA DE PESQUISA
-[A Pergunta de pesquisa, ou Questão-Problema, é a mola propulsora de toda pesquisa e dela depende seu sucesso. Depois de definir o tema, deve-se levantar uma questão para ser respondida através de um trabalho de investigação. A atividade de formular um problema em forma de pergunta atua como facilitador para distinguir o essencial do supérfluo. Pode-se afirmar que a Pergunta de Pesquisa mostra a inquietação do pesquisador sobre o tema e vai orientar o trabalho ao longo de todo seu desenvolvimento, atuando como vetor que indica o caminho e os métodos a serem utilizados. ]
+
+1.1	SISTEMAS DE DIAGNOSE DE BORDO - OBD
+Conforme a Resolução CONAMA nº 354, a adoção do OBD nos veículos automotores representa expressivo avanço tecnológico que possibilita ao usuário do veículo prevenir a ocorrência de danos severos aos sistemas de controle de emissão, contribuindo para a melhoria da qualidade ambiental, e dessa forma salvaguardar os interesses do consumidor e da sociedade em geral.
+
+
 
 1.2	OBJETIVOS DO TRABALHO
-[Podem ser divididos em geral e específicos. O objetivo geral indica exatamente o que se quer fazer e que resultados deseja-se alcançar com o trabalho de pesquisa a ser realizado. Deve estar relacionado ao tema e ao problema apresentados. O objetivo geral deve ser descrito em uma frase única, sendo que o mesmo não deve ser enumerado.]
-O objetivo deste trabalho é...
-[Os objetivos específicos são opcionais e detalham o objetivo geral do trabalho, isto é, delimitam de forma precisa o trabalho. Os objetivos específicos devem ser redigidos com o verbo no infinitivo.]
+O objetivo deste trabalho é o desenvolvimento de um software que leia frequentemente os dados da porta OBD, envie estes dados para um servidor e disponibilizar uma página WEB com o histórico das leituras efetuadas.
 Os objetivos específicos do trabalho são:
-a)	descrever o primeiro objetivo;
-b)	descrever o segundo objetivo;
-c)	(...);
-d)	descrever o n-ésimo objetivo.
+a)	Desenvolver um software que leia frequentemente os dados da porta OBD e os envie para um servidor;
+b)	Desenvolver um software servidor, que irá receber os dados das leituras e persistir os mesmos;
+c)	Desenvolver uma página WEB para consultar o histórico de leituras.
+
+
 
 1.3	RELEVÂNCIA DO TRABALHO
 [A relevância consiste na apresentação concisa das razões técnicas e/ou científicas, teóricas e/ou práticas ou ainda do grau de complexidade no que diz respeito à ciência da computação, que justificam a realização do trabalho.]
