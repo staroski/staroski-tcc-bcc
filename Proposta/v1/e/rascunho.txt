@@ -1,0 +1,89 @@
+1	INTRODUÇÃO
+Atualmente a complexidade da arquitetura eletrônica incorporada em um carro infere funções implementadas em vários microcontroladores para interagir intensamente entre si. Portanto, o diagnóstico tornou-se uma função vital ao longo do tempo de vida de um veículo. Assim, qualquer sistema que possa ajudar a acessar e relacionar informações sobre um carro é obviamente muito importante e deve ser concebido simultaneamente com o projeto original do carro (ZURAWSKI, 2009, 1.2.6, tradução nossa).
+Considera-se que veículos sofrem alteração da regulagem de seus componentes, com o passar do tempo, contribuindo para o mau funcionamento dos sistemas de controle de emissão e resultando em aumento dos níveis de emissão de poluentes atmosféricos (RESOLUÇÃO CONAMA nº 354, 14 de dezembro de 2004, p. 62-63).
+Veículos de frotas são frequentemente conduzidos por diferentes motoristas e estão sujeitos a um desgaste acelerado, os condutores nem sempre cuidam dos veículos da empresa da mesma maneira que cuidariam de seus próprios, de forma que estes veículos estão sujeitos a condições incomuns como rodar 24 horas, serem carregados com peso excessivo e mantidos em serviço até acumular milhares de quilômetros (CLEMENTE, 2008, p. 10).
+Diante do exposto, este trabalho propõe o desenvolvimento de um protótipo para coletar as informações do sistema de diagnose de bordo e disponibilizar, em uma página WEB, o histórico de suas leituras, possibilitando a análise dos dados por profissionais de mecânica automotiva e/ou sistemas especialistas.
+
+
+1.1	SISTEMAS DE DIAGNOSE DE BORDO - OBD
+A especificação de um sistema capaz de recolher informações e estabelecer os diagnósticos de bordo é vantajosa para o dono do veículo, bem como para um técnico de reparação. O termo genérico utilizado para esta função é "diagnose de bordo" ou OBD - On Board Diagnostic.
+Mais precisamente, este conceito refere-se ao auto diagnóstico e reporte das instalações, que só se tornaram possíveis com a introdução de sistemas computadorizados que podem memorizar grandes quantidades de informação.
+Enquanto o papel das funções de diagnóstico predecessoras ao era limitado a piscar uma luz assim que um problema específico fosse detectado, os sistemas OBD recentes são baseados na padronização da comunicação, dos dados monitorados e dos códigos de uma lista de falhas específicas, denominada DTC - Diagnostic Trouble Codes.
+
+
+1.2	OBJETIVOS DO TRABALHO
+O objetivo deste trabalho é o desenvolvimento de um software embarcado, para ler os dados da porta OBD de um carro, enviar estes dados para um servidor e disponibilizar uma página WEB com o histórico das leituras efetuadas.
+Os objetivos específicos do trabalho são:
+a)	Desenvolver o firmware, que irá monitorar a porta OBD do carro e os enviar os dados lidos para um servidor;
+b)	Desenvolver o software servidor, que irá receber os dados enviados pelo firmware e persistir os mesmos;
+c)	Desenvolver uma página WEB para consultar o histórico de leituras.
+
+
+1.3	RELEVÂNCIA DO TRABALHO
+O trabalho proposto é de relevância acadêmica pois a especificação OBD tem sido pouco explorada no meio, inclusive não há registro de trabalhos sobre OBD nos cursos de Ciência da Computação e Sistemas de Informação da FURB. Pesquisas na internet revelam empresas estrangeiras desenvolvendo software OBD, mas sem disponibilizar acesso gratuito à documentação, o que existe são poucas iniciativas de código fonte aberto como por exemplo:
+a)	pyobd: ferramenta desenvolvida em Python que permite a comunicação com a porta OBD, disponível no site http://www.obdtester.com/pyobd;
+b)	enviroCar: aplicativo voltado para o compartilhamento dos dados OBD e análise anônima entre os usuários do aplicativo, disponível no site https://envirocar.org.
+No campo profissional o trabalho é relevante por expor os aspectos da especificação OBD que define o conector de diagnóstico, o protocolo de sinalização elétrica, o formato de mensagens e os parâmetros do veículo que podem ser monitorados, podendo servir de base para o desenvolvimento de soluções comerciais.
+No aspecto social a relevância se dá pelo fato de que relatórios com informações sobre os parâmetros dos veículos podem permitir a prevenção de danos aos sistemas de controle de emissão de gases, contribuindo para a melhoria da qualidade ambiental, assegurando os interesses do consumidor e da sociedade.
+
+
+1.4	METODOLOGIA
+O trabalho será desenvolvido observando as seguintes etapas:
+a)	levantamento bibliográfico: pesquisar e relacionar informações sobre os assuntos abordados no trabalho;
+b)	definição de requisitos: definir os requisitos do protótipo de acordo com as necessidades encontradas no levantamento bibliográfico, no estudo dos trabalhos correlatos e nas reuniões com o orientador;
+c)	elicitação de requisitos: reavaliar os requisitos de acordo com os objetivos do trabalho e levantamento bibliográfico;
+d)	especificação do protótipo: elaborar, tanto para o firmware quanto para o servidor, os diagramas de componentes, de casos de uso e de classes, seguindo a especificação UML de forma que se possa ter uma visão geral da arquitetura e desenvolvimento do protótipo;
+e)	desenvolvimento do firmware: desenvolver o software embarcado que irá monitorar a porta OBD do carro e transmitir os dados lidos para o software servidor. O software será desenvolvido utilizando tecnologia Java e será executado em uma placa Raspberry Pi;
+f)	desenvolvimento do servidor: desenvolver o software servidor que irá receber as informações enviadas pelo firmware e persistir as mesmas. Assim como o firmware, o software do servidor também será desenvolvido utilizando tecnologia Java, de forma a facilitar a interoperabilidade através de interfaces comuns;
+g)	desenvolvimento da página WEB: desenvolver a página WEB para consultar o histórico das leituras persistidas no servidor, A página será desenvolvida utilizando HTML, CSS e JavaScript;
+h)	teste de campo: com o firmware, servidor e página WEB concluídos, verificar sua utilização real em um carro que atenda à especificação OBD, de modo a confirmar o funcionamento do protótipo.
+As etapas serão realizadas nos períodos relacionados no Quadro 1.
+									Quadro 1 - Cronograma
+												2016
+								jul.	 ago.	 set.	 out.	 nov.
+etapas / quinzenas				1	2	1	2	1	2	1	2	1	2
+levantamento bibliográfico										
+definição de requisitos										
+elicitação de requisitos										
+especificação do protótipo										
+desenvolvimento do firmware										
+desenvolvimento do servidor										
+desenvolvimento da página WEB										
+teste de campo										
+
+
+2	REVISÃO BIBLIOGRÁFICA
+[A revisão bibliográfica consiste de um estudo inicial sobre o tema escolhido, detalhando conceitos, métodos, técnicas, tecnologias e ferramentas que serão empregadas na realização do TCC, podendo ser omitidas metodologias de especificação e ferramentas de implementação que já são conhecidas do grande público. É essa sistematização de idéias e fundamentos de vários autores que dá sustentação ao assunto estudado.]
+[Recomenda-se que:
+a)	sejam incluídas apenas as contribuições mais relevantes relacionadas com o tema de pesquisa;
+b)	seja apresentado o estado da arte sobre o tema.]
+[A revisão bibliográfica pode conter tantas seções quantas forem necessárias. Quando o TCC for continuação de um anterior (através de correções, adaptações e/ou extensões), sugere-se a inclusão de uma seção para descrever o trabalho anterior, destacando as restrições. Observa-se que, antes da primeira seção, deve-se descrever o que o leitor vai encontrar nesse capítulo, ou seja, como a revisão bibliográfica está organizada. Na última seção devem ser relatados trabalhos correlatos ao proposto.]
+
+
+2.1	TÍTULO DA 1A SEÇÃO
+(...)
+
+
+2.2	TÍTULO DA 2A SEÇÃO
+(...)
+
+
+2.3	TRABALHOS CORRELATOS
+[É fundamental que sejam relatados TRABALHOS CORRELATOS identificados na pesquisa, bem como comentadas as principais características dos mesmos. Pode-se considerar TRABALHO CORRELATO, dentre outros, TCCs, dissertações, teses, artigos e ferramentas comerciais, que tenham alguma relação com o tema proposto.]
+
+
+3	REQUISITOS DO SISTEMA A SER DESENVOLVIDO
+[Devem ser descritos textualmente os requisitos do sistema a ser desenvolvido, destacando o que deve fazer e ressaltando as principais características que deve ter. Os requisitos devem ser identificados como funcionais (RF) e não funcionais (RNF).]
+
+
+4	CONSIDERAÇÕES FINAIS
+[As considerações finais devem dar uma idéia geral de como os assuntos estudados serão utilizados na realização do TCC, mostrando o relacionamento dos conceitos, métodos, técnicas, tecnologias e ferramentas, descritos na revisão bibliográfica, com o desenvolvimento do trabalho.]
+
+
+REFERÊNCIAS BIBLIOGRÁFICAS
+[Referências bibliográficas são as obras citadas no texto. Observa-se que as referências deverão estar em ordem alfabética por sobrenome dos autores.]
+ASSOCIAÇÃO BRASILEIRA DE NORMAS TÉCNICAS. NBR 6023: informação e documentação: referências - elaboração. Rio de Janeiro, 2002a.
+_____. NBR 6024: informação e documentação: numeração progressiva das seções de um documento escrito - apresentação. Rio de Janeiro, 2003.
+_____. NBR 10520: informação e documentação: citações em documentos - apresentação. Rio de Janeiro, 2002b.
+_____. NBR 14724: informação e documentação: trabalhos acadêmicos: apresentação. Rio de Janeiro, 2002c. 
+VERGARA, Sylvia C. Projetos e relatórios de pesquisa em administração. 3. ed. São Paulo: Atlas, 2000.
