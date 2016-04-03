@@ -1,0 +1,192 @@
+1	INTRODUÇÃO
+Atualmente a complexidade da arquitetura eletrônica incorporada em um carro infere funções implementadas em vários microcontroladores para interagir intensamente entre si. Portanto, o diagnóstico tornou-se uma função vital ao longo do tempo de vida de um veículo. Assim, qualquer sistema que possa ajudar a acessar e relacionar informações sobre um carro é obviamente muito importante e deve ser concebido simultaneamente com o projeto original do carro (ZURAWSKI, 2009, 1.2.6, tradução nossa).
+Considera-se que veículos sofrem alteração da regulagem de seus componentes, com o passar do tempo, contribuindo para o mau funcionamento dos sistemas de controle de emissão e resultando em aumento dos níveis de emissão de poluentes atmosféricos (RESOLUÇÃO CONAMA nº 354, 14 de dezembro de 2004, p. 62-63).
+Veículos de frotas são frequentemente conduzidos por diferentes motoristas e estão sujeitos a um desgaste acelerado, os condutores nem sempre cuidam dos veículos da empresa da mesma maneira que cuidariam de seus próprios, de forma que estes veículos estão sujeitos a condições incomuns como rodar 24 horas, serem carregados com peso excessivo e mantidos em serviço até acumular milhares de quilômetros (CLEMENTE, 2008, p. 10).
+Diante do exposto, este trabalho propõe o desenvolvimento de um protótipo para coletar as informações do sistema de diagnose de bordo e disponibilizar, em uma página WEB, o histórico de suas leituras, possibilitando a análise dos dados por profissionais de mecânica automotiva e/ou sistemas especialistas.
+
+
+1.1	SISTEMAS DE DIAGNOSE DE BORDO - OBD
+A especificação de um sistema capaz de recolher informações e estabelecer os diagnósticos de bordo é vantajosa para o dono do veículo, bem como para um técnico de reparação. O termo genérico utilizado para esta função é "diagnose de bordo" ou OBD - On Board Diagnostic.
+Mais precisamente, este conceito refere-se ao auto diagnóstico e reporte das instalações, que só se tornaram possíveis com a introdução de sistemas computadorizados que podem memorizar grandes quantidades de informação.
+Enquanto o papel das funções de diagnóstico predecessoras ao era limitado a piscar uma luz assim que um problema específico fosse detectado, os sistemas OBD recentes são baseados na padronização da comunicação, dos dados monitorados e dos códigos de uma lista de falhas específicas, denominada DTC - Diagnostic Trouble Codes.
+
+
+1.2	OBJETIVOS DO TRABALHO
+O objetivo deste trabalho é o desenvolvimento de um software embarcado, para ler os dados da porta OBD2 de um carro, enviar estes dados para um servidor e disponibilizar uma página WEB com o histórico das leituras efetuadas.
+Os objetivos específicos do trabalho são:
+a)	Desenvolver o firmware, que irá monitorar a porta OBD2 do carro e os enviar os dados lidos para um servidor;
+b)	Desenvolver o software servidor, que irá receber os dados enviados pelo firmware e persistir os mesmos;
+c)	Desenvolver uma página WEB para consultar o histórico de leituras.
+
+
+1.3	RELEVÂNCIA DO TRABALHO
+O trabalho proposto é de relevância acadêmica pois a especificação OBD2 tem sido pouco explorada no meio, inclusive não há registro de trabalhos sobre OBD nos cursos de Ciência da Computação e Sistemas de Informação da FURB. Pesquisas na internet revelam empresas estrangeiras desenvolvendo software OBD, mas sem disponibilizar acesso gratuito à documentação, o que existe são poucas iniciativas de código fonte aberto como por exemplo:
+a)	pyobd: ferramenta desenvolvida em Python que permite a comunicação com a porta OBD2, disponível no site http://www.obdtester.com/pyobd;
+b)	enviroCar: aplicativo voltado para o compartilhamento dos dados obtidos pela porta OBD2 e análise anônima entre os usuários do aplicativo, disponível no site https://envirocar.org.
+No campo profissional o trabalho é relevante por expor os aspectos da especificação OBD2 que define o conector de diagnóstico, o protocolo de sinalização elétrica, o formato de mensagens e os parâmetros do veículo que podem ser monitorados, podendo servir de base para o desenvolvimento de soluções comerciais.
+No aspecto social a relevância se dá pelo fato de que relatórios com informações sobre os parâmetros dos veículos podem permitir a prevenção de danos aos sistemas de controle de emissão de gases, contribuindo para a melhoria da qualidade ambiental, assegurando os interesses do consumidor e da sociedade.
+
+
+1.4	METODOLOGIA
+O trabalho será desenvolvido observando as seguintes etapas:
+a)	levantamento bibliográfico: pesquisar e relacionar informações sobre os assuntos abordados no trabalho;
+b)	definição de requisitos: definir os requisitos do protótipo de acordo com as necessidades encontradas no levantamento bibliográfico, no estudo dos trabalhos correlatos e nas reuniões com o orientador;
+c)	elicitação de requisitos: reavaliar os requisitos de acordo com os objetivos do trabalho e levantamento bibliográfico;
+d)	especificação do protótipo: elaborar, tanto para o firmware quanto para o servidor, os diagramas de componentes, de casos de uso e de classes, seguindo a especificação UML de forma que se possa ter uma visão geral da arquitetura e desenvolvimento do protótipo;
+e)	desenvolvimento do firmware: desenvolver o software embarcado que irá monitorar a porta OBD2 do carro e transmitir os dados lidos para o software servidor. O software será desenvolvido utilizando tecnologia Java e será executado em uma placa Raspberry Pi;
+f)	desenvolvimento do servidor: desenvolver o software servidor que irá receber as informações enviadas pelo firmware e persistir as mesmas. Assim como o firmware, o software do servidor também será desenvolvido utilizando tecnologia Java, de forma a facilitar a interoperabilidade através de interfaces comuns;
+g)	desenvolvimento da página WEB: desenvolver a página WEB para consultar o histórico das leituras persistidas no servidor, A página será desenvolvida utilizando HTML, CSS e JavaScript;
+h)	teste de campo: com o firmware, servidor e página WEB concluídos, verificar sua utilização real em um carro que implemente a especificação OBD2, de modo a confirmar o funcionamento do protótipo.
+As etapas serão realizadas nos períodos relacionados no Quadro 1.
+
+							Quadro 1 - Cronograma
+	+------------------------------------------------------------------------+
+	|                                  2016                                  |
+	+--------------------------------+-------+-------+-------+-------+-------+
+	|                                | jul.  | ago.  | set.  | out.  | nov.  |
+	+--------------------------------+---+---+---+---+---+---+---+---+---+---+
+	| etapas / quinzenas             | 1 | 2 | 1 | 2 | 1 | 2 | 1 | 2 | 1 | 2 |
+	+--------------------------------+---+---+---+---+---+---+---+---+---+---+
+	| levantamento bibliográfico     | X | X |   |   |   |   |   |   |   |   |
+	+--------------------------------+---+---+---+---+---+---+---+---+---+---+
+	| definição de requisitos        | X | X |   |   |   |   |   |   |   |   |
+	+--------------------------------+---+---+---+---+---+---+---+---+---+---+
+	| elicitação de requisitos       |   | X | X |   |   |   |   |   |   |   |
+	+--------------------------------+---+---+---+---+---+---+---+---+---+---+
+	| especificação do protótipo     |   | X | X | X |   |   |   |   |   |   |
+	+--------------------------------+---+---+---+---+---+---+---+---+---+---+
+	| desenvolvimento do firmware	 |   |   | X | X | X | X | X | X |   |   |
+	+--------------------------------+---+---+---+---+---+---+---+---+---+---+
+	| desenvolvimento do servidor	 |   |   |   |   | X | X | X | X |   |   |
+	+--------------------------------+---+---+---+---+---+---+---+---+---+---+
+	| desenvolvimento da página WEB  |   |   |   |   |   | X | X | X |   |   |
+	+--------------------------------+---+---+---+---+---+---+---+---+---+---+
+	| teste de campo                 |   |   |   |   |   |   |   |   | X | X |
+	+--------------------------------+---+---+---+---+---+---+---+---+---+---+
+
+
+2	REVISÃO BIBLIOGRÁFICA
+Este capítulo tem como objetivo explorar os principais assuntos necessários para a realização deste trabalho. Os assuntos foram subdivididos em quatro partes, onde a seção 2.1 expõe o padrão OBD2. A seção 2.2 apresenta a plataforma Raspberry Pi. A seção 2.3 conceitua a tecnologia Java e, por fim, na seção 2.4 são descritos dois trabalhos correlatos.
+2.1	OBD2
+A denominação OBD deriva do inglês "On Board Diagnostic" e significa "Diagnose de Bordo", este diagnóstico é realizado pelas próprias unidades eletrônicas do veículo. Segundo Manavella (2009), em 1988 o CARB (Comitê de Administração dos Recursos do Ar da Califórnia) estabeleceu uma norma não padronizada denominada OBD1 para que todos os veículos vendidos no estado da Califórnia, nos EUA, incorporassem em sua unidade de comando um sistema de diagnóstico capaz de detectar defeitos nos elementos e sistemas de controle de emissões. O OBD1 especificava que na presença de falhas relacionadas a emissões, um aviso luminoso deveria acender. Os sistemas OBD1 também são chamados de "sistemas pré-OBD2".
+Não demorou muito para o CARB concluir que o padrão OBD1 não era eficiente para determinar o elemento que provocara o defeito e, em alguns casos, veículos com falhas passavam pelos procedimentos de inspeção veicular sem que tais falhas fossem detectadas. Portanto o CARB desenvolveu um novo conjunto de especificações que resultou na reformulação do sistema de diagnóstico, surgindo assim a norma OBD2.
+A especificação OBD2 define um conector físico padronizado, o conector fêmea de 16 pinos J1962, apresentado na Figura 1. Diferente do conector OBD1, que normalmente se encontrava dentro do cofre do motor, exige-se que o conector OBD2 fique a no máximo 60cm do volante do veículo, de modo que o conector esteja sempre ao alcance do motorista.
+Figura 1 – Conector J1962
+ 
+A pinagem do conector J1962 segue a seguinte definição:
+1.	Reservado ao fabricante
+2.	Data + VPW
+3.	ECU +
+4.	Neutro da carroceria
+5.	Neutro do sinal
+6.	Rede CAN upstream
+7.	Data K ISO (serial)
+8.	Reservado
+9.	Reservado
+10.	Data – VPW
+11.	ECU –
+12.	Reservado
+13.	Reservado
+14.	Rede CAN downstream
+15.	Data L ISO (serial)
+16.	Voltagem da bateria
+A interface OBD2 possibilita o uso dos protocolos de sinais PWM, VPW, ISO 9141-2 e ISO 14230 e do protocolo de comunicação de redes CAN. Geralmente os veículos utilizam somente um dos protocolos.
+A norma SAE J1979 define o método de requisição de dados de diagnóstico e uma lista dos parâmetros padrões disponíveis na ECU – Electronic Control Unit. Os diversos parâmetros que podem ser consultados são identificados como PIDs - Parameter Identification Numbers. Não é exigido que todos os fabricantes implementem todos os PIDs e é permitido incluir PIDs proprietários não listados na norma. O sistema de requisição e consulta a dados dos PIDs permite o acesso em tempo real às informações do veículo e códigos de erros DTCs.
+2.1.1	OBD no Brasil
+Normas similares ao OBD2 foram aplicadas em alguns países, no Brasil a Resolução CONAMA nº354 determinou a introdução dos sistemas de diagnose de bordo, em duas etapas complementares e consecutivas denominadas OBDBr-1 e OBDBr-2.
+O sistema OBDBr-1 foi implantado em sua totalidade em 1º de janeiro de 2009 e definiu as características mínimas para a detecção de falhas nos seguintes componentes (quando aplicável) para a avaliação de funcionamento dos sistemas de ignição e de injeção de combustível:
+a)	sensor pressão absoluta ou fluxo de ar;
+b)	sensor posição da borboleta;
+c)	sensor de temperatura de arrefecimento;
+d)	sensor temperatura de ar;
+e)	sensor oxigênio (somente o sensor pré-catalisador);
+f)	sensor de velocidade do veículo;
+g)	sensor de posição do eixo comando de válvulas;
+h)	sensor de posição do virabrequim;
+i)	sistemas de recirculação dos gases de escape (EGR);
+j)	sensor para detecção de detonação;
+k)	válvulas injetoras;
+l)	sistema de ignição;
+m)	módulo controle eletrônico do motor;
+n)	lâmpada indicadora de mau funcionamento (LIM); e
+o)	outros componentes que o fabricante julgue relevantes para a correta avaliação do funcionamento do veículo e controle de emissões de poluentes.
+O sistema OBDBr-2 foi implantado em totalidade em 1º de janeiro de 2011 complementando as funções e características do sistema OBDBr-1, devendo detectar e registrar a existência de falhas de combustão, deterioração dos sensores de oxigênio primários e eficiência de conversão do catalisador que acarretem aumento de emissões, bem como apresentar características mínimas para a detecção de falhas nos seguintes componentes, quando aplicável:
+a)	sensores de oxigênio (pré e pós-catalisador);
+b)	válvula de controle da purga do cânister; e
+c)	outros componentes que o fabricante julgue relevantes para a correta avaliação do funcionamento do veículo e controle de emissões de poluentes.
+
+
+2.2	RASPBERRY PI
+O Raspberry Pi é um computador de baixo custo do tamanho de um cartão de crédito que pode ser conectado à um monitor ou TV, utiliza teclado e mouse padrões e é capaz de fazer qualquer coisa que se espera que um computador desktop faça. Foi desenvolvido pela The Raspberry Pi Foundation (um centro de caridade educacional localizado no Reino Unido e registrado sob o número 1129409) com o propósito de permitir que pessoas de todas as idades explorassem a computação pudessem aprender a programar e entender o funcionamento dos computadores.
+
+
+2.3	JAVA
+Java é uma tecnologia composta por uma linguagem de programação de mesmo nome e uma plataforma computacional lançada em 1995. Suas principais características são:
+a)	multiplataforma;
+b)	fortemente tipada;
+c)	suporta tipos de dados genéricos;
+d)	suporte à processos concorrentes;
+e)	orientada à objetos.
+
+
+2.4	TRABALHOS CORRELATOS
+A seguir serão apresentados dois trabalhos correlatos ao proposto. O item 2.4.1 apresenta o pyOBD, uma ferramenta de diagnóstico automotivo compatível com OBD2 desenvolvida em linguagem de programação Python. O item 2.4.2 apresenta o enviroCar, um aplicativo que permite compartilhar informações obtidas através da porta OBD2.
+
+2.4.1	PYOBD
+Trata-se de uma ferramenta open source de diagnóstico automotivo, foi projetada para se comunicar via USB com interfaces OBD2 multiprotocolo compatíveis com ELM32x. ELM é uma empresa de eletrônicos que fabrica, entre outras coisas, circuitos integrados voltados para comunicação com portas OBD2, maiores detalhes podem ser obtidos no site http://www.elmelectronics.com. 
+Voltada para desenvolvedores Python, pyOBD é composto de um único módulo, chamado obd_io, que permite um controle de alto nível sobre os dados dos sensores e gerenciamento dos códigos DTC.
+Todo o pacote foi testado para funcionar em sistemas operacionais Microsoft Windows, Debian/Ubuntu Linux e Apple Mac OSX 10.3. Seus pré-requisitos são:
+a)	uma interface ELM32x;
+b)	python 2.x ou superior;
+c)	pacote py_serial;
+d)	um veículo que implemente o padrão OBD2.
+Com o pyOBD é possível:
+a)	conectar-se ao veículo, Figura 2;
+b)	exibir resultados de testes, Figura 3;
+c)	verificar dados dos sensores em tempo real, Figura 4;
+d)	ler e limpar códigos de falhas DTC, Figura 5.
+Figura 2 – Conectando pyOBD com o veículo
+ 
+                     Fonte pyOBD (2016)
+
+Figura 3 – Exibindo resultados de testes
+ 
+                     Fonte pyOBD (2016)
+ 
+Figura 4 – Verificando dados em tempo real
+ 
+                      Fonte pyOBD (2016)
+
+Figura 5 – lendo e limpando códigos de falhas
+ 
+                      Fonte pyOBD (2016)
+
+
+
+2.4.2	ENVIROCAR
+Trata-se de uma plataforma alemã open source voltada para que cidadãos, cientistas, engenheiros de tráfego e indústrias analisem dados OBD e compartilhem suas descobertas. A porta OBD2 é acessada através de um smartphone Android e um adaptador OBD2 bluetooth. O aplicativo enviroCar fornece informações sobre o carro e o usuário pode fazer o upload dos mesmos para o servidor do enviroCar. Os dados ficam disponíveis anonimamente para que cientistas ou especialistas em tráfego acessem estes dados e os utilizem para solucionar questões ambientais e de mobilidade. A Figura 6 ilustra três telas do aplicativo enviroCar.
+
+
+
+3	REQUISITOS DO PROTÓTIPO A SER DESENVOLVIDO
+Para simplificar a legibilidade, na descrição dos requisitos será utilizado o termo “firmware” para referenciar o software executando na placa Raspberry instalada no carro e o termo “servidor” para referenciar o software executando no servidor de aplicações TomCat. Os requisitos do protótipo a ser desenvolvido são:
+a)	o firmware deverá ser inicializado automaticamente ao ligar o equipamento (requisito funcional RF);
+b)	o firmware deverá se conectar à porta OBD2 através de uma interface OBD2 (RF);
+c)	o firmware deverá ler os dados da porta OBD2 e armazená-los localmente (RF);
+d)	o firmware deve tentar estabelecer uma conexão com o servidor a cada 5 minutos (RF);
+e)	o firmware deverá, ao conectar com o servidor, enviar o número do chassi do carro e os dados OBD armazenados localmente desde a última conexão bem sucedida (RF);
+f)	o servidor deverá responder à requisições HTTP GET e POST (RF);
+g)	o servidor deverá persistir os dados recebidos do firmware (RF);
+h)	o servidor deverá persistir os dados em arquivos XML (requisito não funcional RNF);
+i)	o servidor deverá dispor uma página WEB para consultar os dados OBD a partir do número do chassi do carro (RF).
+j)	a página WEB deve ter interface responsiva de modo que possa ser visualizada em smartphones (RNF).
+
+
+4	CONSIDERAÇÕES FINAIS
+A padronização do OBD2 nos veículos representa um expressivo avanço tecnológico, possibilitando ao usuário do veículo, através da análise dos dados, prevenir a ocorrência de avarias aos sistemas do veículo, contribuindo para a melhoria da qualidade ambiental, resguardando os interesses da sociedade em geral.
+
+
+REFERÊNCIAS BIBLIOGRÁFICAS
+MANAVELLA, Humberto J. Diagnóstico Automotivo Avançado. 3. ed. São Paulo: HM Autotrônica, 2009. p 121-127. Disponível em: < http://www.hmautotron.eng.br/zip/cap19-hm004web.pdf>. Acesso em: 2 abril 2016.
+RESOLUÇÃO CONAMA Nº 354, de 13 de dezembro de 2004. DOU nº 239, de 14 de dezembro de 2004, Seção 1, p. 62-63. Disponível em <http://www.mma.gov.br/port/conama/legislacao/CONAMA_RES_CONS_2004_354.pdf>. Acesso em: 2 abril 2016.
+ZURAWSKI, Richard. Automative Embedded Systems Handbook. Florida: CRC Press, 2009. cap. 1.2.6.
