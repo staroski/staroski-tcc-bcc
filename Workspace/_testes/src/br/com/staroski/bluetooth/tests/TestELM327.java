@@ -103,18 +103,26 @@ public class TestELM327 {
 			Object conn = Connector.open(url);
 			OutputStream output = ((OutputConnection) conn).openOutputStream();
 			InputStream input = ((InputConnection) conn).openInputStream();
-			byte[] buffer = "010D\r".getBytes();
+			byte[] buffer = "0100\r".getBytes();
 			System.out.println("enviando para ELM327:");
-			System.out.println("01 0D");
+			System.out.println(new String(buffer));
 
 			output.write(buffer);
 			output.flush();
 
 			System.out.println("recebeu do ELM327:");
-			for (int n = -1; (n = input.read()) != -1;) {
-				System.out.print(new String(new byte[] { (byte) n }));
+			while (true) {
+				byte[] array = new byte[1024];
+				int read = input.read(array);
+				if (read < 0) {
+					continue;
+				}
+				String[] bytes = new String(array, 0, read).split("\\s|\\n|\\r|\\>");
+				for (String bits : bytes) {
+					System.out.print(" " + bits);
+				}
+				System.out.println();
 			}
-			System.out.println();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
