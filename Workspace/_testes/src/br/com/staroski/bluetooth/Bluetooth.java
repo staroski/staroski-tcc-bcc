@@ -1,10 +1,10 @@
 package br.com.staroski.bluetooth;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import javax.bluetooth.BluetoothStateException;
 import javax.bluetooth.DeviceClass;
 import javax.bluetooth.DiscoveryAgent;
 import javax.bluetooth.LocalDevice;
@@ -18,7 +18,7 @@ public final class Bluetooth {
 	static {
 		try {
 			get = new Bluetooth();
-		} catch (BluetoothStateException e) {
+		} catch (IOException e) {
 			e.printStackTrace();
 			throw new ExceptionInInitializerError(e);
 		}
@@ -27,16 +27,16 @@ public final class Bluetooth {
 	private final DiscoveryAgent discoveryAgent;
 	private List<ServiceRecord> services;
 
-	private Bluetooth() throws BluetoothStateException {
+	private Bluetooth() throws IOException {
 		discoveryAgent = LocalDevice.getLocalDevice().getDiscoveryAgent();
 	}
 
-	public RemoteDevice device(final DeviceFilter... filters) throws BluetoothStateException {
+	public RemoteDevice device(final DeviceFilter... filters) throws IOException {
 		List<RemoteDevice> devices = devices(filters);
 		return devices.isEmpty() ? null : devices.get(0);
 	}
 
-	public List<RemoteDevice> devices(final DeviceFilter... filters) throws BluetoothStateException {
+	public List<RemoteDevice> devices(final DeviceFilter... filters) throws IOException {
 		try {
 			final List<RemoteDevice> devicesDiscovered = new ArrayList<>();
 			final Object LOCK = new Object();
@@ -68,28 +68,29 @@ public final class Bluetooth {
 		}
 	}
 
-	public ServiceRecord service(ServiceCriteria criteria) throws BluetoothStateException {
+	public ServiceRecord service(ServiceCriteria criteria) throws IOException {
 		services = services(criteria);
 		return services.isEmpty() ? null : services.get(0);
 	}
 
-	public List<ServiceRecord> services(ServiceCriteria criteria) throws BluetoothStateException {
+	public List<ServiceRecord> services(ServiceCriteria criteria) throws IOException {
 		try {
 			final List<ServiceRecord> services = new ArrayList<>();
 			final Object LOCK = new Object();
 			synchronized (LOCK) {
-				int transactionID = discoveryAgent.searchServices(criteria.attributes(), criteria.uuids(), criteria.device(), new DiscoveryAdapter() {
+				int transactionID = discoveryAgent.searchServices(criteria.attributes(), criteria.uuids(),
+						criteria.device(), new DiscoveryAdapter() {
 
-					public void servicesDiscovered(int transID, ServiceRecord[] servRecord) {
-						services.addAll(Arrays.asList(servRecord));
-					}
+							public void servicesDiscovered(int transID, ServiceRecord[] servRecord) {
+								services.addAll(Arrays.asList(servRecord));
+							}
 
-					public void serviceSearchCompleted(int transID, int respCode) {
-						synchronized (LOCK) {
-							LOCK.notifyAll();
-						}
-					}
-				});
+							public void serviceSearchCompleted(int transID, int respCode) {
+								synchronized (LOCK) {
+									LOCK.notifyAll();
+								}
+							}
+						});
 				if (transactionID > 0) {
 					LOCK.wait();
 				}

@@ -26,10 +26,10 @@ public class TestELM327 {
 		}
 	};
 
-	static final int ATTRIBUTE = 0x0100;
+	private static final int ATTRIBUTE_SERVICE_NAME = 0x0100;
 
-	// 0001101-0000-1000-8000-00805F9B34FB
-	static final UUID ELM_327_UUID = new UUID("000110100001000800000805F9B34FB", false);
+	// 00001101-0000-1000-8000-00805F9B34FB
+	static final UUID ELM_327_UUID = new UUID("0000110100001000800000805F9B34FB", false);
 
 	public static void main(String[] args) throws IOException, InterruptedException {
 		try {
@@ -51,14 +51,14 @@ public class TestELM327 {
 
 	private void connectTo(RemoteDevice device) throws IOException {
 		System.out.println("buscando servico...");
-		ServiceCriteria criteria = ServiceCriteria.create(ATTRIBUTE, ELM_327_UUID, device);
+		ServiceCriteria criteria = ServiceCriteria.create(ATTRIBUTE_SERVICE_NAME, ELM_327_UUID, device);
 		ServiceRecord service = Bluetooth.get.service(criteria);
 		String url = service.getConnectionURL(ServiceRecord.NOAUTHENTICATE_NOENCRYPT, false);
 		if (url == null) {
 			return;
 		}
 		System.out.println("URL:  " + url);
-		System.out.println("Name: " + service.getAttributeValue(ATTRIBUTE));
+		System.out.println("Name: " + service.getAttributeValue(ATTRIBUTE_SERVICE_NAME));
 		readObdData(url);
 	}
 
