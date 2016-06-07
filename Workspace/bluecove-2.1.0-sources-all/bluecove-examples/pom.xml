@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<project
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns="http://maven.apache.org/POM/4.0.0">
+    <!-- @version $Revision: 2667 $ ($Author: skarzhevskyy $) $Date: 2008-12-25 15:26:28 -0500 (Thu, 25 Dec 2008) $ -->
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>net.sf.bluecove</groupId>
+        <artifactId>bluecove-parent</artifactId>
+        <version>2.1.0</version><!--bluecove-version-->
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+
+    <groupId>net.sf.bluecove</groupId>
+    <artifactId>bluecove-examples</artifactId>
+    <name>bluecove-examples</name>
+    <packaging>pom</packaging>
+
+    <description>BlueCove examples demos and Web Start</description>
+
+    <distributionManagement>
+        <!-- no-deployment -->
+        <repository>
+            <id>pyx4j.com-no-deployment</id>
+            <url>file:///${basedir}/target/tmp</url>
+        </repository>
+    </distributionManagement>
+
+    <modules>
+        <module>dependency-fix</module>
+        <module>bluecove-tester-base</module>
+        <module>tck-agent</module>
+        <module>bluecove-tester</module>
+        <module>bluecove-tester-obex</module>
+        <!-- only buildByMicroEmulatorTeam or build server edit settings.xml to enable -->
+        <!--module>bluecove-webstart</module-->
+        <module>bluecove-microemu-starter</module>
+        <module>obex-install</module>
+        <module>obex-server</module>
+    </modules>
+
+    <developers>
+        <developer>
+            <name>Vlad Skarzhevskyy</name>
+            <id>skarzhevskyy</id>
+            <email>skarzhevskyy@gmail.com</email>
+            <organization>pyx4me.com</organization>
+            <organizationUrl>http://www.pyx4me.com</organizationUrl>
+            <roles>
+                <role>developer</role>
+                <role>Build master</role>
+            </roles>
+            <timezone>-5</timezone>
+        </developer>
+    </developers>
+
+    <contributors>
+        <!--
+        <contributor>
+            <name></name>
+            <email></email>
+            <organization></organization>
+            <organizationUrl></organizationUrl>
+            <roles>
+                <role></role>
+            </roles>
+        </contributor>
+        -->
+    </contributors>
+
+    <build>
+        <defaultGoal>install</defaultGoal>
+
+        <plugins>
+
+            <plugin>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>1.4</source>
+                    <target>1.4</target>
+                </configuration>
+            </plugin>
+
+        </plugins>
+
+    </build>
+
+    <profiles>
+        <profile>
+            <id>buildByMicroEmulatorTeam</id>
+            <modules>
+                <module>bluecove-webstart</module>
+            </modules>
+        </profile>
+
+        <profile>
+            <id>build-snapshot</id>
+            <modules>
+                <module>bluecove-webstart</module>
+            </modules>
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-antrun-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>site-fix-jnlp</id>
+                                <phase>site</phase>
+                                <goals>
+                                    <goal>run</goal>
+                                </goals>
+                                <configuration>
+                                    <tasks>
+                                        <replace dir="${project.build.directory}/site">
+                                            <include name="*.jnlp"></include>
+                                            <replacetoken><![CDATA[http://www.bluecove.org/bluecove-examples]]></replacetoken>
+                                            <replacevalue><![CDATA[http://snapshot.bluecove.org/bluecove-examples]]></replacevalue>
+                                        </replace>
+                                    </tasks>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+
+</project>

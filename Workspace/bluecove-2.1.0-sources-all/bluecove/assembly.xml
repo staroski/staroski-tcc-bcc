@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<assembly>
+    <!-- @version $Revision: 2412 $ ($Author: skarzhevskyy $) $Date: 2008-10-09 12:51:19 -0400 (Thu, 09 Oct 2008) $ -->
+    <id>jar-filtered</id>
+    <formats>
+        <format>jar</format>
+    </formats>
+    <includeBaseDirectory>false</includeBaseDirectory>
+    <fileSets>
+        <fileSet>
+            <directory>${basedir}/target/classes</directory>
+            <useDefaultExcludes>true</useDefaultExcludes>
+            <outputDirectory></outputDirectory>
+            <excludes>
+                <exclude>**/*.log</exclude>
+                <exclude>**/.*</exclude>
+                <exclude>**/Thumbs.db</exclude>
+                <exclude>com/ibm/oti/connection/CreateConnection.class</exclude>
+                <exclude>com/ibm/oti/vm/**</exclude>
+                <exclude>com/sun/cdc/io/ConnectionBaseInterface.class</exclude>
+                <exclude>com/intel/bluetooth/BluetoothStackBlueZ.class</exclude>
+            </excludes>
+        </fileSet>
+    </fileSets>
+    <files>
+        <file>
+            <source>${basedir}/../build.version</source>
+            <destName>${artifactId}-${buildLabel}.version</destName>
+        </file>
+   </files>
+</assembly>
