@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<web-app>
+<!-- @version $Revision: 285 $ ($Author: skarzhevskyy $) $Date: 2007-05-20 01:44:55 -0400 (Sun, 20 May 2007) $ -->
+    <!-- Dummy war for packaging -->
+</web-app>

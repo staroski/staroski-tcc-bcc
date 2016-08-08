@@ -1,0 +1,40 @@
+@version $Revision: 2512 $ ($Author: skarzhevskyy $) $Date: 2008-12-06 10:20:05 -0500 (Sat, 06 Dec 2008) $
+
+The list of functionality that can be implemented or investigation should be done if this is possible.
+
+* Add DiscoveryAgent.retrieveDevices to BluetoothStack interface and implement for OS X
+
+* Implement RemoteDevice encrypt, authenticate, authorize, isAuthorized
+
+* Properly implement ServiceRecord.populateRecord by doing service search if necessary
+
+* Run native JUnit tests on WinCE
+
+* Fix RemoteDevice.getFriendlyName on WinCE
+
+* Document what is not implmented on WinCE
+
+* WIDCOMM - find a way to set DeviceServiceClasses
+
+* BlueZ Linux version
+    D-Bus version in bluecove-bluez, Need to implement Service Registration
+
+* OS X support.
+    Security - ?
+    ServiceRecord.setDeviceServiceClasses - DONE
+
+* Bluetooth TOSHIBA Stack (C++)
+
+* Complete OBEX implementation (Java)  DONE 95%
+
+* Security (authenticate and encrypt). (C++/Java)  DONE 70%
+
+* Connection timeouts. (C++/Java)
+
+* bluecove-jmx monitoring of connections and other stats using JMX - separate module.
+  Interfaces should be created in Main bluecove
+
+
+* bluecove-emu JSR-82 emulator - separate module.
+  Emulator can use http to connect to server this will enable web start demonstrations may be even applets (see MicroEmulator).
+  

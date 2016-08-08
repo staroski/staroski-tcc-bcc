@@ -1,0 +1,116 @@
+~~ @version $Revision: 2517 $ ($Author: skarzhevskyy $) $Date: 2008-12-06 14:06:35 -0500 (Sat, 06 Dec 2008) $
+~~ See this file format http://maven.apache.org/guides/mini/guide-apt-format.html
+
+                                    ------------------
+                                    BlueCove JSR-82 project
+                                    ------------------
+
+BlueCove
+
+    BlueCove is a Java library for Bluetooth (JSR-82 implementation) that currently interfaces with the Mac OS X, WIDCOMM, BlueSoleil and Microsoft Bluetooth stack found in Windows XP SP2 or Windows Vista
+    and WIDCOMM and Microsoft Bluetooth stack on Windows Mobile.
+
+    {{{./bluecove-gpl}BlueCove-GPL}} is additional GPL licensed module to support BlueCove runtime on Linux BlueZ.
+
+    {{{./bluecove-emu}BlueCove JSR-82 Emulator module}} is additional module for BlueCove to simulate Bluetooth stack.
+
+    BlueCove can be used in Java Standard Edition (J2SE) 1.1 or newer.
+
+    BlueCove has been tested on following JVM:
+
+    * {{{http://harmony.apache.org/}Apache Harmony - Open Source Java SE}} 5.0M5 on Win XP 32 bit
+
+    * SUN Java 1.1.8 on Windows XP/X86
+
+    * SUN Java 2 Platform Standard Edition 1.4.2 on Windows XP/X86
+
+    * SUN Java 2 Platform Standard Edition 5.0 on Windows XP/X86
+
+    * SUN Java 2 Platform Standard Edition 6.0 on Windows XP/X86 and Windows Vista
+
+    * SUN Sun Java Toolkit for CDC 1.0 on Windows XP/X86 (Need {{{http://snapshot.bluecove.org/special-build/}custom made}} dlls with __cdecl exports)
+
+    * WebSphere Everyplace Micro Environment 5.7.2, CDC 1.0/Foundation 1.0/Personal Profile 1.0 on Windows XP/X86
+
+    * WebSphere Everyplace Micro Environment 6.1.1, CDC 1.0/Foundation 1.0/Personal Profile 1.0 on Windows XP and Linux/X86
+
+    * WebSphere Everyplace Micro Environment 5.7.2, CLDC 1.1, MIDP 2.0 on Windows XP/X86
+
+    * WebSphere Everyplace Micro Environment 6.1.1, CLDC 1.1, MIDP 2.0 on Linux/X86
+
+    * {{{http://www2s.biglobe.ne.jp/~dat/java/project/jvm/index_en.html}Mysaifu JVM}} - An open-source (GPL v.2 license) Java VM on Windows Mobile 2003 Second Edition.
+
+    * Java for Mac OS X 10.4 and 10.5, Release 5 on PowerPC and Intel processors
+
+    * SUN Java 2 SE 5.0 on Linux Fedora 6 i386 BlueZ 3.7, Fedora 7 i386 BlueZ 3.9, (Also tested on Ubuntu and OpenSUSE, i386 and 64-bit)
+
+    * GNU libgcj 4.1.2 on Fedora 7 i386 BlueZ 3.9
+
+    * {{{http://www.sablevm.org/}SableVM}} on Debian 4.0r3 ARM on {{{http://www.nslu2-linux.org/}Linksys NSLU2}}
+
+    []
+
+
+    BlueCove provides JSR-82 Java interface for following Bluetooth Profiles:
+
+    * SDAP - Service Discovery Application Profile
+
+    * RFCOMM - Serial Cable Emulation Protocol
+
+    * L2CAP - Logical Link Control and Adaptation Protocol
+
+    * OBEX - Generic Object Exchange Profile (GOEP) profile on top of RFCOMM and TCP
+
+    []
+
+
+* BlueCove Documentation
+
+    {{{http://code.google.com/p/bluecove/wiki/Documentation}BlueCove Installation and configuration instructions}}
+
+    API-Documentation for BlueCove {{{bluecove/apidocs/index.html}Java docs}}. For application it is not recommended to use any classes or API other than defined in JSR-82.
+
+    For more limitations on different stacks see {{{http://code.google.com/p/bluecove/wiki/stacks}BlueCove supported stacks}}. 
+
+    Main project website {{{http://bluecove.googlecode.com}http://bluecove.googlecode.com}}
+
+[images/stack-diagram.png] JSR-82 and Bluetooth stack diagram
+
+* BlueCove Tests
+
+    You can help us to make BlueCove better or understand how we are testing it look {{{bluecove-examples/bluecove-tester}here}}.
+
+    JSR 82 TCK test results {{{tck/index.html}here}}.
+
+* BlueCove examples
+
+    * BlueCove OBEX Push J2ME application installer {{{bluecove-examples/obex-install}here}}.
+
+    * MIDlet application {{{http://www.mgmaps.com/}Mobile GMaps}} created by Cristian Streng will connect to GPS receiver over bluetooth. <<<{{{bluecove-examples/bluecove-webstart/open/wap.mgmaps.com/mgmaps.jnlp}\u00bbStart now}}>>>.
+
+ BlueCove provides an implementation of the JSR 82. Applications should use {{{bluecove/apidocs/index.html}API defined in JSR-82}}.
+You may find many examples on the {{{http://www.google.com/search?q=JSR+82+tutorial}internet}} describing the usage of JSR 82.
+
+ We created short (50 lines of code each) examples for you to get started with JSR-82 application development:
+
+    * {{{bluecove/apidocs/overview-summary.html#DeviceDiscovery}Remote Device Discovery}}
+
+    * {{{bluecove/apidocs/overview-summary.html#ServicesSearch}Services Search}}
+
+    * {{{bluecove/apidocs/overview-summary.html#OBEXPutClient}OBEX Put Client}}
+
+    * {{{bluecove/apidocs/overview-summary.html#OBEXPutServer}OBEX Put Server}}
+
+    []
+
+* Legal
+
+  BlueCove is licensed under {{{http://www.apache.org/licenses/LICENSE-2.0}Apache License, Version 2.0}}.
+The license allows linking and distributing commercial software with BlueCove.
+
+  BlueCove BlueZ module is licensed under {{{http://www.gnu.org/licenses/gpl.html}GNU General Public License}}.
+
+  For various technical and legal reasons, BlueCove library is not legally referred to as an implementation of {{{http://jcp.org/en/jsr/detail?id=82}JSR-82}}.
+In order to legally refer to a piece of software as a JSR, it must pass the {{{https://opensource.motorola.com/sf/sfmain/do/viewProject/projects.jsr82}JSR-82 TCK}}
+or {{{http://java.sun.com/scholarship/}Sun TCK}}. Current BlueCove JSR-82 TCK compatibility status can be found {{{tck/index.html}here}}.
+Mainly there are some missing APIs in native stacks to implement full TCK compatibility.

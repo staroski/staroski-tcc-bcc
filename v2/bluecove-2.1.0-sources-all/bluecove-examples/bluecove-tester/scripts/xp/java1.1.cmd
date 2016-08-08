@@ -1,0 +1,24 @@
+@echo off
+rem @version $Revision: 2549 $ ($Author: skarzhevskyy $)  $Date: 2008-12-10 15:38:46 -0500 (Wed, 10 Dec 2008) $
+SETLOCAL
+call "%~dp0..\environment.cmd"
+if errorlevel 1 goto endmark
+
+set JAVA_HOME=%ALL_JAVA_BASE%\jdk1.1.8
+@if exist "%JAVA_HOME%\bin" goto 3p_found
+@echo Error: JAVA 1.1 not found in folder [%JAVA_HOME%]
+pause
+goto :endmark
+:3p_found
+
+set JVM_ARGS=
+set JVM_ARGS=%JVM_ARGS% -Dbluecove.connect.timeout=10000
+
+call "%~dp0scripts\set-stack.cmd"
+
+"%JAVA_HOME%\bin\java" %JVM_ARGS% -Djava.compiler=NONE -classpath "%JAVA_HOME%\lib\classes.zip;%BLUECOVE_TESTER_APP_JAR%" net.sf.bluecove.awt.Main
+
+pause
+
+:endmark
+ENDLOCAL

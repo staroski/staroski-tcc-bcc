@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<project
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns="http://maven.apache.org/POM/4.0.0">
+    <!-- @version $Revision: 2670 $ ($Author: skarzhevskyy $) $Date: 2008-12-25 15:58:11 -0500 (Thu, 25 Dec 2008) $ -->
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>net.sf.bluecove</groupId>
+        <artifactId>bluecove-examples</artifactId>
+        <version>2.1.0</version><!--bluecove-version-->
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+
+    <artifactId>dependency-fix</artifactId>
+    <name>dependency-fix</name>
+    <packaging>jar</packaging>
+
+    <description>Module used to load J2ME dependency</description>
+
+    <distributionManagement>
+        <site>
+            <id>no-deployment</id>
+            <url>file:///${basedir}/target/tmp</url>
+        </site>
+        <repository>
+            <id>no-deployment</id>
+            <url>file:///${basedir}/target/tmp</url>
+        </repository>
+        <snapshotRepository>
+            <id>no-deployment</id>
+            <url>file:///${basedir}/target/tmp</url>
+        </snapshotRepository>
+    </distributionManagement>
+    
+    <dependencies>
+
+           <dependency>
+               <groupId>org.microemu</groupId>
+               <artifactId>cldcapi11</artifactId>
+               <version>${me2Version}</version>
+           </dependency>
+           <dependency>
+               <groupId>org.microemu</groupId>
+               <artifactId>midpapi20</artifactId>
+               <version>${me2Version}</version>
+           </dependency>
+
+    </dependencies>
+
+</project>

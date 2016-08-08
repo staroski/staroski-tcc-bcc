@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<assembly>
+    <!-- @version $Revision: 2408 $ ($Author: skarzhevskyy $) $Date: 2008-10-09 11:33:22 -0400 (Thu, 09 Oct 2008) $ -->
+    <id>sources</id>
+    <formats>
+        <format>tar.gz</format>
+    </formats>
+    <includeBaseDirectory>false</includeBaseDirectory>
+    <fileSets>
+        <fileSet>
+            <directory>${basedir}/</directory>
+            <outputDirectory>${artifactId}-${version}</outputDirectory>
+            <useDefaultExcludes>true</useDefaultExcludes>
+            <excludes>
+                <exclude>target/**</exclude>
+                <exclude>build/**</exclude>
+                <exclude>src/main/resources/**</exclude>
+                <exclude>src/main/c/intelbth/*build/**</exclude>
+                <exclude>src/main/c/intelbth/Win32/**</exclude>
+                <exclude>src/main/c/intelbth/Pocket PC 2003 (ARMV4)/**</exclude>
+                <exclude>src/main/c/intelbth/com_*.h</exclude>
+                <exclude>.settings/**</exclude>
+                <exclude>**/Thumbs.db</exclude>
+                <exclude>**/*.log</exclude>
+                <exclude>**/*.ncb</exclude>
+                <exclude>**/*.opt</exclude>
+                <exclude>**/*.plg</exclude>
+                <exclude>**/*.user</exclude>
+                <exclude>**/*.suar</exclude>
+                <exclude>**/*.aps</exclude>
+                <exclude>**/*.suo</exclude>
+                <exclude>**/.*</exclude>
+                <exclude>vc80.*</exclude>
+            </excludes>
+        </fileSet>
+    </fileSets>
+</assembly>
