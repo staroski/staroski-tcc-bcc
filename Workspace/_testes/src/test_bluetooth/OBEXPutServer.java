@@ -2,9 +2,14 @@ package test_bluetooth;
 import java.io.IOException;
 import java.io.InputStream;
 
-import javax.bluetooth.*;
+import javax.bluetooth.DiscoveryAgent;
+import javax.bluetooth.LocalDevice;
 import javax.microedition.io.Connector;
-import javax.obex.*;
+import javax.obex.HeaderSet;
+import javax.obex.Operation;
+import javax.obex.ResponseCodes;
+import javax.obex.ServerRequestHandler;
+import javax.obex.SessionNotifier;
 
 public class OBEXPutServer {
 

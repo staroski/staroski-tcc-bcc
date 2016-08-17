@@ -1,8 +1,12 @@
 package test_bluetooth;
 import java.io.IOException;
 import java.io.OutputStream;
+
 import javax.microedition.io.Connector;
-import javax.obex.*;
+import javax.obex.ClientSession;
+import javax.obex.HeaderSet;
+import javax.obex.Operation;
+import javax.obex.ResponseCodes;
 
 public class ObexPutClient {
 
