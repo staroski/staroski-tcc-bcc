@@ -1,0 +1,72 @@
+# Makefile for creating the libAvetanaBT.so library, which is used by the Java
+# code via the JNI.
+# 2005 The Mobilab Research Group
+# Federico II University of Naples - Italy
+# Written by Cristiano di Flora <diflora@unina.it>
+# http://www.mobilab.unina.it
+#
+# Based on a previous work by the Appliance Studio
+# Copyright (c) 2002 The Appliance Studio Limited.
+# Written by Edward Kay <ed.kay@appliancestudio.com>
+# http://www.appliancestudio.com
+#
+# This program is free software; you can redistribute it and/or modify it under
+# the terms of the GNU General Public License version 2 as published by the
+# Free Software Foundation.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT OF THIRD PARTY RIGHTS.
+#
+# IN NO EVENT SHALL THE COPYRIGHT HOLDER(S) AND AUTHOR(S) BE LIABLE FOR ANY
+# CLAIM, OR ANY SPECIAL INDIRECT OR CONSEQUENTIAL DAMAGES, OR ANY DAMAGES
+# WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION
+# OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN
+# CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+#
+# ALL LIABILITY, INCLUDING LIABILITY FOR INFRINGEMENT OF ANY PATENTS,
+# COPYRIGHTS, TRADEMARKS OR OTHER RIGHTS, RELATING TO USE OF THIS SOFTWARE IS
+# DISCLAIMED.
+#
+# $Id: Makefile.in,v 1.4 2005/06/30 14:59:08 markinho Exp $
+
+# C Compiler to use
+CC             = g++
+
+# Location of the JDK, since we require files in the java/include directory.
+# JDK_HOME       = /home/cris/tmp/j2sdk1.4.2_07
+JDK_HOME=@JDK_HOME@
+
+# Platform. This is the name of the folder in the java/include directory.
+# JDK_PLATFORM= linux
+JDK_PLATFORM   = @JDK_PLATFORM@
+
+# Flags for the C compiler. These add the JDK header files to the include path.
+CFLAGS         = -I $(JDK_HOME)/include -I $(JDK_HOME)/include/$(JDK_PLATFORM)
+
+# Linker flags. Ensure you have installed the BlueZ libraries (bluez-libs).
+#LDFLAGS        = -shared @LIB_BLUETOOTH@
+
+# Directory of the jbluez binaries; namely where jbluez.jar is and where
+# libjbluez.so should be installed to.
+# BIN_DIR        = ../../bin
+BIN_DIR=@BIN_DIR@
+############
+
+# Default: make the library.
+all: libavetanaBT.so
+
+# Remove the header file (this should always be regenerated before
+# compiling the library to ensure its up-to-date.
+clean:
+	@if [ -e de_avetana_bluetooth_stack_BlueZ.h ]; then \
+		rm -f de_avetana_bluetooth_stack_BlueZ.h; \
+	fi
+
+# JNI generated header file - de_avetana_bluetooth_stack_BlueZ.h
+de_avetana_bluetooth_stack_BlueZ.h: clean $(BIN_DIR)/avetanaBT.jar
+	javah -jni -classpath $(BIN_DIR)/avetanaBT.jar de.avetana.bluetooth.stack.BlueZ
+
+# Native language (C) library - libavetanaBT.so
+libavetanaBT.so: BlueZ.cpp de_avetana_bluetooth_stack_BlueZ.h 
+	$(CC) -shared -lbluetooth $(CFLAGS) BlueZ.cpp -o $(BIN_DIR)/libavetanaBT.so $(LDFLAGS)

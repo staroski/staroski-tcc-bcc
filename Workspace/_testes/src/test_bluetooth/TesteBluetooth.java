@@ -111,26 +111,27 @@ public class TesteBluetooth {
 			final List<ServiceRecord> services = new ArrayList<>();
 			final Object LOCK = new Object();
 			synchronized (LOCK) {
-				int transactionID = discoveryAgent.searchServices(new int[] { SERVICE_NAME }, new UUID[] { ELM_327_UUID }, device, new DiscoveryListener() {
+				int transactionID = discoveryAgent.searchServices(new int[] { SERVICE_NAME },
+						new UUID[] { ELM_327_UUID }, device, new DiscoveryListener() {
 
-					@Override
-					public void deviceDiscovered(RemoteDevice btDevice, DeviceClass cod) {
-					}
+							@Override
+							public void deviceDiscovered(RemoteDevice btDevice, DeviceClass cod) {
+							}
 
-					@Override
-					public void inquiryCompleted(int discType) {
-					}
+							@Override
+							public void inquiryCompleted(int discType) {
+							}
 
-					public void servicesDiscovered(int transID, ServiceRecord[] servRecord) {
-						services.addAll(Arrays.asList(servRecord));
-					}
+							public void servicesDiscovered(int transID, ServiceRecord[] servRecord) {
+								services.addAll(Arrays.asList(servRecord));
+							}
 
-					public void serviceSearchCompleted(int transID, int respCode) {
-						synchronized (LOCK) {
-							LOCK.notifyAll();
-						}
-					}
-				});
+							public void serviceSearchCompleted(int transID, int respCode) {
+								synchronized (LOCK) {
+									LOCK.notifyAll();
+								}
+							}
+						});
 				if (transactionID > 0) {
 					LOCK.wait();
 				}
@@ -143,23 +144,26 @@ public class TesteBluetooth {
 
 	/**
 	 * 
-	 * Set the Protocol Let’s set the protocol to “AUTO”, which means that you want the interface to automatically detect the protocol when you send the first OBD request. To do this, enter the “AT SP
-	 * 0” command:
+	 * Set the Protocol Letï¿½s set the protocol to ï¿½AUTOï¿½, which means that you
+	 * want the interface to automatically detect the protocol when you send the
+	 * first OBD request. To do this, enter the ï¿½AT SP 0ï¿½ command:
 	 * 
 	 * <pre>
 	>AT SP 0
 	OK
 	 * </pre>
 	 * 
-	 * To verify the protocol, enter the AT DP command (“Display Protocol”):
+	 * To verify the protocol, enter the AT DP command (ï¿½Display Protocolï¿½):
 	 * 
 	 * <pre>
 	>AT DP
 	AUTO
 	 * </pre>
 	 * 
-	 * Get RPM Now it is time to send our first OBD request. Real-time parameters are accessed through Mode 1 (also called “Service $01”), and each parameter has a Parameter ID, or PID for short.
-	 * RPM’s PID is 0C, so we must tell the interface to send “010C”:
+	 * Get RPM Now it is time to send our first OBD request. Real-time
+	 * parameters are accessed through Mode 1 (also called ï¿½Service $01ï¿½), and
+	 * each parameter has a Parameter ID, or PID for short. RPMï¿½s PID is 0C, so
+	 * we must tell the interface to send ï¿½010Cï¿½:
 	 * 
 	 * <pre>
 	>010C
@@ -167,8 +171,10 @@ public class TesteBluetooth {
 	41 0C 0F A0
 	 * </pre>
 	 * 
-	 * The reply contains two bytes that identify it as a response to Mode 1, PID 0C request (41 0C), and two more bytes with the encoded RPM value (1/4 RPM per bit). To get the actual RPM value,
-	 * convert the hex number to decimal, and divide it by four:
+	 * The reply contains two bytes that identify it as a response to Mode 1,
+	 * PID 0C request (41 0C), and two more bytes with the encoded RPM value
+	 * (1/4 RPM per bit). To get the actual RPM value, convert the hex number to
+	 * decimal, and divide it by four:
 	 * 
 	 * <pre>
 	0x0FA0 = 4000
@@ -186,8 +192,13 @@ public class TesteBluetooth {
 			byte[] buffer = "010D\r".getBytes();
 			output.write(buffer);
 			output.flush();
+			int bytes = 0;
 			for (int n = -1; (n = input.read()) != -1;) {
+				bytes++;
 				System.out.print(new String(new byte[] { (byte) n }));
+				if (bytes == 11) {
+					break;
+				}
 			}
 			System.out.println();
 		} catch (Exception e) {
@@ -200,7 +211,7 @@ public class TesteBluetooth {
 			String address = device.getBluetoothAddress();
 			String name = device.getFriendlyName(false);
 			System.out.println("nome:     " + name);
-			System.out.println("endereço: " + address);
+			System.out.println("endereco: " + address);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

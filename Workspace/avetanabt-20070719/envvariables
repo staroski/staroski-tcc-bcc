@@ -1,0 +1,25 @@
+#!/bin/bash
+# This file sets all the environment variables needed to build the pjbluez library
+# You should adapt it to your own environment settings
+
+
+if [ "$JDK_HOME" = "" ] ; then
+	#sets the root path of the installed JDK
+	#
+	#Put here the full path to the JDK home directory
+	export JDK_HOME="/usr/lib/jdk1.5.0_12"
+	echo JDK_HOME variable not set! Using default JDK_HOME = $JDK_HOME
+fi
+
+if [ "$JDK_PLATFORM" = "" ] ; then
+	#Put here the name of the installed Java platform
+	export JDK_PLATFORM="linux"
+	echo JDK_PLATFORM variable not set! Using default JDK_PLATFOM = $JDK_PLATFORM
+fi
+
+if [ "$BIN_DIR" = "" ] ; then
+	#Put here the path of the directory to which you want the
+	#installation process to put the produced binaries.
+	export BIN_DIR="/home/gmelin/avetanabt/binaries"
+	echo BIN_DIR variable not set! Using default BIN_DIR = $BIN_DIR	
+fi
