@@ -1,0 +1,89 @@
+# Makefile for creating the RSSI-enabled Avetana Bluetooth JSR-82 Implementation.
+# This is the Main Makefile of the overall distribution.
+# 2005 The Mobilab Research Group
+# Federico II University of Naples - Italy
+# Written by Cristiano di Flora <cristiano.diflora@tin.it>
+# http://www.mobilab.unina.it
+#
+# Based on the previous work by the AvetanaBT Project
+#
+# This program is free software; you can redistribute it and/or modify it under
+# the terms of the GNU General Public License version 2 as published by the
+# Free Software Foundation.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT OF THIRD PARTY RIGHTS.
+#
+# IN NO EVENT SHALL THE COPYRIGHT HOLDER(S) AND AUTHOR(S) BE LIABLE FOR ANY
+# CLAIM, OR ANY SPECIAL INDIRECT OR CONSEQUENTIAL DAMAGES, OR ANY DAMAGES
+# WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION
+# OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN
+# CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+#
+# ALL LIABILITY, INCLUDING LIABILITY FOR INFRINGEMENT OF ANY PATENTS,
+# COPYRIGHTS, TRADEMARKS OR OTHER RIGHTS, RELATING TO USE OF THIS SOFTWARE IS
+# DISCLAIMED.
+#
+# $Id: Makefile.in,v 1.2 2005/06/30 13:50:23 markinho Exp $
+
+BIN_DIR		= @BIN_DIR@
+
+# Directory where the Javadoc documentation should be installed.
+JAVADOC_DIR     = javadoc
+
+# HTML Code to add to bottom of Javadoc pages.
+JAVADOC_FOOTER  = "<center>2005 Avetana Bluetooth Stack \
+	<a href="http://sourceforge.net/projects/avetanabt" target=_new>Avetana Bluetooth</a></center>"
+
+# Options for the generation of the Javadoc documentation.
+JAVADOC_FLAGS   = -sourcepath . -author -version -bottom $(JAVADOC_FOOTER)
+
+# Location of source files (and class files, once compiled).
+PACKAGE_DE     = de.avetana.bluetooth.connection de.avetana.bluetooth.hci de.avetana.bluetooth.l2cap de.avetana.bluetooth.obex de.avetana.bluetooth.rfcomm de.avetana.bluetooth.sdp de.avetana.bluetooth.stack de.avetana.bluetooth.test de.avetana.bluetooth.util
+PACKAGE_JAVAX = javax.bluetooth javax.microedition.io javax.obex
+PACKAGE_CDC= com.sun.cdc.io com.sun.cdc.io.j2me.btgoep com.sun.cdc.io.j2me.btl2cap com.sun.cdc.io.j2me.btspp
+PACKAGE_SRC	= .
+PACKAGE_EDU=edu.oswego.cs.dl.util.concurrent
+############
+# Call the make all directives in both the C and Java Makefiles.
+all: jar javadoc csource 
+
+csource:
+	make -C c
+	(cd $(BIN_DIR); jar uvf avetanaBT.jar libavetanaBT.so)
+
+javaSourceFiles:
+	@find de -iname *.java > javaSourceFiles
+	@find com/sun -iname *.java >> javaSourceFiles
+	@find edu -iname *.java >> javaSourceFiles
+	@find javax -iname *.java >> javaSourceFiles
+
+# Compile the source code into Java classes.
+classes: javaSourceFiles
+	(mkdir build;  javac -d build @javaSourceFiles)
+	
+# Create the Java archive of the avetanaBT package.
+jar:  classes
+	(cd build ; cp ../avetana.vcf ../version.xml .; jar cvf $(BIN_DIR)/avetanaBT.jar de javax com edu avetana.vcf version.xml)
+
+# Create Javadoc documentation for the avetanaBT package.
+javadoc:
+	javadoc -d $(JAVADOC_DIR) $(JAVADOC_FLAGS) $(PACKAGE_DE) $(PACKAGE_JAVAX) $(PACKAGE_CDC) ${PACKAGE_EDU}
+
+# Call the make clean directives in both the C and Java Makefiles.
+clean:
+	make -C c clean
+	rm -f c/Makefile
+	rm -f @BIN_DIR@/libavetanaBT.so
+	rm -f @BIN_DIR@/avetanaBT.jar
+	rm -Rf javadoc
+	rm -Rf build
+	rm -f Makefile
+	rm -f javaSourceFiles
+	rm -f configure
+	rm -f config.status
+	rm -f config.log
+	rm -f config.h
+	rm -f config.h.in
+	rm -Rf autom4te.cache
