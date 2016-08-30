@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import javax.bluetooth.DeviceClass;
@@ -73,38 +72,10 @@ final class Bluetooth implements IO {
 
 	private final OutputStream output;
 
-	Bluetooth(String address) throws IOException {
-		Object conn = openConnection(address);
-		input = ((InputConnection) conn).openInputStream();
-		output = ((OutputConnection) conn).openOutputStream();
-	}
-
-	private Object openConnection(String address) throws IOException {
-		RemoteDevice[] devices = getDiscoveryAgent().retrieveDevices(DiscoveryAgent.CACHED);
-		if (devices == null) {
-			devices = getDiscoveryAgent().retrieveDevices(DiscoveryAgent.PREKNOWN);
-		}
-		if (devices == null) {
-			throw new IllegalStateException(String.format("No paired devices found!"));
-		}
-		RemoteDevice foundDevice = null;
-		for (RemoteDevice device : devices) {
-			if (address.equalsIgnoreCase(device.getBluetoothAddress())) {
-				foundDevice = device;
-				break;
-			}
-		}
-		if (foundDevice == null) {
-			throw new IllegalStateException(String.format("Device %s not paired!", address));
-		}
-
-		List<ServiceRecord> services = listServices(foundDevice);
-		if (services.isEmpty()) {
-			throw new IllegalStateException(String.format("There is no OBD2 service running on device %s", address));
-		}
-		ServiceRecord service = services.get(0);
-		String url = service.getConnectionURL(ServiceRecord.NOAUTHENTICATE_NOENCRYPT, false);
-		return Connector.open(url);
+	Bluetooth(String deviceAddress, String serviceName) throws IOException {
+		Object connection = connect(deviceAddress, serviceName);
+		input = ((InputConnection) connection).openInputStream();
+		output = ((OutputConnection) connection).openOutputStream();
 	}
 
 	@Override
@@ -113,23 +84,37 @@ final class Bluetooth implements IO {
 		output.close();
 	}
 
-	@Override
-	public byte[] read() throws IOException {
-		ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-		int value = -1;
-		while ((value = input.read()) != -1) {
-			bytes.write(value);
-			if (value == '>') {
+	private Object connect(String deviceAddress, String serviceName) throws IOException {
+		List<RemoteDevice> devices = listDevices();
+		if (devices.isEmpty()) {
+			throw new IllegalStateException(String.format("No paired devices found!"));
+		}
+		RemoteDevice foundDevice = null;
+		for (RemoteDevice device : devices) {
+			if (deviceAddress.equals(device.getBluetoothAddress())) {
+				foundDevice = device;
 				break;
 			}
 		}
-		return bytes.toByteArray();
-	}
+		if (foundDevice == null) {
+			throw new IllegalStateException(String.format("Device %s not paired!", deviceAddress));
+		}
 
-	@Override
-	public void write(byte[] bytes) throws IOException {
-		output.write(bytes);
-		output.flush();
+		List<ServiceRecord> services = listServices(foundDevice);
+		if (services.isEmpty()) {
+			throw new IllegalStateException(String.format("There is no OBD2 service running on device %s", deviceAddress));
+		}
+		String url = null;
+		for (ServiceRecord service : services) {
+			if (serviceName.equals(service.getAttributeValue(ATTRIBUTE_SERVICE_NAME).getValue())) {
+				url = service.getConnectionURL(ServiceRecord.NOAUTHENTICATE_NOENCRYPT, false);
+				break;
+			}
+		}
+		if (url == null) {
+			throw new IllegalStateException(String.format("Service \"%s\" not found on device %s", serviceName, deviceAddress));
+		}
+		return Connector.open(url);
 	}
 
 	private DiscoveryAgent getDiscoveryAgent() throws IOException {
@@ -163,13 +148,14 @@ final class Bluetooth implements IO {
 					LOCK.wait();
 				}
 			}
+			showDevices(devicesDiscovered);
 			return devicesDiscovered;
 		} catch (InterruptedException e) {
 			throw new RuntimeException(e);
 		}
 	}
 
-	private List<ServiceRecord> listServices(RemoteDevice device) throws IOException {
+	private List<ServiceRecord> listServices(final RemoteDevice device) throws IOException {
 		try {
 			final List<ServiceRecord> services = new ArrayList<>();
 			final Object LOCK = new Object();
@@ -185,7 +171,11 @@ final class Bluetooth implements IO {
 					public void inquiryCompleted(int discType) {}
 
 					public void servicesDiscovered(int transID, ServiceRecord[] servRecord) {
-						services.addAll(Arrays.asList(servRecord));
+						for (ServiceRecord service : servRecord) {
+							if (service.getHostDevice().equals(device)) {
+								services.add(service);
+							}
+						}
 					}
 
 					public void serviceSearchCompleted(int transID, int respCode) {
@@ -197,10 +187,65 @@ final class Bluetooth implements IO {
 				if (transactionID > 0) {
 					LOCK.wait();
 				}
+				showServices(services);
 				return services;
 			}
 		} catch (InterruptedException e) {
 			throw new RuntimeException(e);
 		}
+	}
+
+	@Override
+	public byte[] read() throws IOException {
+		ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+		int value = -1;
+		while ((value = input.read()) != -1) {
+			bytes.write(value);
+			if (value == '>') {
+				break;
+			}
+		}
+		return bytes.toByteArray();
+	}
+
+	private void showDevices(List<RemoteDevice> devices) {
+		if (devices.isEmpty()) {
+			System.out.println("no devices found!");
+			return;
+		}
+		System.out.println("devices {");
+		for (RemoteDevice device : devices) {
+			try {
+				String address = device.getBluetoothAddress();
+				String name = device.getFriendlyName(false);
+				System.out.println("    " + address + " {");
+				System.out.println("        name: \"" + name + "\"");
+				System.out.println("    }");
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		System.out.println("}");
+	}
+
+	private void showServices(List<ServiceRecord> services) {
+		if (services.isEmpty()) {
+			System.out.println("no services found!");
+			return;
+		}
+		System.out.println("services {");
+		for (ServiceRecord service : services) {
+			String address = service.getHostDevice().getBluetoothAddress();
+			System.out.println("    " + address + " {");
+			String name = (String) service.getAttributeValue(ATTRIBUTE_SERVICE_NAME).getValue();
+			System.out.println("        name: \"" + name + "\"");
+			System.out.println("    }");
+		}
+		System.out.println("}");
+	}
+
+	@Override
+	public void write(byte[] bytes) throws IOException {
+		output.write(bytes);
 	}
 }

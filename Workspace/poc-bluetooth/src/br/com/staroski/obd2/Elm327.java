@@ -13,6 +13,7 @@ public final class Elm327 {
 	public String send(String command) throws IOException {
 		byte[] bytes = (command + "\r").getBytes();
 		io.write(bytes);
-		return new String(io.read());
+		bytes = io.read();
+		return new String(bytes);
 	}
 }

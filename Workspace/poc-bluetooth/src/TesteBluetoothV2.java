@@ -43,7 +43,7 @@ public class TesteBluetoothV2 {
 
 	public Elm327 getElm327() throws IOException {
 		if (elm327 == null) {
-			IO io = IO.connect.bluetooth("F8E079DAE781");
+			IO io = IO.factory.bluetooth("F8E079DAE781", "BLT\0");
 			elm327 = new Elm327(io);
 		}
 		return elm327;
@@ -82,38 +82,4 @@ public class TesteBluetoothV2 {
 			e.printStackTrace();
 		}
 	}
-
-	// private void readObdData(String url) throws IOException {
-	// try {
-	// Object conn = Connector.open(url);
-	// OutputStream output = ((OutputConnection) conn).openOutputStream();
-	// InputStream input = ((InputConnection) conn).openInputStream();
-	// byte[] buffer = "0100\r".getBytes();
-	// output.write(buffer);
-	// output.flush();
-	// int bytes = 0;
-	// for (int n = -1; (n = input.read()) != '>';) {
-	// bytes++;
-	// System.out.print(new String(new byte[] { (byte) n }));
-	// if (bytes == 11) {
-	// break;
-	// }
-	// }
-	// System.out.println();
-	// } catch (Exception e) {
-	// e.printStackTrace();
-	// }
-	// }
-
-	private void showDevice(RemoteDevice device) {
-		try {
-			String address = device.getBluetoothAddress();
-			String name = device.getFriendlyName(false);
-			System.out.println("nome:     " + name);
-			System.out.println("endereco: " + address);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
-
 }

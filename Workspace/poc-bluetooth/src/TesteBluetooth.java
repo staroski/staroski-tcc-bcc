@@ -14,7 +14,7 @@ import javax.bluetooth.ServiceRecord;
 import javax.bluetooth.UUID;
 
 public class TesteBluetooth {
-
+/*
 	static final String MOTO_G_STAROSKI = "F8E079DAE781";
 
 	static final int SERVICE_NAME = 0x0100;
@@ -140,48 +140,6 @@ public class TesteBluetooth {
 		}
 	}
 
-	/**
-	 * 
-	 * Set the Protocol Let�s set the protocol to �AUTO�, which means that you
-	 * want the interface to automatically detect the protocol when you send the
-	 * first OBD request. To do this, enter the �AT SP 0� command:
-	 * 
-	 * <pre>
-	>AT SP 0
-	OK
-	 * </pre>
-	 * 
-	 * To verify the protocol, enter the AT DP command (�Display Protocol�):
-	 * 
-	 * <pre>
-	>AT DP
-	AUTO
-	 * </pre>
-	 * 
-	 * Get RPM Now it is time to send our first OBD request. Real-time
-	 * parameters are accessed through Mode 1 (also called �Service $01�), and
-	 * each parameter has a Parameter ID, or PID for short. RPM�s PID is 0C, so
-	 * we must tell the interface to send �010C�:
-	 * 
-	 * <pre>
-	>010C
-	SEARCHING: OK
-	41 0C 0F A0
-	 * </pre>
-	 * 
-	 * The reply contains two bytes that identify it as a response to Mode 1,
-	 * PID 0C request (41 0C), and two more bytes with the encoded RPM value
-	 * (1/4 RPM per bit). To get the actual RPM value, convert the hex number to
-	 * decimal, and divide it by four:
-	 * 
-	 * <pre>
-	0x0FA0 = 4000
-	4000 / 4 = 1000 rpm
-	 * </pre>
-	 * 
-	 * @throws IOException
-	 *
-	 */
 	private void readObdData(String url) throws IOException {
 		try {
 			Elm327 elm327 = getElm327(url);
@@ -243,5 +201,5 @@ public class TesteBluetooth {
 			e.printStackTrace();
 		}
 	}
-
+*/
 }

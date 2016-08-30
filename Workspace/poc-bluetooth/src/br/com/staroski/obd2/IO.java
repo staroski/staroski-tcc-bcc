@@ -5,12 +5,13 @@ import java.io.IOException;
 
 public interface IO extends Closeable {
 
-	public static final class Provider {
+	public static final class Factory {
 
-		private Provider() {}
+		private Factory() {
+		}
 
-		public IO bluetooth(String address) throws IOException {
-			return new Bluetooth(address);
+		public IO bluetooth(String deviceAddress, String serviceName) throws IOException {
+			return new Bluetooth(deviceAddress, serviceName);
 		}
 
 		public IO serial(String port) throws IOException {
@@ -18,7 +19,7 @@ public interface IO extends Closeable {
 		}
 	}
 
-	public static final Provider connect = new Provider();
+	public static final Factory factory = new Factory();
 
 	public byte[] read() throws IOException;
 
