@@ -24,8 +24,12 @@ public class TesteBluetooth {
 
 			Elm327 elm327 = new Elm327(connection);
 
-			System.out.println("definindo protocolo ISO 15765-4 CAN");
+			System.out.println("configurando protocolo ISO 15765-4 CAN");
 			String result = elm327.send("ATSP6\r");
+			System.out.println(result);
+
+			System.out.println("configurando retorno dos cabeçalhos");
+			result = elm327.send("ATH1\r");
 			System.out.println(result);
 
 			System.out.println("requisitando PIDs suportados [01-20]");
