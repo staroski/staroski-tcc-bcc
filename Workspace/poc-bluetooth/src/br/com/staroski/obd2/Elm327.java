@@ -4,16 +4,16 @@ import java.io.IOException;
 
 public final class Elm327 {
 
-	private final IO io;
+	private final Connection connection;
 
-	public Elm327(IO io) {
-		this.io = io;
+	public Elm327(Connection connection) {
+		this.connection = connection;
 	}
 
 	public String send(String command) throws IOException {
-		byte[] bytes = (command + "\r").getBytes();
-		io.write(bytes);
-		bytes = io.read();
+		byte[] bytes = command.getBytes();
+		connection.write(bytes);
+		bytes = connection.read();
 		return new String(bytes);
 	}
 }

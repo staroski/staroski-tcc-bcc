@@ -4,7 +4,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 
-final class Serial implements IO {
+final class Serial implements Connection {
 
 	private final RandomAccessFile randomAccessFile;
 
