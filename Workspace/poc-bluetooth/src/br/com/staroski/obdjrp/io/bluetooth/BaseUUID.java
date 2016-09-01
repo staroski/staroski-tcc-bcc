@@ -1,4 +1,4 @@
-package br.com.staroski.obd2;
+package br.com.staroski.obdjrp.io.bluetooth;
 
 import javax.bluetooth.UUID;
 

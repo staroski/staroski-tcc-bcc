@@ -1,4 +1,4 @@
-package br.com.staroski.obd2;
+package br.com.staroski.obdjrp.io.bluetooth;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -25,7 +25,8 @@ final class ServiceScanner implements DiscoveryListener {
 			throw new IllegalStateException(String.format("There is no service called \"%s\" running on device %s", serviceName, device.getBluetoothAddress()));
 		}
 		for (ServiceRecord service : services) {
-			if (serviceName.equals(service.getAttributeValue(ServiceScanner.ATTRIBUTE_SERVICE_NAME).getValue())) {
+			String name = (String) service.getAttributeValue(ServiceScanner.ATTRIBUTE_SERVICE_NAME).getValue();
+			if (serviceName.equals(name.trim())) {
 				return service;
 			}
 		}

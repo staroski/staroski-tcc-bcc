@@ -1,6 +1,5 @@
-package br.com.staroski.obd2;
+package br.com.staroski.obdjrp.io.bluetooth;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -11,12 +10,17 @@ import javax.microedition.io.Connector;
 import javax.microedition.io.InputConnection;
 import javax.microedition.io.OutputConnection;
 
-final class Bluetooth implements Connection {
+import br.com.staroski.obdjrp.io.IO;
+import br.com.staroski.obdjrp.io.Settings;
+
+public final class Bluetooth implements IO {
 
 	private final InputStream input;
 	private final OutputStream output;
 
-	Bluetooth(String deviceAddress, String serviceName) throws IOException {
+	public Bluetooth(Settings parameters) throws IOException {
+		String deviceAddress = parameters.next();
+		String serviceName = parameters.next();
 		RemoteDevice device = DeviceScanner.find(deviceAddress);
 		ServiceRecord service = ServiceScanner.find(device, serviceName);
 		String url = service.getConnectionURL(ServiceRecord.NOAUTHENTICATE_NOENCRYPT, false);
@@ -26,26 +30,21 @@ final class Bluetooth implements Connection {
 	}
 
 	@Override
+	public int available() throws IOException {
+		return input.available();
+	}
+
+	@Override
 	public void close() throws IOException {
 		input.close();
 		output.close();
 	}
 
-	@Override
-	public byte[] read() throws IOException {
-		ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-		int value = -1;
-		while ((value = input.read()) != -1) {
-			bytes.write(value);
-			if (value == '>') {
-				break;
-			}
-		}
-		return bytes.toByteArray();
+	public int read(byte[] buffer, int offset, int length) throws IOException {
+		return input.read(buffer, offset, length);
 	}
 
-	@Override
-	public void write(byte[] bytes) throws IOException {
-		output.write(bytes);
+	public void write(byte[] buffer, int offset, int length) throws IOException {
+		output.write(buffer, offset, length);
 	}
 }
