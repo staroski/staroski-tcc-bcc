@@ -1,9 +1,9 @@
 
-import java.awt.EventQueue;
 import java.io.IOException;
 
+import br.com.staroski.obdjrp.elm327.Elm327;
 import br.com.staroski.obdjrp.io.IO;
-import br.com.staroski.obdjrp.obd2.Elm327;
+import br.com.staroski.obdjrp.io.bluetooth.Bluetooth;
 
 public class TesteBluetooth {
 
@@ -21,7 +21,7 @@ public class TesteBluetooth {
 			String deviceAddress = "F8E079DAE781";
 			// String serviceName = "OBD_Listener";
 			String serviceName = "BLT";
-			IO connection = IO.connect.bluetooth(deviceAddress, serviceName);
+			IO connection = Bluetooth.connect(deviceAddress, serviceName);
 
 			Elm327 elm327 = new Elm327(connection);
 

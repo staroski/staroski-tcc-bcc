@@ -80,6 +80,7 @@ final class DeviceScanner implements DiscoveryListener {
 	private List<RemoteDevice> listDevices() throws IOException {
 		try {
 			synchronized (LOCK) {
+				devices.clear();
 				DiscoveryAgent discoveryAgent = LocalDevice.getLocalDevice().getDiscoveryAgent();
 				boolean started = discoveryAgent.startInquiry(DiscoveryAgent.GIAC, this);
 				if (started) {

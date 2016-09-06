@@ -25,12 +25,17 @@ final class ServiceScanner implements DiscoveryListener {
 			throw new IllegalStateException(String.format("There is no service called \"%s\" running on device %s", serviceName, device.getBluetoothAddress()));
 		}
 		for (ServiceRecord service : services) {
-			String name = (String) service.getAttributeValue(ServiceScanner.ATTRIBUTE_SERVICE_NAME).getValue();
-			if (serviceName.equals(name.trim())) {
+			String name = getName(service);
+			if (serviceName.equals(name)) {
 				return service;
 			}
 		}
 		throw new IllegalStateException(String.format("Service \"%s\" not found on device %s", serviceName, device.getBluetoothAddress()));
+	}
+
+	public static String getName(ServiceRecord service) {
+		String name = (String) service.getAttributeValue(ATTRIBUTE_SERVICE_NAME).getValue();
+		return name.trim();
 	}
 
 	public static List<ServiceRecord> scan(final RemoteDevice device) throws IOException {
@@ -46,7 +51,7 @@ final class ServiceScanner implements DiscoveryListener {
 		for (ServiceRecord service : services) {
 			String address = service.getHostDevice().getBluetoothAddress();
 			System.out.println("    " + address + " {");
-			String name = (String) service.getAttributeValue(ATTRIBUTE_SERVICE_NAME).getValue();
+			String name = getName(service);
 			System.out.println("        name: \"" + name + "\"");
 			System.out.println("    }");
 		}
@@ -81,6 +86,7 @@ final class ServiceScanner implements DiscoveryListener {
 	private List<ServiceRecord> listServices(final RemoteDevice device) throws BluetoothStateException {
 		try {
 			synchronized (LOCK) {
+				services.clear();
 				int[] attributes = new int[] { ATTRIBUTE_SERVICE_NAME };
 				UUID[] uuids = new UUID[] { BaseUUID.merge16bits(UUID_SERIAL_PORT_PROFILE) };
 				int transactionID = LocalDevice.getLocalDevice().getDiscoveryAgent().searchServices(attributes, uuids, device, this);

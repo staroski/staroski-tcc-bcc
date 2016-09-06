@@ -11,8 +11,9 @@ import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 
+import br.com.staroski.obdjrp.elm327.Elm327;
 import br.com.staroski.obdjrp.io.IO;
-import br.com.staroski.obdjrp.obd2.Elm327;
+import br.com.staroski.obdjrp.io.bluetooth.Bluetooth;
 
 public class TesteJanela extends JFrame {
 
@@ -119,7 +120,7 @@ public class TesteJanela extends JFrame {
 				try {
 					String deviceAddress = textFieldDevice.getText();
 					String serviceName = textFieldService.getText();
-					IO connection = IO.connect.bluetooth(deviceAddress, serviceName);
+					IO connection = Bluetooth.connect(deviceAddress, serviceName);
 
 					Elm327 elm327 = new Elm327(connection);
 

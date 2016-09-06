@@ -1,4 +1,4 @@
-package br.com.staroski.obdjrp.obd2;
+package br.com.staroski.obdjrp.elm327;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
