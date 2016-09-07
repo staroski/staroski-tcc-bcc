@@ -1,8 +1,11 @@
 package br.com.staroski.obdjrp.elm327;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+
+import br.com.staroski.obdjrp.utils.Base;
 
 public final class VehicleMonitor {
 
@@ -24,14 +27,31 @@ public final class VehicleMonitor {
 					} else {
 						Thread.yield();
 					}
-				} catch (InterruptedException e) {
+				} catch (Exception e) {
 					e.printStackTrace();
 				}
 			}
 		}
 	}
 
+	private static final String RESPONSES = "1";
+
+	private static final String MODE = "01";
+
+	private static String resultBytes(String pid, String result) {
+		String text = result;
+		int offset = text.indexOf("41" + pid);
+		if (offset != -1) {
+			text = text.substring(offset + 4).trim();
+		}
+		if (text.endsWith(">")) {
+			text = text.substring(0, text.length() - 1).trim();
+		}
+		return text;
+	}
+
 	private final Elm327 elm327;
+
 	private final VehicleListener listener;
 
 	private boolean scanning;
@@ -52,53 +72,79 @@ public final class VehicleMonitor {
 		scanning = false;
 	}
 
-	private VehicleData getRpm() {
-		String name = "RPM";
-		int value = -1;
-		try {
-			String string = elm327.exec("01 0C 1");
-			String text = string;
-			if (text.startsWith("41")) {
-				text = text.substring(4).trim();
-			}
-			if (text.endsWith(">")) {
-				text = text.substring(0, text.length() - 1).trim();
-			}
-			int a = Integer.parseInt(text, 16);
-			value = a / 4;
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		return new Data(name, value);
+	private String execute(String pid) throws IOException {
+		String result = elm327.exec(MODE + " " + pid + " " + RESPONSES);
+		return resultBytes(pid, result);
 	}
 
-	private VehicleData getSpeed() {
-		String name = "Velocidade";
-		int value = -1;
+	private List<String> getAvailablePIDs() throws IOException {
+		List<String> pids = new ArrayList<>();
+		pids.addAll(getAvailablePIDs("00")); // 00 [01-20]
+		pids.addAll(getAvailablePIDs("20")); // 20 [21-40]
+		pids.addAll(getAvailablePIDs("40")); // 40 [41-60]
+		pids.addAll(getAvailablePIDs("60")); // 60 [61-80]
+		pids.addAll(getAvailablePIDs("80")); // 80 [81-A0]
+		pids.addAll(getAvailablePIDs("A0")); // A0 [A1-C0]
+		pids.addAll(getAvailablePIDs("C0")); // C0 [C1-E0]
+		pids.addAll(getAvailablePIDs("E0")); // E0 [E1-20]
+		return pids;
+	}
+
+	private List<String> getAvailablePIDs(String pid) throws IOException {
+		List<String> pids = new ArrayList<>();
+		char[] binary = new char[0];
+		String result = execute(pid);
 		try {
-			String string = elm327.exec("01 0D 1");
-			String text = string;
-			if (text.startsWith("41")) {
-				text = text.substring(4).trim();
-			}
-			if (text.endsWith(">")) {
-				text = text.substring(0, text.length() - 1).trim();
-			}
-			value = Integer.parseInt(text, 16);
-		} catch (IOException e) {
-			e.printStackTrace();
+			binary = Base.hexaToBin(result, 32).toCharArray();
+		} catch (NumberFormatException e) {
+			// ignorar
 		}
-		return new Data(name, value);
+		if (binary.length > 0) {
+			int offset = Integer.parseInt(pid, 16) + 1;
+			for (int i = 0, value = offset; i < binary.length; i++, value++) {
+				if (binary[i] == '1') {
+					pids.add(Base.decToHexa(value, 8));
+				}
+			}
+		}
+		return pids;
+	}
+
+	private VehicleData getRpm() throws IOException {
+		String description = "Engine RPM";
+		String pid = "0C";
+		String result = execute(pid);
+		int a = Integer.parseInt(result, 16);
+		int value = a / 4;
+		return new Data(pid, result, description, value);
+	}
+
+	private VehicleData getSpeed() throws IOException {
+		String description = "Vehicle speed";
+		String pid = "0D";
+		String result = execute(pid);
+		int value = Integer.parseInt(result, 16);
+		return new Data(pid, result, description, value);
 	}
 
 	private void notifyData(List<VehicleData> data) {
 		listener.onDataReceived(data);
 	}
 
-	private List<VehicleData> scanData() {
+	private List<VehicleData> scanData() throws IOException {
 		List<VehicleData> data = new LinkedList<>();
-		data.add(getSpeed());
-		data.add(getRpm());
+		List<String> pids = getAvailablePIDs();
+		int item = 0;
+		for (String pid : pids) {
+			String description = "item " + item;
+			String result = execute(pid);
+			long value = Long.parseLong(result, 16);
+			data.add(new Data(pid, result, description, value));
+			item++;
+		}
 		return data;
+		// data.add(getSpeed());
+		// data.add(getRpm());
+		// return data;
 	}
 }

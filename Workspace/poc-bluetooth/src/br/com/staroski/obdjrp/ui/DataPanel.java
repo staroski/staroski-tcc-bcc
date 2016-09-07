@@ -38,23 +38,28 @@ class DataPanel extends JPanel {
 		@Override
 		public Class<?> getColumnClass(int col) {
 			switch (col) {
-				case 0:
-					return String.class;
+				case 3:
+					return Long.class;
 				default:
-					return Integer.class;
+					return String.class;
 			}
 		}
 
 		@Override
 		public int getColumnCount() {
-			return 2;
+			return 4;
 		}
 
 		@Override
 		public String getColumnName(int col) {
 			switch (col) {
 				case 0:
-					return "Dado";
+					return "PID";
+				case 1:
+					return "Result";
+				case 2:
+					return "Info";
+				case 3:
 				default:
 					return "Valor";
 			}
@@ -70,7 +75,12 @@ class DataPanel extends JPanel {
 			VehicleData data = dataList.get(row);
 			switch (col) {
 				case 0:
+					return data.getPID();
+				case 1:
+					return data.getResult();
+				case 2:
 					return data.getDescription();
+				case 3:
 				default:
 					return data.getValue();
 			}

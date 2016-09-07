@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.Container;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
@@ -11,8 +12,10 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
-import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.bluetooth.RemoteDevice;
 import javax.bluetooth.ServiceRecord;
@@ -40,6 +43,10 @@ class ConnectionPanel extends JPanel {
 		public int getSize() {
 			return getDevices().size();
 		}
+
+		void update() {
+			fireContentsChanged(comboBoxDevice, 0, getDevices().size());
+		}
 	}
 
 	private class ServiceModel extends DefaultComboBoxModel<String> {
@@ -63,14 +70,13 @@ class ConnectionPanel extends JPanel {
 
 	private static final long serialVersionUID = 1;
 
-	private List<RemoteDevice> devices;
-	private List<ServiceRecord> services;
-
 	private JComboBox<String> comboBoxDevice;
 	private JComboBox<String> comboBoxService;
 
-	private DeviceModel deviceModel;
+	private List<RemoteDevice> devices = new ArrayList<>();
+	private Map<RemoteDevice, List<ServiceRecord>> servicesMap = new HashMap<>();
 
+	private DeviceModel deviceModel;
 	private ServiceModel serviceModel;
 
 	public ConnectionPanel() {
@@ -82,8 +88,21 @@ class ConnectionPanel extends JPanel {
 		setLayout(new GridLayout(5, 1, 0, 20));
 		setOpaque(false);
 
-		JLabel labelFiller1 = new JLabel("");
-		add(labelFiller1);
+		JPanel panel = new JPanel();
+		FlowLayout flowLayout = (FlowLayout) panel.getLayout();
+		flowLayout.setVgap(0);
+		flowLayout.setHgap(0);
+		flowLayout.setAlignment(FlowLayout.RIGHT);
+		add(panel);
+
+		JButton btnNewButton = new JButton("Atualizar");
+		btnNewButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				refresh();
+			}
+		});
+		btnNewButton.setPreferredSize(new Dimension(100, 40));
+		panel.add(btnNewButton);
 
 		JPanel panelDevice = new JPanel();
 		add(panelDevice);
@@ -112,13 +131,6 @@ class ConnectionPanel extends JPanel {
 
 		comboBoxService = new JComboBox<>();
 		comboBoxService.setEditable(true);
-		comboBoxService.addItemListener(new ItemListener() {
-
-			@Override
-			public void itemStateChanged(ItemEvent e) {
-				serviceChanged();
-			}
-		});
 		panelService.add(comboBoxService, BorderLayout.CENTER);
 
 		JPanel panelConnect = new JPanel();
@@ -152,8 +164,20 @@ class ConnectionPanel extends JPanel {
 		comboBoxService.setModel(serviceModel);
 	}
 
-	private void serviceChanged() {
-		// TODO Auto-generated method stub
+	private void refresh() {
+		try {
+			servicesMap = new HashMap<>();
+			devices = Bluetooth.listDevices();
+			for (RemoteDevice device : devices) {
+				servicesMap.put(device, Bluetooth.listServices(device));
+			}
+			comboBoxDevice.setSelectedItem(null);
+			comboBoxService.setSelectedItem(null);
+			deviceModel.update();
+			serviceModel.update();
+		} catch (Throwable t) {
+			t.printStackTrace();
+		}
 	}
 
 	private void deviceChanged() {
@@ -161,26 +185,14 @@ class ConnectionPanel extends JPanel {
 	}
 
 	private List<RemoteDevice> getDevices() {
-		if (devices == null || devices.isEmpty()) {
-			try {
-				devices = Bluetooth.listDevices();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
 		return devices;
 	}
 
 	private List<ServiceRecord> getServices() {
-		if (services == null || services.isEmpty()) {
-			try {
-				String deviceAddress = (String) comboBoxDevice.getSelectedItem();
-				services = Bluetooth.listServices(deviceAddress);
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
-		return services;
+		int index = comboBoxDevice.getSelectedIndex();
+		RemoteDevice device = index > -1 ? devices.get(index) : null;
+		List<ServiceRecord> services = servicesMap.get(device);
+		return services != null ? services : new ArrayList<>();
 	}
 
 	private void connect() {
