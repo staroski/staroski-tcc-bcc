@@ -21,6 +21,7 @@ import br.com.staroski.obdjrp.obd2.ELM327;
 import br.com.staroski.obdjrp.obd2.OBD2Data;
 import br.com.staroski.obdjrp.obd2.OBD2Listener;
 import br.com.staroski.obdjrp.obd2.OBD2Monitor;
+import br.com.staroski.obdjrp.obd2.OBD2Translation;
 
 class DataPanel extends JPanel {
 
@@ -67,9 +68,9 @@ class DataPanel extends JPanel {
 				case 0:
 					return "PID";
 				case 1:
-					return "Result";
+					return "Resposta";
 				case 2:
-					return "Info";
+					return "Descrição";
 				case 3:
 				default:
 					return "Valor";
@@ -83,17 +84,18 @@ class DataPanel extends JPanel {
 
 		@Override
 		public Object getValueAt(int row, int col) {
-			OBD2Data data = dataList.get(row);
+			OBD2Data rawData = dataList.get(row);
+			OBD2Translation translated = rawData.translate();
 			switch (col) {
 				case 0:
-					return data.getPID();
+					return rawData.getPID();
 				case 1:
-					return data.getResult();
+					return rawData.getResult();
 				case 2:
-					return data.getDescription();
+					return translated.getDescription();
 				case 3:
 				default:
-					return data.getValue();
+					return translated.getValue();
 			}
 		}
 

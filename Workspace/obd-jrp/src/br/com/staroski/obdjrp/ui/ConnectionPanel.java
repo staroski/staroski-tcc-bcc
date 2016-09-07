@@ -97,14 +97,14 @@ class ConnectionPanel extends JPanel {
 		flowLayout.setAlignment(FlowLayout.RIGHT);
 		add(panel);
 
-		JButton btnNewButton = new JButton("Atualizar");
-		btnNewButton.addActionListener(new ActionListener() {
+		JButton buttonSearch = new JButton("Procurar");
+		buttonSearch.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				refresh();
+				search();
 			}
 		});
-		btnNewButton.setPreferredSize(new Dimension(100, 40));
-		panel.add(btnNewButton);
+		buttonSearch.setPreferredSize(new Dimension(100, 40));
+		panel.add(buttonSearch);
 
 		JPanel panelDevice = new JPanel();
 		add(panelDevice);
@@ -195,7 +195,7 @@ class ConnectionPanel extends JPanel {
 		return services != null ? services : new ArrayList<>();
 	}
 
-	private void refresh() {
+	private void search() {
 		try {
 			servicesMap = new HashMap<>();
 			devices = Bluetooth.getDevices();

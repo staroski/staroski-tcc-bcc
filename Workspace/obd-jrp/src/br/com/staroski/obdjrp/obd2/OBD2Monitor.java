@@ -83,23 +83,6 @@ public final class OBD2Monitor {
 		return resultBytes(pid, result);
 	}
 
-	private OBD2Data getRpm() throws IOException {
-		String description = "Engine RPM";
-		String pid = "0C";
-		String result = execute(pid);
-		int a = Integer.parseInt(result, 16);
-		int value = a / 4;
-		return new OBD2Data(pid, result, description, value);
-	}
-
-	private OBD2Data getSpeed() throws IOException {
-		String description = "Vehicle speed";
-		String pid = "0D";
-		String result = execute(pid);
-		int value = Integer.parseInt(result, 16);
-		return new OBD2Data(pid, result, description, value);
-	}
-
 	private List<String> getSupportedPIDs() throws IOException {
 		if (supportedPIDs.isEmpty()) {
 			supportedPIDs.addAll(getSupportedPIDs("00")); // 00 [01-20]
@@ -145,13 +128,9 @@ public final class OBD2Monitor {
 	private List<OBD2Data> scan() throws IOException {
 		List<OBD2Data> data = new LinkedList<>();
 		List<String> pids = getSupportedPIDs();
-		int item = 0;
 		for (String pid : pids) {
-			String description = "item " + item;
 			String result = execute(pid);
-			long value = Long.parseLong(result, 16);
-			data.add(new OBD2Data(pid, result, description, value));
-			item++;
+			data.add(new OBD2Data(pid, result));
 		}
 		return data;
 	}
