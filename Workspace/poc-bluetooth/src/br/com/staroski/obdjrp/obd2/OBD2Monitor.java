@@ -1,4 +1,4 @@
-package br.com.staroski.obdjrp.elm327;
+package br.com.staroski.obdjrp.obd2;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -7,7 +7,7 @@ import java.util.List;
 
 import br.com.staroski.obdjrp.utils.Base;
 
-public final class VehicleMonitor {
+public final class OBD2Monitor {
 
 	private class Loop implements Runnable {
 
@@ -18,7 +18,7 @@ public final class VehicleMonitor {
 			while (scanning) {
 				try {
 					long begin = System.currentTimeMillis();
-					List<VehicleData> data = scanData();
+					List<OBD2Data> data = scanData();
 					notifyData(data);
 					long end = System.currentTimeMillis();
 					long elapsed = end - begin;
@@ -50,13 +50,13 @@ public final class VehicleMonitor {
 		return text;
 	}
 
-	private final Elm327 elm327;
+	private final ELM327 elm327;
 
-	private final VehicleListener listener;
+	private final OBD2Listener listener;
 
 	private boolean scanning;
 
-	public VehicleMonitor(Elm327 elm327, VehicleListener listener) {
+	public OBD2Monitor(ELM327 elm327, OBD2Listener listener) {
 		this.elm327 = elm327;
 		this.listener = listener;
 	}
@@ -110,36 +110,36 @@ public final class VehicleMonitor {
 		return pids;
 	}
 
-	private VehicleData getRpm() throws IOException {
+	private OBD2Data getRpm() throws IOException {
 		String description = "Engine RPM";
 		String pid = "0C";
 		String result = execute(pid);
 		int a = Integer.parseInt(result, 16);
 		int value = a / 4;
-		return new Data(pid, result, description, value);
+		return new OBD2Data(pid, result, description, value);
 	}
 
-	private VehicleData getSpeed() throws IOException {
+	private OBD2Data getSpeed() throws IOException {
 		String description = "Vehicle speed";
 		String pid = "0D";
 		String result = execute(pid);
 		int value = Integer.parseInt(result, 16);
-		return new Data(pid, result, description, value);
+		return new OBD2Data(pid, result, description, value);
 	}
 
-	private void notifyData(List<VehicleData> data) {
+	private void notifyData(List<OBD2Data> data) {
 		listener.onDataReceived(data);
 	}
 
-	private List<VehicleData> scanData() throws IOException {
-		List<VehicleData> data = new LinkedList<>();
+	private List<OBD2Data> scanData() throws IOException {
+		List<OBD2Data> data = new LinkedList<>();
 		List<String> pids = getAvailablePIDs();
 		int item = 0;
 		for (String pid : pids) {
 			String description = "item " + item;
 			String result = execute(pid);
 			long value = Long.parseLong(result, 16);
-			data.add(new Data(pid, result, description, value));
+			data.add(new OBD2Data(pid, result, description, value));
 			item++;
 		}
 		return data;

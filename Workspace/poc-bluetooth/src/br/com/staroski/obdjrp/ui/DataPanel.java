@@ -12,19 +12,19 @@ import javax.swing.JTable;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.AbstractTableModel;
 
-import br.com.staroski.obdjrp.elm327.Elm327;
-import br.com.staroski.obdjrp.elm327.VehicleData;
-import br.com.staroski.obdjrp.elm327.VehicleListener;
-import br.com.staroski.obdjrp.elm327.VehicleMonitor;
+import br.com.staroski.obdjrp.bluetooth.Bluetooth;
 import br.com.staroski.obdjrp.io.IO;
-import br.com.staroski.obdjrp.io.bluetooth.Bluetooth;
+import br.com.staroski.obdjrp.obd2.ELM327;
+import br.com.staroski.obdjrp.obd2.OBD2Data;
+import br.com.staroski.obdjrp.obd2.OBD2Listener;
+import br.com.staroski.obdjrp.obd2.OBD2Monitor;
 
 class DataPanel extends JPanel {
 
-	private class DataListener implements VehicleListener {
+	private class DataListener implements OBD2Listener {
 
 		@Override
-		public void onDataReceived(List<VehicleData> data) {
+		public void onDataReceived(List<OBD2Data> data) {
 			DataPanel.this.dataList = data;
 			DataModel model = (DataModel) table.getModel();
 			model.update();
@@ -72,7 +72,7 @@ class DataPanel extends JPanel {
 
 		@Override
 		public Object getValueAt(int row, int col) {
-			VehicleData data = dataList.get(row);
+			OBD2Data data = dataList.get(row);
 			switch (col) {
 				case 0:
 					return data.getPID();
@@ -95,9 +95,9 @@ class DataPanel extends JPanel {
 
 	private JTable table;
 
-	private VehicleMonitor monitor;
+	private OBD2Monitor monitor;
 
-	private List<VehicleData> dataList = new LinkedList<>();
+	private List<OBD2Data> dataList = new LinkedList<>();
 
 	/**
 	 * Create the panel.
@@ -127,12 +127,12 @@ class DataPanel extends JPanel {
 	private void connect(String device, String service) {
 		try {
 			IO connection = Bluetooth.connect(device, service);
-			Elm327 elm327 = new Elm327(connection);
+			ELM327 elm327 = new ELM327(connection);
 			elm327.exec("AT SP 0"); // protocolo automatico
 			elm327.exec("AT H0"); // desligando envio dos cabeçalhos
 
 			DataListener listener = new DataListener();
-			monitor = new VehicleMonitor(elm327, listener);
+			monitor = new OBD2Monitor(elm327, listener);
 			monitor.start();
 		} catch (IOException e) {
 			e.printStackTrace();

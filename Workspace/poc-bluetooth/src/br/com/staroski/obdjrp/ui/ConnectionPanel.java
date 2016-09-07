@@ -26,7 +26,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
-import br.com.staroski.obdjrp.io.bluetooth.Bluetooth;
+import br.com.staroski.obdjrp.bluetooth.Bluetooth;
 
 class ConnectionPanel extends JPanel {
 

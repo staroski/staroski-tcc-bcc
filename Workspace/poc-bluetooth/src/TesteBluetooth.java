@@ -1,9 +1,9 @@
 
 import java.io.IOException;
 
-import br.com.staroski.obdjrp.elm327.Elm327;
+import br.com.staroski.obdjrp.bluetooth.Bluetooth;
 import br.com.staroski.obdjrp.io.IO;
-import br.com.staroski.obdjrp.io.bluetooth.Bluetooth;
+import br.com.staroski.obdjrp.obd2.ELM327;
 
 public class TesteBluetooth {
 
@@ -23,7 +23,7 @@ public class TesteBluetooth {
 			String serviceName = "BLT";
 			IO connection = Bluetooth.connect(deviceAddress, serviceName);
 
-			Elm327 elm327 = new Elm327(connection);
+			ELM327 elm327 = new ELM327(connection);
 
 			System.out.println("configurando protocolo automatico"); // ISO 15765-4 CAN == 6
 			String result = elm327.exec("AT SP 0");

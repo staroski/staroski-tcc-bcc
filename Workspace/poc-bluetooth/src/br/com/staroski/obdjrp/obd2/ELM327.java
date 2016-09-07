@@ -1,11 +1,11 @@
-package br.com.staroski.obdjrp.elm327;
+package br.com.staroski.obdjrp.obd2;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
 import br.com.staroski.obdjrp.io.IO;
 
-public final class Elm327 {
+public final class ELM327 {
 
 	private static final char PROMPT = '>';
 	private static final char RETURN = '\r';
@@ -26,7 +26,7 @@ public final class Elm327 {
 
 	private final IO io;
 
-	public Elm327(IO connection) {
+	public ELM327(IO connection) {
 		this.io = connection;
 	}
 
