@@ -45,7 +45,7 @@
         </condition>
 
         <!-- Compile the java code from ${src} -->
-        <javac source="1.3" target="1.1" debug="true"
+        <javac encoding="UTF-8" source="1.3" target="1.1" debug="true"
                srcdir="${src}" destdir="${build_classes}">
             <exclude name="com/intel/bluetooth/DebugLog4jAppender.java"/>
             <exclude name="${exclude_SE5}"/>

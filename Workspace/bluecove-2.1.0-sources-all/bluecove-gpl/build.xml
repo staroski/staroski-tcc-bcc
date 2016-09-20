@@ -83,7 +83,7 @@
         description="Compile the source">
 
         <echo message="compiling on java ${java.version}"/>
-        <javac source="1.3" target="1.1" debug="true"
+        <javac encoding="UTF-8" source="1.3" target="1.1" debug="true"
                srcdir="${src}" destdir="${build_classes}">
             <classpath>
                 <pathelement path="${bluecove_main_jar}"/>
