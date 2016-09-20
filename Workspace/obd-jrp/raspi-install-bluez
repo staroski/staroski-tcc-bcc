@@ -1,0 +1,18 @@
+#!/bin/bash
+clear
+
+echo "executando update..."
+sudo apt-get update
+echo "update concluido!"
+
+echo "executando upgrade..."
+sudo apt-get upgrade
+echo "upgrade concluido!"
+
+echo "executando autoremove..."
+sudo apt-get update
+echo "autoremove concluido!"
+
+echo "instalando bluez..."
+sudo apt-get install bluetooth libbluetooth-dev bluez bluez-cups bluez-obexd
+echo "bluez instalado!"

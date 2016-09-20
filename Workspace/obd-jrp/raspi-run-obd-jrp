@@ -1,0 +1,6 @@
+#!/bin/bash
+clear
+
+echo "Executing OBD-JRP..."
+java -classpath "./arm-libs/bluecove-gpl-2.1.0-SNAPSHOT.jar:./arm-libs/bluecove-2.1.0-SNAPSHOT.jar:./arm-libs:./bin" ObdJrp
+echo "Execution finished!"
