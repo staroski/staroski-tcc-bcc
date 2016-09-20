@@ -114,7 +114,8 @@ class ConnectionPanel extends JPanel {
 		panelDevice.add(labelDevice, BorderLayout.NORTH);
 
 		comboBoxDevice = new JComboBox<>();
-		comboBoxDevice.setEditable(true);
+		comboBoxDevice.setEditable(false);
+		comboBoxDevice.addItem("F8E079DAE781");
 		comboBoxDevice.addItemListener(new ItemListener() {
 
 			@Override
@@ -132,7 +133,8 @@ class ConnectionPanel extends JPanel {
 		panelService.add(labelService, BorderLayout.NORTH);
 
 		comboBoxService = new JComboBox<>();
-		comboBoxService.setEditable(true);
+		comboBoxService.setEditable(false);
+		comboBoxService.addItem("BLT");
 		panelService.add(comboBoxService, BorderLayout.CENTER);
 
 		JPanel panelConnect = new JPanel();
