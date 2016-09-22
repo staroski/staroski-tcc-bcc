@@ -7,8 +7,8 @@ import br.com.staroski.obdjrp.io.IO;
 
 public final class ELM327 {
 
-	private static final char PROMPT = '>';
-	private static final char RETURN = '\r';
+	public static final char PROMPT = '>';
+	public static final char RETURN = '\r';
 
 	private static String bytesToText(byte[] bytes) {
 		String text = new String(bytes);

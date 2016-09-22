@@ -40,7 +40,7 @@ public final class OBD2Monitor {
 
 	private static final String MODE_SHOW_CURRENT_DATA = "01";
 	private static final String MODE_REQUEST_VEHICLE_INFORMATION = "09";
-	private static final String RESPONSES_TO_WAIT = "1";
+	private static final int RESPONSES_TO_WAIT = 1;
 
 	private static String responseHeader(String mode, String pid) {
 		String response = "4" + mode.charAt(mode.length() - 1);
@@ -52,7 +52,7 @@ public final class OBD2Monitor {
 		String responseHeader = responseHeader(mode, pid);
 		int offset = text.indexOf(responseHeader);
 		if (offset != -1) {
-			text = text.substring(offset + 4).trim();
+			text = text.substring(offset).trim();
 		}
 		if (text.endsWith(">")) {
 			text = text.substring(0, text.length() - 1).trim();
@@ -98,31 +98,20 @@ public final class OBD2Monitor {
 			if (initialized) {
 				return;
 			}
-			String result = execute(MODE_REQUEST_VEHICLE_INFORMATION, "02");
+			String result = execute(MODE_REQUEST_VEHICLE_INFORMATION, "02", 0);
 			vin = processVIN(result);
 
 			String[] pids = new String[] { "00", "20", "40", "60", "80", "A0", "C0", "E0" };
 			for (String pid : pids) {
-				result = execute(MODE_SHOW_CURRENT_DATA, pid);
+				result = execute(MODE_SHOW_CURRENT_DATA, pid, RESPONSES_TO_WAIT);
 				supportedPIDs.addAll(processBitmask(pid, result));
 			}
-			//
-			// String mode = MODE_SHOW_CURRENT_DATA;
-			// supportedPIDs.addAll(getSupportedPIDs(mode, "00")); // 00 [01-20]
-			// supportedPIDs.addAll(getSupportedPIDs(mode, "20")); // 20 [21-40]
-			// supportedPIDs.addAll(getSupportedPIDs(mode, "40")); // 40 [41-60]
-			// supportedPIDs.addAll(getSupportedPIDs(mode, "60")); // 60 [61-80]
-			// supportedPIDs.addAll(getSupportedPIDs(mode, "80")); // 80 [81-A0]
-			// supportedPIDs.addAll(getSupportedPIDs(mode, "A0")); // A0 [A1-C0]
-			// supportedPIDs.addAll(getSupportedPIDs(mode, "C0")); // C0 [C1-E0]
-			// supportedPIDs.addAll(getSupportedPIDs(mode, "E0")); // E0 [E1-20]
-
 			initialized = true;
 		}
 	}
 
-	private String execute(String mode, String pid) throws IOException {
-		String result = elm327.exec(mode + " " + pid + " " + RESPONSES_TO_WAIT);
+	private String execute(String mode, String pid, int responses) throws IOException {
+		String result = elm327.exec(mode + " " + pid + (responses < 1 ? "" : " " + responses));
 		return resultBytes(mode, pid, result);
 	}
 
@@ -161,8 +150,14 @@ public final class OBD2Monitor {
 	}
 
 	private String processVIN(String value) {
-		value = value.replaceAll("\n", "");
-		value = value.replaceAll("\r", "");
+		value = value.substring(4); // remover cabeçalho de retorno
+		String[] lines = value.split(String.valueOf(ELM327.RETURN));
+		StringBuilder text = new StringBuilder();
+		for (String line : lines) {
+			line = line.substring(2); // remover indice
+			text.append(line);
+		}
+		value = text.toString();
 		value = Base.hexaToASCII(value);
 		return value;
 	}
@@ -171,7 +166,8 @@ public final class OBD2Monitor {
 		List<OBD2Data> data = new LinkedList<>();
 		List<String> pids = getSupportedPIDs();
 		for (String pid : pids) {
-			String result = execute(MODE_SHOW_CURRENT_DATA, pid);
+			String result = execute(MODE_SHOW_CURRENT_DATA, pid, RESPONSES_TO_WAIT);
+			result = result.substring(4); // remover cabeçalho de retorno
 			data.add(new OBD2Data(pid, result));
 		}
 		return data;
