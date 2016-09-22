@@ -8,6 +8,8 @@ import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 
+import javax.bluetooth.RemoteDevice;
+import javax.bluetooth.ServiceRecord;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -25,7 +27,7 @@ import br.com.staroski.obdjrp.obd2.OBD2Translation;
 
 class DataPanel extends JPanel {
 
-	private class DataListener implements OBD2Listener {
+	private class OBD2DataListener implements OBD2Listener {
 
 		@Override
 		public void onError(Exception error) {
@@ -38,12 +40,12 @@ class DataPanel extends JPanel {
 		@Override
 		public void onUpdate(List<OBD2Data> data) {
 			DataPanel.this.dataList = data;
-			DataModel model = (DataModel) table.getModel();
+			OBD2DataModel model = (OBD2DataModel) table.getModel();
 			model.update();
 		}
 	}
 
-	private class DataModel extends AbstractTableModel {
+	private class OBD2DataModel extends AbstractTableModel {
 
 		private static final long serialVersionUID = 1;
 
@@ -122,7 +124,7 @@ class DataPanel extends JPanel {
 		setLayout(new BorderLayout(5, 5));
 		setOpaque(false);
 
-		table = new JTable(new DataModel());
+		table = new JTable(new OBD2DataModel());
 		table.setOpaque(false);
 
 		JScrollPane scrollPane = new JScrollPane(table);
@@ -133,19 +135,18 @@ class DataPanel extends JPanel {
 		add(scrollPane, BorderLayout.CENTER);
 	}
 
-	void connect(String device, String service) {
+	void connect(RemoteDevice device, ServiceRecord service) {
 		try {
 			IO connection = Bluetooth.connect(device, service);
 			ELM327 elm327 = new ELM327(connection);
 			elm327.exec("AT SP 0"); // protocolo automatico
 			elm327.exec("AT H0"); // desligando envio dos cabeçalhos
 
-			DataListener listener = new DataListener();
-			OBD2Monitor monitor = new OBD2Monitor(elm327, listener);
+			OBD2Monitor monitor = new OBD2Monitor(elm327);
+			monitor.addListener(new OBD2DataListener());
 			monitor.start();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
-
 }

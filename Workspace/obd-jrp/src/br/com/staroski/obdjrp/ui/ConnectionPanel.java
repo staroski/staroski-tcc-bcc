@@ -174,8 +174,11 @@ class ConnectionPanel extends JPanel {
 			dataPanel = new DataPanel();
 			parent.add(dataPanel);
 		}
-		String device = (String) comboBoxDevice.getSelectedItem();
-		String service = (String) comboBoxService.getSelectedItem();
+		int deviceIndex = comboBoxDevice.getSelectedIndex();
+		int serviceIndex = comboBoxService.getSelectedIndex();
+
+		RemoteDevice device = getDevices().get(deviceIndex);
+		ServiceRecord service = getServices().get(serviceIndex);
 		dataPanel.connect(device, service);
 
 		CardLayout layout = (CardLayout) parent.getLayout();
@@ -204,10 +207,15 @@ class ConnectionPanel extends JPanel {
 			for (RemoteDevice device : devices) {
 				servicesMap.put(device, Bluetooth.getServices(device));
 			}
-			comboBoxDevice.setSelectedItem(null);
-			comboBoxService.setSelectedItem(null);
 			deviceModel.update();
 			serviceModel.update();
+
+			if (getDevices().size() > 0) {
+				comboBoxDevice.setSelectedIndex(0);
+				if (getServices().size() > 0) {
+					comboBoxService.setSelectedIndex(0);
+				}
+			}
 		} catch (Throwable t) {
 			t.printStackTrace();
 		}

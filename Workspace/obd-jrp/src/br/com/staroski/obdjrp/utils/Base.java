@@ -26,4 +26,13 @@ public final class Base {
 	}
 
 	private Base() {}
+
+	public static String hexaToASCII(String hexa) {
+		StringBuilder ascii = new StringBuilder();
+		for (int i = 0; i < hexa.length(); i += 2) {
+			String hexByte = hexa.substring(i, i + 2);
+			ascii.append((char) Integer.parseInt(hexByte, 16));
+		}
+		return ascii.toString();
+	}
 }
