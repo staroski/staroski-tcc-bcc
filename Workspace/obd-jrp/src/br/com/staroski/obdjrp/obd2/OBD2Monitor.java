@@ -2,7 +2,6 @@ package br.com.staroski.obdjrp.obd2;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 
 import br.com.staroski.obdjrp.utils.Base;
@@ -18,8 +17,8 @@ public final class OBD2Monitor {
 			while (scanning) {
 				try {
 					long begin = System.currentTimeMillis();
-					List<OBD2Data> data = scan();
-					notifyUpdate(data);
+					OBD2DataPackage dataPackage = scan();
+					notifyUpdate(dataPackage);
 					long end = System.currentTimeMillis();
 					long elapsed = end - begin;
 					if (elapsed < ONE_SECOND) {
@@ -129,8 +128,8 @@ public final class OBD2Monitor {
 		eventMulticaster.onError(error);
 	}
 
-	private void notifyUpdate(List<OBD2Data> data) {
-		eventMulticaster.onUpdate(data);
+	private void notifyUpdate(OBD2DataPackage dataPackage) {
+		eventMulticaster.onUpdate(dataPackage);
 	}
 
 	private List<String> processBitmask(String pid, String bytes) throws IOException {
@@ -162,14 +161,15 @@ public final class OBD2Monitor {
 		return value;
 	}
 
-	private List<OBD2Data> scan() throws IOException {
-		List<OBD2Data> data = new LinkedList<>();
+	private OBD2DataPackage scan() throws IOException {
+		String vin = getVIN();
+		OBD2DataPackage dataPackage = new OBD2DataPackage(vin, System.currentTimeMillis());
 		List<String> pids = getSupportedPIDs();
 		for (String pid : pids) {
 			String result = execute(MODE_SHOW_CURRENT_DATA, pid, RESPONSES_TO_WAIT);
 			result = result.substring(4); // remover cabeçalho de retorno
-			data.add(new OBD2Data(pid, result));
+			dataPackage.add(new OBD2Data(pid, result));
 		}
-		return data;
+		return dataPackage;
 	}
 }

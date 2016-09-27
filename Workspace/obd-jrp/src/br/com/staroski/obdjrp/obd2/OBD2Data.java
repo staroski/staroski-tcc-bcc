@@ -1,15 +1,16 @@
 package br.com.staroski.obdjrp.obd2;
 
-import java.io.Serializable;
+public final class OBD2Data {
 
-public final class OBD2Data implements Serializable {
+	private String pid;
 
-	private static final long serialVersionUID = 1;
+	private String result;
 
-	private final String pid;
-	private final String result;
+	private OBD2Translation translation;
 
-	private transient OBD2Translation translation;
+	OBD2Data() {
+		this(null, null);
+	}
 
 	OBD2Data(String pid, String result) {
 		this.pid = pid;
