@@ -1,2 +1,9 @@
 .metadata
 .recommenders
+RemoteSystemsTempFiles
+
+obd-jrp/bin/*
+obd-jrp/obd-jrp-data/*
+
+obd-jrp-web/bin/*
+obd-jrp-web/obd-jrp-data/*
