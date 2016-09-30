@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<assembly>
+    <!-- @version $Revision: 2979 $ ($Author: skarzhevskyy $) $Date: 2009-04-02 15:08:39 -0400 (Thu, 02 Apr 2009) $ -->
+    <id>sources</id>
+    <formats>
+        <format>tar.gz</format>
+    </formats>
+    <includeBaseDirectory>false</includeBaseDirectory>
+    <fileSets>
+        <fileSet>
+            <directory>${basedir}/</directory>
+            <outputDirectory>${artifactId}-${version}</outputDirectory>
+            <useDefaultExcludes>true</useDefaultExcludes>
+            <excludes>
+                <exclude>target/**</exclude>
+                <exclude>build/**</exclude>
+                <exclude>src/main/resources/**</exclude>
+                <exclude>src/main/c/com_*.h</exclude>
+                <exclude>src/main/c/org_*.h</exclude>
+                <exclude>.settings/**</exclude>
+                <exclude>**/Thumbs.db</exclude>
+                <exclude>**/*.log</exclude>
+                <exclude>**/.*</exclude>
+            </excludes>
+        </fileSet>
+    </fileSets>
+</assembly>

@@ -1,0 +1,87 @@
+~~ @version $Revision: 2971 $ ($Author: skarzhevskyy $) $Date: 2009-03-29 12:31:59 -0400 (Sun, 29 Mar 2009) $
+~~ See this file format http://maven.apache.org/doxia/references/apt-format.html
+
+                                    ------------------
+                                    BlueCove Linux D-Bus module
+                                    ------------------
+
+BlueCove Linux D-Bus module
+
+   BlueCove-bluez is additional module for BlueCove to support JSR-82 on Linux using D-Bus interfaces.
+
+   Compiled for i386 and x86-64 of the native BlueCove code (shared library) is included in jar distribution. Native shared library have been tested and should work on Ubuntu, OpenSUSE and Fedora. For other Linux distributions you may need to compile it yourself.
+
+   This module works with BlueZ version 3 and BlueZ version 4 using D-Bus interfaces.
+
+   This module require additional library {{{http://dbus.freedesktop.org/doc/dbus-java/}Java D-Bus}} and its dependencies.
+
+   This module require Java 5 Standard Edition or later
+
+   JNI library for this modile is not linked with libbluetooth.so
+
+   N.B. Another BlueZ interfacing module {{{../bluecove-gpl}bluecove-gpl}} available.
+
+   {{{http://groups.google.com/group/bluecove-developers}Help us make it better}}.
+
+
+   The diagram below shows the architecture used by this module
+
+[images/diagram-bluez.png] JSR-82 and Bluetooth stack diagram on BlueZ
+
+* Usage
+
+---
+java -cp bluecove-#version#.jar:bluecove-bluez-#version#.jar:dbus.jar:unixsockets.jar:debug-disable.jar:hexdump.jar:yourApp.jar org.your.app.Main
+---
+
+* Requirements
+
+    * BlueCove library of the same mojor version
+
+    * bluez-utils BlueZ version 3.x (3.10 or later) or BlueZ version 4.x installed on your system
+
+    * Java 5 Standard Edition or later ({{{http://openjdk.java.net/}OpenJDK}}, Sun Java SE or {{{http://harmony.apache.org/}Apache Harmony}})
+
+    * On 64-bit Linux platform 64-bit java should be used
+
+    * dbus-java and libmatthew-java packages. (dbus-java version 2.5.1 or later)
+
+* Limitations
+
+    * Require additional library {{{http://dbus.freedesktop.org/doc/dbus-java/}Java D-Bus}} and its dependencies. Only version 2.5 available as RPM on most Linux distributions and it has bug that breaks BlueCove device discovery!
+
+** JSR-82 Limitations
+
+    * `ServiceRecord.setDeviceServiceClasses(..)` not supported.
+
+    * `LocalDevice.getDeviceClass()` properly supported since BlueZ 4.34, on early versions will return 'computer' (There are no Class property in new org.bluez.Adapter).
+
+    * `RemoteDevice.authenticate()` not supported on BlueZ v4
+
+** BlueCove API Limitations
+
+    * In BlueZ 3.x Service registration with multiple adapters installed would be visible on all Adapters (This is because BlueZ interface org.bluez.Database is not bound to adapter)
+
+* Configuration options
+
+    System properties:
+
+        * `bluecove.deviceID=1` bluecove supports multiple local devices, this will force it to select second one.
+
+        * `bluecove.deviceID=hci1` this will force BlueCove to select second adapter.
+
+        * `bluecove.deviceAddress=btaddr` select local devices by Bluetooth address
+
+* Documentation
+
+    API-Documentation for BlueCove {{{../bluecove/apidocs/index.html}Java docs}}. For application it is not recommended to use any classes or API other than defined in JSR-82.
+
+    API that enables the use of Multiple Adapters and Bluetooth Stacks in parallel in the same JVM is BlueCove specific, documentation can be found {{{../bluecove/apidocs/com/intel/bluetooth/BlueCoveImpl.html#useThreadLocalBluetoothStack()}here}}.
+
+    JSR-82 extension <<<bluecovepsm>>> enables the use of specific PSM channel in L2CAP service. <<<btl2cap://localhost;name=...;bluecovepsm=1007>>>
+
+    BlueCove {{{http://code.google.com/p/bluecove/wiki/Documentation}Installation and configuration instructions here}}.
+
+    BlueZ D-Bus API available in package `org.bluez.v3` and `org.bluez.v3` and can be used separately. API-Documentation {{{apidocs/index.html}Java docs}}.
+
+    Unix domain socket API available in package `org.bluecove.socket` and can be used independently from Bluetooth APIs.

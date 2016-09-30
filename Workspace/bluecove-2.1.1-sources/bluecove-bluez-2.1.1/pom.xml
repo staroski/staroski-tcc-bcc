@@ -1,0 +1,503 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<project
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns="http://maven.apache.org/POM/4.0.0">
+    <!-- @version $Revision: 3020 $ ($Author: skarzhevskyy $) $Date: 2009-09-14 14:59:06 -0400 (Mon, 14 Sep 2009) $ -->
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>net.sf.bluecove</groupId>
+        <artifactId>bluecove-parent</artifactId>
+        <version>2.1.1-SNAPSHOT</version><!--bluecove-version-->
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+
+    <groupId>net.sf.bluecove</groupId>
+    <artifactId>bluecove-bluez</artifactId>
+    <packaging>jar</packaging>
+
+    <name>bluecove-bluez</name>
+
+    <description>BlueCove Linux version using D-Bus</description>
+
+    <inceptionYear>2008</inceptionYear>
+
+    <licenses>
+        <license>
+            <name>The Apache Software License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+        </license>
+    </licenses>
+
+    <distributionManagement>
+        <!-- no-deployment -->
+        <repository>
+            <id>no-deployment</id>
+            <url>file:///${basedir}/target/tmp</url>
+        </repository>
+    </distributionManagement>
+
+    <developers>
+        <developer>
+            <name>Vlad Skarzhevskyy</name>
+            <id>skarzhevskyy</id>
+            <email>skarzhevskyy@gmail.com</email>
+            <organization>pyx4me.com</organization>
+            <organizationUrl>http://www.pyx4me.com</organizationUrl>
+            <roles>
+                <role>developer</role>
+            </roles>
+            <timezone>-5</timezone>
+        </developer>
+        <developer>
+            <name>Mark Swanson</name>
+            <id>TBD</id>
+            <email>mark@scheduleworld.com</email>
+            <organization>scheduleworld.com</organization>
+            <organizationUrl>http://www.scheduleworld.com</organizationUrl>
+            <roles>
+                <role>developer</role>
+            </roles>
+            <timezone>-5</timezone>
+        </developer>
+    </developers>
+
+    <repositories>
+        <repository>
+            <id>pyx4j-web-snapshot</id>
+            <url>http://repository.pyx4j.com/maven2-snapshot</url>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+        </repository>
+    </repositories>
+
+    <dependencies>
+
+        <dependency>
+            <groupId>net.sf.bluecove</groupId>
+            <artifactId>bluecove</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.freedesktop.dbus</groupId>
+            <version>2.5.1-SNAPSHOT</version>
+            <artifactId>dbus</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>test</scope>
+            <optional>true</optional>
+        </dependency>
+
+    </dependencies>
+
+    <properties>
+        <native.source.dir>${basedir}/src/main/c</native.source.dir>
+    </properties>
+
+    <build>
+
+        <defaultGoal>install</defaultGoal>
+
+        <plugins>
+
+            <plugin>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>1.5</source>
+                    <target>1.5</target>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <testFailureIgnore>true</testFailureIgnore>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <configuration>
+                    <archive>
+                        <manifestEntries>
+                            <Description>BlueCove JSR-82 implementation, BlueZ D-Bus Linux module</Description>
+                            <License>The Apache Software License, Version 2.0</License>
+                            <Implementation-Version>${pom.version}</Implementation-Version>
+                            <Implementation-Build>${buildLabel}</Implementation-Build>
+                        </manifestEntries>
+                    </archive>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>native-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>build-jni-headers-bluez-dbus</id>
+                        <phase>process-classes</phase>
+                        <goals>
+                            <goal>javah</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${native.source.dir}</outputDirectory>
+                            <classNames>
+                                <className>com.intel.bluetooth.BluetoothStackBlueZDBus</className>
+                                <className>com.intel.bluetooth.BluetoothStackBlueZDBusConsts</className>
+                                <className>com.intel.bluetooth.BluetoothStackBlueZDBusNativeTests</className>
+                                <className>org.bluecove.socket.LocalSocketImpl</className>
+                                <className>org.bluecove.socket.LocalSocketImpl$LocalSocketOptions</className>
+                            </classNames>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>clean-remove-created-files-bluez-dbus</id>
+                        <phase>clean</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <tasks>
+                                <delete>
+                                    <fileset dir="${native.source.dir}" includes="com_intel_*.h"/>
+                                </delete>
+                                <delete>
+                                    <fileset dir="${basedir}/src/main/resources" includes="*.so"/>
+                                </delete>
+                            </tasks>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- can't have it in parent -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                        <configuration>
+                            <excludeResources>true</excludeResources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>all-sources-gz</id>
+                        <phase>install</phase>
+                        <goals><goal>single</goal></goals>
+                        <configuration>
+                            <attach>false</attach>
+                            <tarLongFileMode>gnu</tarLongFileMode>
+                            <descriptors>
+                                <descriptor>assembly-distr-sources.xml</descriptor>
+                            </descriptors>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>copy-dependency</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>copy-dependencies</goal>
+                        </goals>
+                        <configuration>
+                            <stripVersion>true</stripVersion>
+                            <includeScope>runtime</includeScope>
+                            <outputDirectory>target</outputDirectory>
+                            <!--artifactItems>
+                                <artifactItem>
+                                    <groupId>org.freedesktop.dbus</groupId>
+                                    <artifactId>dbus</artifactId>
+                                    <outputDirectory>target</outputDirectory>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>cx.ath.matthew</groupId>
+                                    <artifactId>debug-disable</artifactId>
+                                    <outputDirectory>target</outputDirectory>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>cx.ath.matthew</groupId>
+                                    <artifactId>unixsockets</artifactId>
+                                    <outputDirectory>target</outputDirectory>
+                                </artifactItem>
+                            </artifactItems-->
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+        </plugins>
+
+    </build>
+
+    <reporting>
+        <plugins>
+            <plugin>
+                <artifactId>maven-pmd-plugin</artifactId>
+                <configuration>
+                    <targetJdk>1.5</targetJdk>
+                </configuration>
+            </plugin>
+        </plugins>
+    </reporting>
+
+    <profiles>
+
+        <profile>
+            <id>build_on_linux</id>
+            <activation>
+                <os>
+                    <name>linux</name>
+                    <family>unix</family>
+                </os>
+            </activation>
+            <build>
+                <plugins>
+
+                    <plugin>
+                        <artifactId>maven-antrun-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>compile-native-lib-bluez-dbus</id>
+                                <phase>process-classes</phase>
+                                <goals>
+                                    <goal>run</goal>
+                                </goals>
+                                <configuration>
+                                    <tasks unless="native.build.skip">
+                                        <ant antfile="${basedir}/build.xml" target="compile-native-lib">
+                                            <property name="basedir" value="${basedir}"/>
+                                            <property name="buildEnv" value="${buildEnv}"/>
+                                            <property name="java.home" value="${java.home}"/>
+                                        </ant>
+                                    </tasks>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+
+                </plugins>
+            </build>
+        </profile>
+
+        <profile>
+            <id>build_on_windows</id>
+            <activation>
+                <os>
+                    <name>Windows XP</name>
+                    <family>windows</family>
+                    <arch>x86</arch>
+                    <version>5.1</version>
+                </os>
+            </activation>
+            <build>
+                <plugins>
+
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <configuration>
+                            <excludes>
+                                <exclude>**/Native*.*</exclude>
+                            </excludes>
+                        </configuration>
+                    </plugin>
+
+                </plugins>
+            </build>
+        </profile>
+
+        <profile>
+            <id>build_on_osx</id>
+            <activation>
+                <os>
+                    <family>mac</family>
+                </os>
+            </activation>
+            <build>
+                <plugins>
+
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <configuration>
+                            <excludes>
+                                <exclude>**/Native*.*</exclude>
+                            </excludes>
+                        </configuration>
+                    </plugin>
+
+                </plugins>
+            </build>
+        </profile>
+
+        <!-- cruisecontrol -->
+
+        <profile>
+            <!-- build master takes Linux 32 and x86-64 builds from repository; Idealy would be nice to split project to platform dependant modules -->
+            <id>build-master</id>
+
+            <properties>
+                <native.build.skip>true</native.build.skip>
+            </properties>
+            
+            <repositories>
+                <repository>
+                    <id>pyx4j.com-cruisecontrol-shared-http</id>
+                    <url>http://snapshot.bluecove.org/build/${project.version}</url>
+                    <snapshots>
+                        <enabled>false</enabled>
+                    </snapshots>
+                    <releases>
+                        <enabled>true</enabled>
+                    </releases>
+                </repository>
+            </repositories>
+
+            <dependencies>
+                <dependency>
+                    <groupId>${groupId}.native.linux</groupId>
+                    <artifactId>libbluecovez</artifactId>
+                    <type>so</type>
+                    <version>${buildLabel}</version>
+                    <scope>provided</scope>
+                </dependency>
+
+                <dependency>
+                    <groupId>${groupId}.native.linux</groupId>
+                    <artifactId>libbluecovez_x64</artifactId>
+                    <type>so</type>
+                    <version>${buildLabel}</version>
+                    <scope>provided</scope>
+                </dependency>
+            </dependencies>
+            
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-dependency-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>get-multi-platform-binary-bluez-dbus</id>
+                                <phase>process-classes</phase>
+                                <goals>
+                                    <goal>copy-dependencies</goal>
+                                </goals>
+                                <configuration>
+                                    <stripVersion>true</stripVersion>
+                                    <includeScope>provided</includeScope>
+                                    <excludeTypes>jar</excludeTypes>
+                                    <outputDirectory>${project.build.directory}/classes</outputDirectory>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <profile>
+             <id>build-linux32</id>
+             <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-deploy-plugin</artifactId>
+                            <!-- Can't run deploy for this profile -->
+                            <configuration>
+                                <repositoryId>pyx4j.com-cruisecontrol-shared</repositoryId>
+                                <url>${scp-apache-base}/bluecove/build/${project.version}</url>
+                                <groupId>${groupId}.native.linux</groupId>
+                                <packaging>so</packaging>
+                                <version>${buildLabel}</version>
+                                <uniqueVersion>false</uniqueVersion>
+                                <generatePom>true</generatePom>
+                            </configuration>
+                            <executions>
+                                <execution>
+                                    <id>deploy-multi-platform-build-binary-linux_32-bluecove-bluez-dbus</id>
+                                    <phase>install</phase>
+                                    <goals>
+                                        <goal>deploy-file</goal>
+                                    </goals>
+                                    <configuration>
+                                        <file>${project.build.directory}/classes/libbluecovez.so</file>
+                                        <artifactId>libbluecovez</artifactId>
+                                    </configuration>
+                                </execution>
+                            </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <profile>
+             <id>build-linux64</id>
+             <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-deploy-plugin</artifactId>
+                            <!-- Can't run deploy for this profile -->
+                            <configuration>
+                                <repositoryId>pyx4j.com-cruisecontrol-shared</repositoryId>
+                                <url>${scp-apache-base}/bluecove/build/${project.version}</url>
+                                <groupId>${groupId}.native.linux</groupId>
+                                <packaging>so</packaging>
+                                <version>${buildLabel}</version>
+                                <uniqueVersion>false</uniqueVersion>
+                                <generatePom>true</generatePom>
+                            </configuration>
+                            <executions>
+                                <execution>
+                                    <id>deploy-multi-platform-build-binary-linux_x64-bluecove-bluez-dbus</id>
+                                    <phase>install</phase>
+                                    <goals>
+                                        <goal>deploy-file</goal>
+                                    </goals>
+                                    <configuration>
+                                        <file>${project.build.directory}/classes/libbluecovez_x64.so</file>
+                                        <artifactId>libbluecovez_x64</artifactId>
+                                    </configuration>
+                                </execution>
+                            </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        
+    </profiles>
+
+</project>
