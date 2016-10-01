@@ -16,16 +16,22 @@ public final class OBD2Monitor {
 		public void run() {
 			while (scanning) {
 				try {
-					long begin = System.currentTimeMillis();
-					OBD2DataPackage dataPackage = scan();
-					notifyUpdate(dataPackage);
-					long end = System.currentTimeMillis();
-					long elapsed = end - begin;
-					if (elapsed < ONE_SECOND) {
-						Thread.sleep(ONE_SECOND - elapsed);
-					} else {
-						Thread.yield();
+					OBD2DataPackage dataPackage = new OBD2DataPackage(getVIN(), System.currentTimeMillis());
+					notifyStartPackage(dataPackage);
+					for (int i = 0; i < 10 && scanning; i++) {
+						long begin = System.currentTimeMillis();
+						OBD2DataScan scannedData = scan();
+						dataPackage.addScannedData(scannedData);
+						notifyScanned(scannedData);
+						long end = System.currentTimeMillis();
+						long elapsed = end - begin;
+						if (elapsed < ONE_SECOND) {
+							Thread.sleep(ONE_SECOND - elapsed);
+						} else {
+							Thread.yield();
+						}
 					}
+					notifyFinishPackage(dataPackage);
 				} catch (IOException e) {
 					e.printStackTrace();
 					scanning = false;
@@ -128,8 +134,16 @@ public final class OBD2Monitor {
 		eventMulticaster.onError(error);
 	}
 
-	private void notifyUpdate(OBD2DataPackage dataPackage) {
-		eventMulticaster.onUpdate(dataPackage);
+	private void notifyFinishPackage(OBD2DataPackage dataPackage) {
+		eventMulticaster.onFinishPackage(dataPackage);
+	}
+
+	private void notifyScanned(OBD2DataScan scannedData) {
+		eventMulticaster.onScanned(scannedData);
+	}
+
+	private void notifyStartPackage(OBD2DataPackage dataPackage) {
+		eventMulticaster.onStartPackage(dataPackage);
 	}
 
 	private List<String> processBitmask(String pid, String bytes) throws IOException {
@@ -161,9 +175,8 @@ public final class OBD2Monitor {
 		return value;
 	}
 
-	private OBD2DataPackage scan() throws IOException {
-		String vin = getVIN();
-		OBD2DataPackage dataPackage = new OBD2DataPackage(vin, System.currentTimeMillis());
+	private OBD2DataScan scan() throws IOException {
+		OBD2DataScan dataPackage = new OBD2DataScan();
 		List<String> pids = getSupportedPIDs();
 		for (String pid : pids) {
 			String result = execute(MODE_SHOW_CURRENT_DATA, pid, RESPONSES_TO_WAIT);

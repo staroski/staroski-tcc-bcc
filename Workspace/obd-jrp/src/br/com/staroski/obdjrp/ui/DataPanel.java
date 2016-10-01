@@ -27,9 +27,11 @@ import br.com.staroski.obdjrp.io.IO;
 import br.com.staroski.obdjrp.obd2.ELM327;
 import br.com.staroski.obdjrp.obd2.OBD2Data;
 import br.com.staroski.obdjrp.obd2.OBD2DataPackage;
+import br.com.staroski.obdjrp.obd2.OBD2DataScan;
 import br.com.staroski.obdjrp.obd2.OBD2Listener;
 import br.com.staroski.obdjrp.obd2.OBD2Monitor;
 import br.com.staroski.obdjrp.obd2.OBD2Translation;
+import br.com.staroski.obdjrp.obd2.writers.XmlSerializer;
 
 class DataPanel extends JPanel {
 
@@ -44,12 +46,20 @@ class DataPanel extends JPanel {
 		}
 
 		@Override
-		public void onUpdate(OBD2DataPackage dataPackage) {
-			saveXML(dataPackage);
-			DataPanel.this.labelVIN.setText("VIN: " + dataPackage.getVIN());
-			DataPanel.this.dataList = dataPackage.getDataList();
+		public void onFinishPackage(OBD2DataPackage dataPackage) {
+			saveDataPackage(dataPackage);
+		}
+
+		@Override
+		public void onScanned(OBD2DataScan scannedData) {
+			DataPanel.this.dataList = scannedData.getDataList();
 			OBD2DataModel model = (OBD2DataModel) table.getModel();
 			model.update();
+		}
+
+		@Override
+		public void onStartPackage(OBD2DataPackage dataPackage) {
+			DataPanel.this.labelVIN.setText("VIN: " + dataPackage.getVIN());
 		}
 	}
 
@@ -161,12 +171,12 @@ class DataPanel extends JPanel {
 		return file;
 	}
 
-	private void saveXML(OBD2DataPackage dataPackage) {
+	private void saveDataPackage(OBD2DataPackage dataPackage) {
 		try {
 			File xmlFile = getXMLFile(dataPackage);
 			System.out.printf("Gravando \"%s\"...", xmlFile.getAbsolutePath());
 			FileOutputStream output = new FileOutputStream(xmlFile);
-			dataPackage.writeTo(output);
+			XmlSerializer.writeTo(output, dataPackage);
 			output.close();
 			System.out.println("  OK!");
 		} catch (IOException e) {

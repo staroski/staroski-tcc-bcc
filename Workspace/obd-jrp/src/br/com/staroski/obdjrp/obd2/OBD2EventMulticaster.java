@@ -19,9 +19,23 @@ final class OBD2EventMulticaster implements OBD2Listener {
 	}
 
 	@Override
-	public void onUpdate(OBD2DataPackage dataPackage) {
+	public void onFinishPackage(OBD2DataPackage dataPackage) {
 		for (OBD2Listener listener : listeners) {
-			listener.onUpdate(dataPackage);
+			listener.onFinishPackage(dataPackage);
+		}
+	}
+
+	@Override
+	public void onScanned(OBD2DataScan scannedData) {
+		for (OBD2Listener listener : listeners) {
+			listener.onScanned(scannedData);
+		}
+	}
+
+	@Override
+	public void onStartPackage(OBD2DataPackage dataPackage) {
+		for (OBD2Listener listener : listeners) {
+			listener.onStartPackage(dataPackage);
 		}
 	}
 
