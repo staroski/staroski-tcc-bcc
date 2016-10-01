@@ -1,4 +1,4 @@
-package br.com.staroski.obdjrp.obd2.serializers;
+package br.com.staroski.obdjrp.io;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -76,4 +76,6 @@ public class ByteSerializer {
 		output.write(bytes);
 		output.flush();
 	}
+
+	private ByteSerializer() {}
 }

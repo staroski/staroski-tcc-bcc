@@ -23,7 +23,9 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.table.AbstractTableModel;
 
 import br.com.staroski.obdjrp.bluetooth.Bluetooth;
+import br.com.staroski.obdjrp.io.ByteSerializer;
 import br.com.staroski.obdjrp.io.IO;
+import br.com.staroski.obdjrp.io.XmlSerializer;
 import br.com.staroski.obdjrp.obd2.ELM327;
 import br.com.staroski.obdjrp.obd2.OBD2Data;
 import br.com.staroski.obdjrp.obd2.OBD2DataPackage;
@@ -32,8 +34,6 @@ import br.com.staroski.obdjrp.obd2.OBD2DataTranslator;
 import br.com.staroski.obdjrp.obd2.OBD2Listener;
 import br.com.staroski.obdjrp.obd2.OBD2Monitor;
 import br.com.staroski.obdjrp.obd2.OBD2Translation;
-import br.com.staroski.obdjrp.obd2.serializers.ByteSerializer;
-import br.com.staroski.obdjrp.obd2.serializers.XmlSerializer;
 
 class DataPanel extends JPanel {
 

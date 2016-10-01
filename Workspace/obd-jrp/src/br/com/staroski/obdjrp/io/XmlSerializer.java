@@ -1,4 +1,4 @@
-package br.com.staroski.obdjrp.obd2.serializers;
+package br.com.staroski.obdjrp.io;
 
 import java.io.IOException;
 import java.io.OutputStream;
