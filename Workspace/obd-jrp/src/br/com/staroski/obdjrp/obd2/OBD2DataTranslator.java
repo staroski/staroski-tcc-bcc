@@ -15,26 +15,7 @@ public abstract class OBD2DataTranslator {
 
 	private static Properties properties;
 
-	private static Properties getProperties() {
-		if (properties == null) {
-			properties = new Properties();
-			try {
-				Class<OBD2DataTranslator> translatorClass = OBD2DataTranslator.class;
-				String path = translatorClass.getPackage().getName().replace('.', '/');
-				InputStream input = translatorClass.getResourceAsStream("/" + path + "/translators.properties");
-				properties.load(input);
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
-		return properties;
-	}
-
-	protected static OBD2Translation translation(String description, String value) {
-		return new OBD2Translation(description, value);
-	}
-
-	static OBD2Translation getTranslation(OBD2Data data) {
+	public static OBD2Translation getTranslation(OBD2Data data) {
 		String key = "pid." + data.getPID();
 		OBD2DataTranslator translator = TRANSLATORS.get(key);
 		if (translator == null) {
@@ -53,6 +34,25 @@ public abstract class OBD2DataTranslator {
 			TRANSLATORS.put(key, translator);
 		}
 		return translator.translate(data);
+	}
+
+	private static Properties getProperties() {
+		if (properties == null) {
+			properties = new Properties();
+			try {
+				Class<OBD2DataTranslator> translatorClass = OBD2DataTranslator.class;
+				String path = translatorClass.getPackage().getName().replace('.', '/');
+				InputStream input = translatorClass.getResourceAsStream("/" + path + "/translators.properties");
+				properties.load(input);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		return properties;
+	}
+
+	protected static OBD2Translation translation(String description, String value) {
+		return new OBD2Translation(description, value);
 	}
 
 	public abstract OBD2Translation translate(OBD2Data data);

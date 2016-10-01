@@ -1,4 +1,4 @@
-package br.com.staroski.obdjrp.obd2.writers;
+package br.com.staroski.obdjrp.obd2.serializers;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -22,7 +22,7 @@ import br.com.staroski.obdjrp.obd2.OBD2DataScan;
 
 public class XmlSerializer {
 
-	public static Document toXML(OBD2DataPackage dataPackage) throws IOException {
+	public static Document packageToDocument(OBD2DataPackage dataPackage) throws IOException {
 		try {
 			DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
 			DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
@@ -48,8 +48,8 @@ public class XmlSerializer {
 					pidAttr.setValue(data.getPID());
 					dataElement.setAttributeNode(pidAttr);
 
-					Attr resultAttr = document.createAttribute("result");
-					resultAttr.setValue(data.getResult());
+					Attr resultAttr = document.createAttribute("value");
+					resultAttr.setValue(data.getValue());
 					dataElement.setAttributeNode(resultAttr);
 
 					scanElement.appendChild(dataElement);
@@ -65,12 +65,16 @@ public class XmlSerializer {
 
 	public static void writeTo(OutputStream output, OBD2DataPackage dataPackage) throws IOException {
 		try {
-			Document xml = toXML(dataPackage);
-			DOMSource source = new DOMSource(xml);
+			Document document = packageToDocument(dataPackage);
+			DOMSource source = new DOMSource(document);
 			StreamResult result = new StreamResult(output);
 			TransformerFactory transformerFactory = TransformerFactory.newInstance();
 			Transformer transformer = transformerFactory.newTransformer();
+			transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4");
+			transformer.setOutputProperty(OutputKeys.METHOD, "xml");
+			transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "no");
 			transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+			transformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
 			transformer.transform(source, result);
 		} catch (TransformerException e) {
 			throw new IOException(e);

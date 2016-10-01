@@ -8,7 +8,7 @@ public class EngineRPM extends OBD2DataTranslator {
 
 	@Override
 	public OBD2Translation translate(OBD2Data data) {
-		String result = data.getResult();
+		String result = data.getValue();
 		int a = Integer.parseInt(result, 16);
 		int value = a / 4;
 		return translation("Engine RPM", String.valueOf(value));

@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import br.com.staroski.obdjrp.utils.Base;
+import br.com.staroski.obdjrp.utils.Convert;
 
 public final class OBD2Monitor {
 
@@ -17,11 +17,12 @@ public final class OBD2Monitor {
 			while (scanning) {
 				try {
 					OBD2DataPackage dataPackage = new OBD2DataPackage(getVIN(), System.currentTimeMillis());
+					List<OBD2DataScan> scannedList = dataPackage.getScannedData();
 					notifyStartPackage(dataPackage);
 					for (int i = 0; i < 10 && scanning; i++) {
 						long begin = System.currentTimeMillis();
 						OBD2DataScan scannedData = scan();
-						dataPackage.addScannedData(scannedData);
+						scannedList.add(scannedData);
 						notifyScanned(scannedData);
 						long end = System.currentTimeMillis();
 						long elapsed = end - begin;
@@ -149,11 +150,11 @@ public final class OBD2Monitor {
 	private List<String> processBitmask(String pid, String bytes) throws IOException {
 		List<String> pids = new ArrayList<>();
 		try {
-			char[] bitmask = Base.hexaToBin(bytes, 32).toCharArray();
+			char[] bitmask = Convert.hexaToBinary(bytes, 32).toCharArray();
 			int offset = Integer.parseInt(pid, 16) + 1;
 			for (int i = 0, value = offset; i < bitmask.length; i++, value++) {
 				if (bitmask[i] == '1') {
-					pids.add(Base.decToHexa(value, 8));
+					pids.add(Convert.decimalToHexa(value, 8));
 				}
 			}
 		} catch (NumberFormatException e) {
@@ -171,17 +172,18 @@ public final class OBD2Monitor {
 			text.append(line);
 		}
 		value = text.toString();
-		value = Base.hexaToASCII(value);
+		value = Convert.hexaToASCII(value);
 		return value;
 	}
 
 	private OBD2DataScan scan() throws IOException {
 		OBD2DataScan dataPackage = new OBD2DataScan();
+		List<OBD2Data> dataList = dataPackage.getDataList();
 		List<String> pids = getSupportedPIDs();
 		for (String pid : pids) {
 			String result = execute(MODE_SHOW_CURRENT_DATA, pid, RESPONSES_TO_WAIT);
 			result = result.substring(4); // remover cabeçalho de retorno
-			dataPackage.add(new OBD2Data(pid, result));
+			dataList.add(new OBD2Data(pid, result));
 		}
 		return dataPackage;
 	}

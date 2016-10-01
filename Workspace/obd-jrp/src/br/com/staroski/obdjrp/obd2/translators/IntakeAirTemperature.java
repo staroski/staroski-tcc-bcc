@@ -8,7 +8,7 @@ public class IntakeAirTemperature extends OBD2DataTranslator {
 
 	@Override
 	public OBD2Translation translate(OBD2Data data) {
-		String result = data.getResult();
+		String result = data.getValue();
 		int value = Integer.parseInt(result, 16) - 40;
 		return translation("Intake Air Temperature", String.valueOf(value));
 	}

@@ -28,10 +28,12 @@ import br.com.staroski.obdjrp.obd2.ELM327;
 import br.com.staroski.obdjrp.obd2.OBD2Data;
 import br.com.staroski.obdjrp.obd2.OBD2DataPackage;
 import br.com.staroski.obdjrp.obd2.OBD2DataScan;
+import br.com.staroski.obdjrp.obd2.OBD2DataTranslator;
 import br.com.staroski.obdjrp.obd2.OBD2Listener;
 import br.com.staroski.obdjrp.obd2.OBD2Monitor;
 import br.com.staroski.obdjrp.obd2.OBD2Translation;
-import br.com.staroski.obdjrp.obd2.writers.XmlSerializer;
+import br.com.staroski.obdjrp.obd2.serializers.ByteSerializer;
+import br.com.staroski.obdjrp.obd2.serializers.XmlSerializer;
 
 class DataPanel extends JPanel {
 
@@ -105,12 +107,12 @@ class DataPanel extends JPanel {
 		@Override
 		public Object getValueAt(int row, int col) {
 			OBD2Data rawData = dataList.get(row);
-			OBD2Translation translated = rawData.translate();
+			OBD2Translation translated = OBD2DataTranslator.getTranslation(rawData);
 			switch (col) {
 				case 0:
 					return rawData.getPID();
 				case 1:
-					return rawData.getResult();
+					return rawData.getValue();
 				case 2:
 					return translated.getDescription();
 				case 3:
@@ -157,27 +159,34 @@ class DataPanel extends JPanel {
 		add(scrollPane, BorderLayout.CENTER);
 	}
 
-	private File getXMLFile(OBD2DataPackage dataPackage) throws IOException {
+	private File getFile(OBD2DataPackage dataPackage, String extension) throws IOException {
 		File file = new File(System.getProperty("user.dir"));
 		file = new File(file, "obd-jrp-data");
 		file = new File(file, dataPackage.getVIN());
 		if (!file.exists()) {
 			file.mkdirs();
 		}
-		SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss-SSS");
+		SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss");
 		String name = formatter.format(new Date(dataPackage.getTime()));
-		file = new File(file, name + ".xml");
+		file = new File(file, name + extension);
 		file.createNewFile();
 		return file;
 	}
 
 	private void saveDataPackage(OBD2DataPackage dataPackage) {
 		try {
-			File xmlFile = getXMLFile(dataPackage);
+			File xmlFile = getFile(dataPackage, ".xml");
 			System.out.printf("Gravando \"%s\"...", xmlFile.getAbsolutePath());
-			FileOutputStream output = new FileOutputStream(xmlFile);
-			XmlSerializer.writeTo(output, dataPackage);
-			output.close();
+			FileOutputStream xmlOutput = new FileOutputStream(xmlFile);
+			XmlSerializer.writeTo(xmlOutput, dataPackage);
+			xmlOutput.close();
+			System.out.println("  OK!");
+
+			File obdFile = getFile(dataPackage, ".obd");
+			System.out.printf("Gravando \"%s\"...", obdFile.getAbsolutePath());
+			FileOutputStream obdOutput = new FileOutputStream(obdFile);
+			ByteSerializer.writeTo(obdOutput, dataPackage);
+			obdOutput.close();
 			System.out.println("  OK!");
 		} catch (IOException e) {
 			System.out.println("  ERRO!");

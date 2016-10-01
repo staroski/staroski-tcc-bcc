@@ -8,7 +8,7 @@ public class VehicleSpeed extends OBD2DataTranslator {
 
 	@Override
 	public OBD2Translation translate(OBD2Data data) {
-		String result = data.getResult();
+		String result = data.getValue();
 		int value = Integer.parseInt(result, 16);
 		return translation("Vehicle Speed", String.valueOf(value));
 	}

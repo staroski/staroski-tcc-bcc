@@ -2,17 +2,10 @@ package br.com.staroski.obdjrp.obd2;
 
 public final class OBD2Data {
 
-	private String pid;
+	private final String pid;
+	private final String result;
 
-	private String result;
-
-	private OBD2Translation translation;
-
-	OBD2Data() {
-		this(null, null);
-	}
-
-	OBD2Data(String pid, String result) {
+	public OBD2Data(String pid, String result) {
 		this.pid = pid;
 		this.result = result;
 	}
@@ -21,14 +14,7 @@ public final class OBD2Data {
 		return pid;
 	}
 
-	public String getResult() {
+	public String getValue() {
 		return result;
-	}
-
-	public OBD2Translation translate() {
-		if (translation == null) {
-			translation = OBD2DataTranslator.getTranslation(this);
-		}
-		return translation;
 	}
 }
