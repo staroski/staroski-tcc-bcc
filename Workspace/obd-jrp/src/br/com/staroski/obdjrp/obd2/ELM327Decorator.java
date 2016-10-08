@@ -6,46 +6,10 @@ import java.util.List;
 
 import br.com.staroski.obdjrp.utils.Convert;
 
-public final class OBD2Monitor {
+public final class ELM327Decorator {
 
-	private class ScanLoop implements Runnable {
-
-		private static final int ONE_SECOND = 1000;
-
-		@Override
-		public void run() {
-			while (scanning) {
-				try {
-					OBD2DataPackage dataPackage = new OBD2DataPackage(getVIN(), System.currentTimeMillis());
-					List<OBD2DataScan> scannedList = dataPackage.getScannedData();
-					notifyStartPackage(dataPackage);
-					for (int i = 0; i < 10 && scanning; i++) {
-						long begin = System.currentTimeMillis();
-						OBD2DataScan scannedData = scan();
-						scannedList.add(scannedData);
-						notifyScanned(scannedData);
-						long end = System.currentTimeMillis();
-						long elapsed = end - begin;
-						if (elapsed < ONE_SECOND) {
-							Thread.sleep(ONE_SECOND - elapsed);
-						} else {
-							Thread.yield();
-						}
-					}
-					notifyFinishPackage(dataPackage);
-				} catch (IOException e) {
-					e.printStackTrace();
-					scanning = false;
-					notifyError(e);
-				} catch (Throwable e) {
-					e.printStackTrace();
-				}
-			}
-		}
-	}
-
-	private static final String MODE_SHOW_CURRENT_DATA = "01";
-	private static final String MODE_REQUEST_VEHICLE_INFORMATION = "09";
+	private static final String SHOW_CURRENT_DATA = "01";
+	private static final String REQUEST_VEHICLE_INFORMATION = "09";
 	private static final int RESPONSES_TO_WAIT = 1;
 
 	private static String responseHeader(String mode, String pid) {
@@ -66,18 +30,20 @@ public final class OBD2Monitor {
 		return text;
 	}
 
-	private final OBD2EventMulticaster eventMulticaster = new OBD2EventMulticaster();
+	private final OBD2EventMulticaster eventMulticaster;
+	private final List<String> supportedPIDs;
 	private final ELM327 elm327;
-
-	private boolean scanning;
+	private final ScanLoop scanLoop;
 
 	private boolean initialized;
-
 	private String vin;
-	private final List<String> supportedPIDs = new ArrayList<>();
 
-	public OBD2Monitor(ELM327 elm327) {
+	public ELM327Decorator(ELM327 elm327) {
 		this.elm327 = elm327;
+		this.eventMulticaster = new OBD2EventMulticaster();
+		this.supportedPIDs = new ArrayList<>();
+		this.scanLoop = new ScanLoop(this);
+		addListener(new FileHandler());
 	}
 
 	public void addListener(OBD2Listener listener) {
@@ -89,14 +55,11 @@ public final class OBD2Monitor {
 	}
 
 	public void start() {
-		if (!scanning) {
-			scanning = true;
-			new Thread(new ScanLoop()).start();
-		}
+		scanLoop.start();
 	}
 
 	public void stop() {
-		scanning = false;
+		scanLoop.stop();
 	}
 
 	private void checkState() throws IOException {
@@ -104,12 +67,12 @@ public final class OBD2Monitor {
 			if (initialized) {
 				return;
 			}
-			String result = execute(MODE_REQUEST_VEHICLE_INFORMATION, "02", 0);
+			String result = execute(REQUEST_VEHICLE_INFORMATION, "02", 0);
 			vin = processVIN(result);
 
 			String[] pids = new String[] { "00", "20", "40", "60", "80", "A0", "C0", "E0" };
 			for (String pid : pids) {
-				result = execute(MODE_SHOW_CURRENT_DATA, pid, RESPONSES_TO_WAIT);
+				result = execute(SHOW_CURRENT_DATA, pid, RESPONSES_TO_WAIT);
 				supportedPIDs.addAll(processBitmask(pid, result));
 			}
 			initialized = true;
@@ -124,27 +87,6 @@ public final class OBD2Monitor {
 	private List<String> getSupportedPIDs() throws IOException {
 		checkState();
 		return supportedPIDs;
-	}
-
-	private String getVIN() throws IOException {
-		checkState();
-		return vin;
-	}
-
-	private void notifyError(Exception error) {
-		eventMulticaster.onError(error);
-	}
-
-	private void notifyFinishPackage(OBD2DataPackage dataPackage) {
-		eventMulticaster.onFinishPackage(dataPackage);
-	}
-
-	private void notifyScanned(OBD2DataScan scannedData) {
-		eventMulticaster.onScanned(scannedData);
-	}
-
-	private void notifyStartPackage(OBD2DataPackage dataPackage) {
-		eventMulticaster.onStartPackage(dataPackage);
 	}
 
 	private List<String> processBitmask(String pid, String bytes) throws IOException {
@@ -176,12 +118,33 @@ public final class OBD2Monitor {
 		return value;
 	}
 
-	private OBD2DataScan scan() throws IOException {
-		OBD2DataScan dataPackage = new OBD2DataScan();
-		List<OBD2Data> dataList = dataPackage.getDataList();
+	String getVIN() throws IOException {
+		checkState();
+		return vin;
+	}
+
+	void notifyError(Throwable error) {
+		eventMulticaster.onError(error);
+	}
+
+	void notifyFinishPackage(OBD2Package dataPackage) {
+		eventMulticaster.onFinishPackage(dataPackage);
+	}
+
+	void notifyScanned(OBD2Scan scannedData) {
+		eventMulticaster.onScanned(scannedData);
+	}
+
+	void notifyStartPackage(OBD2Package dataPackage) {
+		eventMulticaster.onStartPackage(dataPackage);
+	}
+
+	OBD2Scan scan() throws IOException {
+		OBD2Scan dataPackage = new OBD2Scan();
+		List<OBD2Data> dataList = dataPackage.getData();
 		List<String> pids = getSupportedPIDs();
 		for (String pid : pids) {
-			String result = execute(MODE_SHOW_CURRENT_DATA, pid, RESPONSES_TO_WAIT);
+			String result = execute(SHOW_CURRENT_DATA, pid, RESPONSES_TO_WAIT);
 			result = result.substring(4); // remover cabeçalho de retorno
 			dataList.add(new OBD2Data(pid, result));
 		}

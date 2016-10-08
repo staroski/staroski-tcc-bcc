@@ -7,17 +7,17 @@ import java.util.Map;
 import java.util.Properties;
 
 @SuppressWarnings("unchecked")
-public abstract class OBD2DataTranslator {
+public abstract class OBD2Translator {
 
 	public static final OBD2Translation UNKNOWN = translation("", "");
 
-	private static final Map<String, OBD2DataTranslator> TRANSLATORS = new HashMap<>();
+	private static final Map<String, OBD2Translator> TRANSLATORS = new HashMap<>();
 
 	private static Properties properties;
 
 	public static OBD2Translation getTranslation(OBD2Data data) {
 		String key = "pid." + data.getPID();
-		OBD2DataTranslator translator = TRANSLATORS.get(key);
+		OBD2Translator translator = TRANSLATORS.get(key);
 		if (translator == null) {
 			Properties properties = getProperties();
 			String className = (String) properties.get(key);
@@ -25,7 +25,7 @@ public abstract class OBD2DataTranslator {
 				return UNKNOWN;
 			}
 			try {
-				Class<OBD2DataTranslator> clazz = (Class<OBD2DataTranslator>) Class.forName(className);
+				Class<OBD2Translator> clazz = (Class<OBD2Translator>) Class.forName(className);
 				translator = clazz.newInstance();
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -40,7 +40,7 @@ public abstract class OBD2DataTranslator {
 		if (properties == null) {
 			properties = new Properties();
 			try {
-				Class<OBD2DataTranslator> translatorClass = OBD2DataTranslator.class;
+				Class<OBD2Translator> translatorClass = OBD2Translator.class;
 				String path = translatorClass.getPackage().getName().replace('.', '/');
 				InputStream input = translatorClass.getResourceAsStream("/" + path + "/translators.properties");
 				properties.load(input);

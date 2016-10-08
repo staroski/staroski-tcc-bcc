@@ -1,10 +1,10 @@
 package br.com.staroski.obdjrp.obd2.translators;
 
 import br.com.staroski.obdjrp.obd2.OBD2Data;
-import br.com.staroski.obdjrp.obd2.OBD2DataTranslator;
+import br.com.staroski.obdjrp.obd2.OBD2Translator;
 import br.com.staroski.obdjrp.obd2.OBD2Translation;
 
-public class MAFAirFlowRate extends OBD2DataTranslator {
+public class MAFAirFlowRate extends OBD2Translator {
 
 	@Override
 	public OBD2Translation translate(OBD2Data data) {

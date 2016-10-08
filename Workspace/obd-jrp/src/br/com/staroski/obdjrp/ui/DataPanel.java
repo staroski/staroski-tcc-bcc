@@ -4,11 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.Container;
 import java.awt.Dimension;
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -23,16 +19,14 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.table.AbstractTableModel;
 
 import br.com.staroski.obdjrp.bluetooth.Bluetooth;
-import br.com.staroski.obdjrp.io.ByteSerializer;
 import br.com.staroski.obdjrp.io.IO;
-import br.com.staroski.obdjrp.io.XmlSerializer;
 import br.com.staroski.obdjrp.obd2.ELM327;
 import br.com.staroski.obdjrp.obd2.OBD2Data;
-import br.com.staroski.obdjrp.obd2.OBD2DataPackage;
-import br.com.staroski.obdjrp.obd2.OBD2DataScan;
-import br.com.staroski.obdjrp.obd2.OBD2DataTranslator;
+import br.com.staroski.obdjrp.obd2.OBD2Package;
+import br.com.staroski.obdjrp.obd2.OBD2Scan;
+import br.com.staroski.obdjrp.obd2.OBD2Translator;
 import br.com.staroski.obdjrp.obd2.OBD2Listener;
-import br.com.staroski.obdjrp.obd2.OBD2Monitor;
+import br.com.staroski.obdjrp.obd2.ELM327Decorator;
 import br.com.staroski.obdjrp.obd2.OBD2Translation;
 
 class DataPanel extends JPanel {
@@ -40,7 +34,7 @@ class DataPanel extends JPanel {
 	private class OBD2DataListener implements OBD2Listener {
 
 		@Override
-		public void onError(Exception error) {
+		public void onError(Throwable error) {
 			Container parent = getParent();
 			JOptionPane.showMessageDialog(parent, error.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
 			CardLayout layout = (CardLayout) parent.getLayout();
@@ -48,19 +42,19 @@ class DataPanel extends JPanel {
 		}
 
 		@Override
-		public void onFinishPackage(OBD2DataPackage dataPackage) {
-			saveDataPackage(dataPackage);
+		public void onFinishPackage(OBD2Package dataPackage) {
+			// ignora
 		}
 
 		@Override
-		public void onScanned(OBD2DataScan scannedData) {
-			DataPanel.this.dataList = scannedData.getDataList();
+		public void onScanned(OBD2Scan scannedData) {
+			DataPanel.this.dataList = scannedData.getData();
 			OBD2DataModel model = (OBD2DataModel) table.getModel();
 			model.update();
 		}
 
 		@Override
-		public void onStartPackage(OBD2DataPackage dataPackage) {
+		public void onStartPackage(OBD2Package dataPackage) {
 			DataPanel.this.labelVIN.setText("VIN: " + dataPackage.getVIN());
 		}
 	}
@@ -107,7 +101,7 @@ class DataPanel extends JPanel {
 		@Override
 		public Object getValueAt(int row, int col) {
 			OBD2Data rawData = dataList.get(row);
-			OBD2Translation translated = OBD2DataTranslator.getTranslation(rawData);
+			OBD2Translation translated = OBD2Translator.getTranslation(rawData);
 			switch (col) {
 				case 0:
 					return rawData.getPID();
@@ -159,42 +153,6 @@ class DataPanel extends JPanel {
 		add(scrollPane, BorderLayout.CENTER);
 	}
 
-	private File getFile(OBD2DataPackage dataPackage, String extension) throws IOException {
-		File file = new File(System.getProperty("user.dir"));
-		file = new File(file, "obd-jrp-data");
-		file = new File(file, dataPackage.getVIN());
-		if (!file.exists()) {
-			file.mkdirs();
-		}
-		SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss");
-		String name = formatter.format(new Date(dataPackage.getTime()));
-		file = new File(file, name + extension);
-		file.createNewFile();
-		return file;
-	}
-
-	private void saveDataPackage(OBD2DataPackage dataPackage) {
-		try {
-			File xmlFile = getFile(dataPackage, ".xml");
-			System.out.printf("Gravando \"%s\"...", xmlFile.getAbsolutePath());
-			FileOutputStream xmlOutput = new FileOutputStream(xmlFile);
-			XmlSerializer.writeTo(xmlOutput, dataPackage);
-			xmlOutput.close();
-			System.out.println("  OK!");
-
-			File obdFile = getFile(dataPackage, ".obd");
-			System.out.printf("Gravando \"%s\"...", obdFile.getAbsolutePath());
-			FileOutputStream obdOutput = new FileOutputStream(obdFile);
-			ByteSerializer.writeTo(obdOutput, dataPackage);
-			obdOutput.close();
-			System.out.println("  OK!");
-		} catch (IOException e) {
-			System.out.println("  ERRO!");
-			e.printStackTrace();
-		}
-
-	}
-
 	void connect(RemoteDevice device, ServiceRecord service) {
 		try {
 			IO connection = Bluetooth.connect(device, service);
@@ -202,7 +160,7 @@ class DataPanel extends JPanel {
 			elm327.exec("AT SP 0"); // protocolo automatico
 			elm327.exec("AT H0"); // desligando envio dos cabeçalhos
 
-			OBD2Monitor monitor = new OBD2Monitor(elm327);
+			ELM327Decorator monitor = new ELM327Decorator(elm327);
 			monitor.addListener(new OBD2DataListener());
 			monitor.start();
 		} catch (IOException e) {

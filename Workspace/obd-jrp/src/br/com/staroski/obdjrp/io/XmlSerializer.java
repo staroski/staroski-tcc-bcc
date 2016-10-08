@@ -17,12 +17,12 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import br.com.staroski.obdjrp.obd2.OBD2Data;
-import br.com.staroski.obdjrp.obd2.OBD2DataPackage;
-import br.com.staroski.obdjrp.obd2.OBD2DataScan;
+import br.com.staroski.obdjrp.obd2.OBD2Package;
+import br.com.staroski.obdjrp.obd2.OBD2Scan;
 
 public class XmlSerializer {
 
-	public static Document packageToDocument(OBD2DataPackage dataPackage) throws IOException {
+	public static Document packageToDocument(OBD2Package dataPackage) throws IOException {
 		try {
 			DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
 			DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
@@ -38,10 +38,10 @@ public class XmlSerializer {
 			timeAttr.setValue(String.valueOf(dataPackage.getTime()));
 			obd2Element.setAttributeNode(timeAttr);
 
-			for (OBD2DataScan scanned : dataPackage.getScannedData()) {
+			for (OBD2Scan scanned : dataPackage.getScans()) {
 				Element scanElement = document.createElement("scanned");
 
-				for (OBD2Data data : scanned.getDataList()) {
+				for (OBD2Data data : scanned.getData()) {
 					Element dataElement = document.createElement("data");
 
 					Attr pidAttr = document.createAttribute("pid");
@@ -63,7 +63,7 @@ public class XmlSerializer {
 		}
 	}
 
-	public static void writeTo(OutputStream output, OBD2DataPackage dataPackage) throws IOException {
+	public static void writeTo(OutputStream output, OBD2Package dataPackage) throws IOException {
 		try {
 			Document document = packageToDocument(dataPackage);
 			DOMSource source = new DOMSource(document);

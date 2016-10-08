@@ -6,7 +6,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.List;
 
-import br.com.staroski.obdjrp.obd2.OBD2DataPackage;
+import br.com.staroski.obdjrp.obd2.OBD2Package;
 
 public class Teste {
 
@@ -15,7 +15,7 @@ public class Teste {
 			String inFile = "T:\\obd-jrp\\obd-jrp-data\\teste\\2016-10-01-18-24-49.obd";
 			FileInputStream input = new FileInputStream(inFile);
 
-			OBD2DataPackage dataPackage = ByteSerializer.readFrom(input);
+			OBD2Package dataPackage = ByteSerializer.readFrom(input);
 
 			String outFile = "T:\\obd-jrp\\obd-jrp-data\\teste\\teste.xml";
 			FileOutputStream output = new FileOutputStream(outFile);
@@ -35,11 +35,11 @@ public class Teste {
 		try {
 			MultipartUtility multipart = new MultipartUtility(requestURL, charset);
 
-//			multipart.addHeaderField("User-Agent", "CodeJava");
-//			multipart.addHeaderField("Test-Header", "Header-Value");
-//
-//			multipart.addFormField("description", "Cool Pictures");
-//			multipart.addFormField("keywords", "Java,upload,Spring");
+			// multipart.addHeaderField("User-Agent", "CodeJava");
+			// multipart.addHeaderField("Test-Header", "Header-Value");
+			//
+			// multipart.addFormField("description", "Cool Pictures");
+			// multipart.addFormField("keywords", "Java,upload,Spring");
 
 			multipart.addFilePart("fileUpload", uploadFile);
 

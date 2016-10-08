@@ -10,20 +10,20 @@ import java.io.OutputStream;
 import java.util.List;
 
 import br.com.staroski.obdjrp.obd2.OBD2Data;
-import br.com.staroski.obdjrp.obd2.OBD2DataPackage;
-import br.com.staroski.obdjrp.obd2.OBD2DataScan;
+import br.com.staroski.obdjrp.obd2.OBD2Package;
+import br.com.staroski.obdjrp.obd2.OBD2Scan;
 import br.com.staroski.obdjrp.utils.Convert;
 
 public class ByteSerializer {
 
-	public static OBD2DataPackage bytesToPackage(byte[] bytes) throws IOException {
+	public static OBD2Package bytesToPackage(byte[] bytes) throws IOException {
 		DataInputStream in = new DataInputStream(new ByteArrayInputStream(bytes));
-		OBD2DataPackage dataPackage = new OBD2DataPackage(in.readUTF(), in.readLong());
-		List<OBD2DataScan> scannedData = dataPackage.getScannedData();
+		OBD2Package dataPackage = new OBD2Package(in.readUTF(), in.readLong());
+		List<OBD2Scan> scannedData = dataPackage.getScans();
 		final int scanCount = in.readInt();
 		for (int scanIndex = 0; scanIndex < scanCount; scanIndex++) {
-			OBD2DataScan dataScan = new OBD2DataScan();
-			List<OBD2Data> dataList = dataScan.getDataList();
+			OBD2Scan dataScan = new OBD2Scan();
+			List<OBD2Data> dataList = dataScan.getData();
 			final int dataCount = in.readInt();
 			for (int dataIndex = 0; dataIndex < dataCount; dataIndex++) {
 				byte pid = in.readByte();
@@ -40,15 +40,15 @@ public class ByteSerializer {
 		return dataPackage;
 	}
 
-	public static byte[] packageToBytes(OBD2DataPackage dataPackage) throws IOException {
+	public static byte[] packageToBytes(OBD2Package dataPackage) throws IOException {
 		ByteArrayOutputStream bytes = new ByteArrayOutputStream();
 		DataOutputStream out = new DataOutputStream(bytes);
 		out.writeUTF(dataPackage.getVIN());
 		out.writeLong(dataPackage.getTime());
-		List<OBD2DataScan> scannedData = dataPackage.getScannedData();
+		List<OBD2Scan> scannedData = dataPackage.getScans();
 		out.writeInt(scannedData.size());
-		for (OBD2DataScan dataScan : scannedData) {
-			List<OBD2Data> dataList = dataScan.getDataList();
+		for (OBD2Scan dataScan : scannedData) {
+			List<OBD2Data> dataList = dataScan.getData();
 			out.writeInt(dataList.size());
 			for (OBD2Data data : dataList) {
 				byte pid = Convert.hexaToByte(data.getPID());
@@ -64,14 +64,14 @@ public class ByteSerializer {
 		return bytes.toByteArray();
 	}
 
-	public static OBD2DataPackage readFrom(InputStream input) throws IOException {
+	public static OBD2Package readFrom(InputStream input) throws IOException {
 		ByteArrayOutputStream bytes = new ByteArrayOutputStream();
 		byte[] buffer = new byte[8192];
 		for (int read = -1; ((read = input.read(buffer)) != -1); bytes.write(buffer, 0, read)) {}
 		return bytesToPackage(bytes.toByteArray());
 	}
 
-	public static void writeTo(OutputStream output, OBD2DataPackage dataPackage) throws IOException {
+	public static void writeTo(OutputStream output, OBD2Package dataPackage) throws IOException {
 		byte[] bytes = packageToBytes(dataPackage);
 		output.write(bytes);
 		output.flush();
