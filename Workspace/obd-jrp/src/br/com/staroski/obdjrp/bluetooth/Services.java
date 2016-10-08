@@ -43,19 +43,21 @@ final class Services implements DiscoveryListener {
 	}
 
 	private static List<ServiceRecord> showServices(List<ServiceRecord> services) {
-		if (services.isEmpty()) {
-			System.out.println("no services found!");
-			return services;
+		if (Bluetooth.PRINT_DEBUG_INFO) {
+			if (services.isEmpty()) {
+				System.out.println("no services found!");
+				return services;
+			}
+			System.out.println("services {");
+			for (ServiceRecord service : services) {
+				String address = service.getHostDevice().getBluetoothAddress();
+				System.out.println("    " + address + " {");
+				String name = getName(service);
+				System.out.println("        name: \"" + name + "\"");
+				System.out.println("    }");
+			}
+			System.out.println("}");
 		}
-		System.out.println("services {");
-		for (ServiceRecord service : services) {
-			String address = service.getHostDevice().getBluetoothAddress();
-			System.out.println("    " + address + " {");
-			String name = getName(service);
-			System.out.println("        name: \"" + name + "\"");
-			System.out.println("    }");
-		}
-		System.out.println("}");
 		return services;
 	}
 

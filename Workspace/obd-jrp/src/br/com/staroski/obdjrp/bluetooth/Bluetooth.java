@@ -15,6 +15,8 @@ import br.com.staroski.obdjrp.io.IO;
 
 public final class Bluetooth implements IO {
 
+	public static boolean PRINT_DEBUG_INFO = true;
+
 	public static IO connect(RemoteDevice device, ServiceRecord service) throws IOException {
 		return new Bluetooth(device, service);
 	}

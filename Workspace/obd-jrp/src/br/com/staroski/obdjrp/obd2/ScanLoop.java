@@ -6,11 +6,11 @@ final class ScanLoop {
 
 	private static final int ONE_SECOND = 1000;
 
-	private final ELM327Decorator obd2Decorator;
+	private final ELM327Monitor obd2Decorator;
 
 	private boolean scanning;
 
-	public ScanLoop(ELM327Decorator obd2Decorator) {
+	public ScanLoop(ELM327Monitor obd2Decorator) {
 		this.obd2Decorator = obd2Decorator;
 	}
 

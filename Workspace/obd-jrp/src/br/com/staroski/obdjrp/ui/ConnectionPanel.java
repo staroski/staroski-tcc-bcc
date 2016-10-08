@@ -1,8 +1,6 @@
 package br.com.staroski.obdjrp.ui;
 
 import java.awt.BorderLayout;
-import java.awt.CardLayout;
-import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
@@ -28,7 +26,7 @@ import javax.swing.border.EmptyBorder;
 
 import br.com.staroski.obdjrp.bluetooth.Bluetooth;
 
-class ConnectionPanel extends JPanel {
+final class ConnectionPanel extends JPanel {
 
 	private class DeviceModel extends DefaultComboBoxModel<String> {
 
@@ -79,9 +77,8 @@ class ConnectionPanel extends JPanel {
 	private DeviceModel deviceModel;
 	private ServiceModel serviceModel;
 
-	private DataPanel dataPanel;
-
 	public ConnectionPanel() {
+		setName(getClass().getSimpleName());
 		setBorder(new EmptyBorder(10, 10, 10, 10));
 		setMaximumSize(new Dimension(480, 320));
 		setMinimumSize(new Dimension(480, 320));
@@ -169,20 +166,13 @@ class ConnectionPanel extends JPanel {
 	}
 
 	private void connect() {
-		Container parent = getParent();
-		if (dataPanel == null) {
-			dataPanel = new DataPanel();
-			parent.add(dataPanel);
-		}
+
 		int deviceIndex = comboBoxDevice.getSelectedIndex();
 		int serviceIndex = comboBoxService.getSelectedIndex();
 
 		RemoteDevice device = getDevices().get(deviceIndex);
 		ServiceRecord service = getServices().get(serviceIndex);
-		dataPanel.connect(device, service);
-
-		CardLayout layout = (CardLayout) parent.getLayout();
-		layout.next(parent);
+		ScreenController.get().connect(device, service);
 	}
 
 	private void deviceChanged() {
@@ -203,10 +193,17 @@ class ConnectionPanel extends JPanel {
 	private void search() {
 		try {
 			servicesMap = new HashMap<>();
-			devices = Bluetooth.getDevices();
+			devices = new ArrayList<>(Bluetooth.getDevices());
+			List<RemoteDevice> withoutServices = new ArrayList<>();
 			for (RemoteDevice device : devices) {
-				servicesMap.put(device, Bluetooth.getServices(device));
+				List<ServiceRecord> services = Bluetooth.getServices(device);
+				if (services.isEmpty()) {
+					withoutServices.add(device);
+				} else {
+					servicesMap.put(device, services);
+				}
 			}
+			devices.removeAll(withoutServices);
 			deviceModel.update();
 			serviceModel.update();
 

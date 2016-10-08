@@ -1,12 +1,12 @@
 import javax.swing.JFrame;
 
-import br.com.staroski.obdjrp.ui.OBD2Frame;
+import br.com.staroski.obdjrp.ui.ScreenController;
 
 public class ObdJrp {
 
 	public static void main(String[] args) {
 		try {
-			OBD2Frame frame = new OBD2Frame();
+			JFrame frame = ScreenController.get().getMainFrame();
 			frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 			frame.setResizable(false);
 			frame.setLocationRelativeTo(null);

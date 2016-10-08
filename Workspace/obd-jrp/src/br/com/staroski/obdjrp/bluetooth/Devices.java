@@ -33,23 +33,25 @@ final class Devices implements DiscoveryListener {
 	}
 
 	private static List<RemoteDevice> showDevices(List<RemoteDevice> devices) {
-		if (devices.isEmpty()) {
-			System.out.println("no devices found!");
-			return devices;
-		}
-		System.out.println("devices {");
-		for (RemoteDevice device : devices) {
-			try {
-				String address = device.getBluetoothAddress();
-				String name = device.getFriendlyName(false);
-				System.out.println("    " + address + " {");
-				System.out.println("        name: \"" + name + "\"");
-				System.out.println("    }");
-			} catch (IOException e) {
-				e.printStackTrace();
+		if (Bluetooth.PRINT_DEBUG_INFO) {
+			if (devices.isEmpty()) {
+				System.out.println("no devices found!");
+				return devices;
 			}
+			System.out.println("devices {");
+			for (RemoteDevice device : devices) {
+				try {
+					String address = device.getBluetoothAddress();
+					String name = device.getFriendlyName(false);
+					System.out.println("    " + address + " {");
+					System.out.println("        name: \"" + name + "\"");
+					System.out.println("    }");
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+			System.out.println("}");
 		}
-		System.out.println("}");
 		return devices;
 	}
 

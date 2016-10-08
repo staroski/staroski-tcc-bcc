@@ -2,11 +2,12 @@ package br.com.staroski.obdjrp.obd2;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import br.com.staroski.obdjrp.utils.Convert;
 
-public final class ELM327Decorator {
+public final class ELM327Monitor {
 
 	private static final String SHOW_CURRENT_DATA = "01";
 	private static final String REQUEST_VEHICLE_INFORMATION = "09";
@@ -38,7 +39,7 @@ public final class ELM327Decorator {
 	private boolean initialized;
 	private String vin;
 
-	public ELM327Decorator(ELM327 elm327) {
+	public ELM327Monitor(ELM327 elm327) {
 		this.elm327 = elm327;
 		this.eventMulticaster = new OBD2EventMulticaster();
 		this.supportedPIDs = new ArrayList<>();
@@ -70,17 +71,22 @@ public final class ELM327Decorator {
 			String result = execute(REQUEST_VEHICLE_INFORMATION, "02", 0);
 			vin = processVIN(result);
 
-			String[] pids = new String[] { "00", "20", "40", "60", "80", "A0", "C0", "E0" };
-			for (String pid : pids) {
+			List<String> reservedPids = Arrays.asList(new String[] { "00", "20", "40", "60", "80", "A0", "C0", "E0" });
+			for (String pid : reservedPids) {
 				result = execute(SHOW_CURRENT_DATA, pid, RESPONSES_TO_WAIT);
 				supportedPIDs.addAll(processBitmask(pid, result));
 			}
+			supportedPIDs.removeAll(reservedPids);
 			initialized = true;
 		}
 	}
 
 	private String execute(String mode, String pid, int responses) throws IOException {
-		String result = elm327.exec(mode + " " + pid + (responses < 1 ? "" : " " + responses));
+		StringBuilder cmd = new StringBuilder(mode).append(" ").append(pid);
+		if (responses > 0) {
+			cmd.append(" ").append(responses);
+		}
+		String result = elm327.exec(cmd.toString());
 		return resultBytes(mode, pid, result);
 	}
 

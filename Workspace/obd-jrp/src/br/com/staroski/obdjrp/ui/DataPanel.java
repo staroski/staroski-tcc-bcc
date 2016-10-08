@@ -21,15 +21,15 @@ import javax.swing.table.AbstractTableModel;
 import br.com.staroski.obdjrp.bluetooth.Bluetooth;
 import br.com.staroski.obdjrp.io.IO;
 import br.com.staroski.obdjrp.obd2.ELM327;
+import br.com.staroski.obdjrp.obd2.ELM327Monitor;
 import br.com.staroski.obdjrp.obd2.OBD2Data;
+import br.com.staroski.obdjrp.obd2.OBD2Listener;
 import br.com.staroski.obdjrp.obd2.OBD2Package;
 import br.com.staroski.obdjrp.obd2.OBD2Scan;
-import br.com.staroski.obdjrp.obd2.OBD2Translator;
-import br.com.staroski.obdjrp.obd2.OBD2Listener;
-import br.com.staroski.obdjrp.obd2.ELM327Decorator;
 import br.com.staroski.obdjrp.obd2.OBD2Translation;
+import br.com.staroski.obdjrp.obd2.OBD2Translator;
 
-class DataPanel extends JPanel {
+final class DataPanel extends JPanel {
 
 	private class OBD2DataListener implements OBD2Listener {
 
@@ -84,12 +84,12 @@ class DataPanel extends JPanel {
 				case 0:
 					return "PID";
 				case 1:
-					return "Resposta";
+					return "Bytes";
 				case 2:
-					return "Descrição";
+					return "Translation";
 				case 3:
 				default:
-					return "Valor";
+					return "Value";
 			}
 		}
 
@@ -131,6 +131,7 @@ class DataPanel extends JPanel {
 	 * Create the panel.
 	 */
 	public DataPanel() {
+		setName(getClass().getSimpleName());
 		setBorder(new EmptyBorder(10, 10, 10, 10));
 		setMaximumSize(new Dimension(480, 320));
 		setMinimumSize(new Dimension(480, 320));
@@ -153,16 +154,29 @@ class DataPanel extends JPanel {
 		add(scrollPane, BorderLayout.CENTER);
 	}
 
+	private void connect(IO connection) throws IOException {
+		ELM327 elm327 = new ELM327(connection);
+		elm327.exec("AT SP 0"); // protocolo automatico
+		elm327.exec("AT H0"); // desligando envio dos cabeçalhos
+
+		ELM327Monitor monitor = new ELM327Monitor(elm327);
+		monitor.addListener(new OBD2DataListener());
+		monitor.start();
+	}
+
 	void connect(RemoteDevice device, ServiceRecord service) {
 		try {
 			IO connection = Bluetooth.connect(device, service);
-			ELM327 elm327 = new ELM327(connection);
-			elm327.exec("AT SP 0"); // protocolo automatico
-			elm327.exec("AT H0"); // desligando envio dos cabeçalhos
+			connect(connection);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
 
-			ELM327Decorator monitor = new ELM327Decorator(elm327);
-			monitor.addListener(new OBD2DataListener());
-			monitor.start();
+	void connect(String device, String service) {
+		try {
+			IO connection = Bluetooth.connect(device, service);
+			connect(connection);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
