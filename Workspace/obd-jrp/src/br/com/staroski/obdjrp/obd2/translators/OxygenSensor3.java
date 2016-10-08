@@ -11,7 +11,7 @@ public class OxygenSensor3 extends OBD2Translator {
 		String result = data.getValue();
 		int a = Integer.parseInt(result.substring(0, 2), 16);
 		int b = Integer.parseInt(result.substring(2), 16);
-		double voltage = a / 200;
+		double voltage = a / 200.0;
 		double fuelTrim = (b / 1.28) - 100;
 		return translation("Oxygen sensor 3", String.format("%.2fV    %.2f%%", voltage, fuelTrim));
 	}

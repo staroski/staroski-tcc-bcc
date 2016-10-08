@@ -23,6 +23,11 @@ public final class OBD2Properties extends Properties {
 		return getProperty("device_address");
 	}
 
+	public int getPackageMaxSize() {
+		String value = getProperty("package_max_size");
+		return value != null && !(value = value.trim()).isEmpty() ? Integer.parseInt(value) : OBD2Package.DEFAULT_MAX_SIZE;
+	}
+
 	public String getServiceName() {
 		return getProperty("service_name");
 	}

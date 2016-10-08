@@ -39,7 +39,7 @@ public class XmlSerializer {
 			obd2Element.setAttributeNode(timeAttr);
 
 			for (OBD2Scan scanned : dataPackage.getScans()) {
-				Element scanElement = document.createElement("scanned");
+				Element scanElement = document.createElement("scan");
 
 				for (OBD2Data data : scanned.getData()) {
 					Element dataElement = document.createElement("data");

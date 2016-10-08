@@ -6,12 +6,12 @@ final class ScanLoop {
 
 	private static final int ONE_SECOND = 1000;
 
-	private final ELM327Monitor obd2Decorator;
+	private final ELM327Monitor obd2Monitor;
 
 	private boolean scanning;
 
-	public ScanLoop(ELM327Monitor obd2Decorator) {
-		this.obd2Decorator = obd2Decorator;
+	public ScanLoop(ELM327Monitor obd2Monitor) {
+		this.obd2Monitor = obd2Monitor;
 	}
 
 	public void start() {
@@ -34,15 +34,25 @@ final class ScanLoop {
 	private void execute() {
 		while (scanning) {
 			try {
-				String vin = obd2Decorator.getVIN();
-				OBD2Package dataPackage = new OBD2Package(vin, System.currentTimeMillis());
-				List<OBD2Scan> scannedList = dataPackage.getScans();
-				obd2Decorator.notifyStartPackage(dataPackage);
-				for (int i = 0; i < 10 && scanning; i++) {
+				final int packageMaxSize = new OBD2Properties().getPackageMaxSize();
+				final String vin = obd2Monitor.getVIN();
+				final OBD2Package obd2Package = new OBD2Package(vin, System.currentTimeMillis());
+				final List<OBD2Scan> scans = obd2Package.getScans();
+
+				System.out.printf("preparing new data package...%n");
+
+				obd2Monitor.notifyStartPackage(obd2Package);
+				for (int i = 0; i < packageMaxSize && scanning; i++) {
+
+					System.out.printf("scanning data %d of %d to package...", (i + 1), packageMaxSize);
+
 					long begin = System.currentTimeMillis();
-					OBD2Scan scannedData = obd2Decorator.scan();
-					scannedList.add(scannedData);
-					obd2Decorator.notifyScanned(scannedData);
+					OBD2Scan scan = obd2Monitor.scan();
+					scans.add(scan);
+					obd2Monitor.notifyScanned(scan);
+
+					System.out.printf("    OK! %d PIDs scanned!%n", scan.getData().size());
+
 					long end = System.currentTimeMillis();
 					long elapsed = end - begin;
 					if (elapsed < ONE_SECOND) {
@@ -50,14 +60,19 @@ final class ScanLoop {
 					} else {
 						Thread.yield();
 					}
+					if (!scanning) {
+						break;
+					}
 				}
-				obd2Decorator.notifyFinishPackage(dataPackage);
+				obd2Monitor.notifyFinishPackage(obd2Package);
+
+				System.out.printf("data package prepared!%n");
+
 			} catch (Throwable e) {
 				e.printStackTrace();
 				scanning = false;
-				obd2Decorator.notifyError(e);
+				obd2Monitor.notifyError(e);
 			}
 		}
 	}
-
 }

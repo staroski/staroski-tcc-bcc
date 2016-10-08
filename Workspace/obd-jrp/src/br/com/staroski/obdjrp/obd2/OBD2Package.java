@@ -5,6 +5,8 @@ import java.util.List;
 
 public final class OBD2Package {
 
+	public static final int DEFAULT_MAX_SIZE = 100;
+
 	private final List<OBD2Scan> scans;
 	private final String vin;
 	private final long time;
