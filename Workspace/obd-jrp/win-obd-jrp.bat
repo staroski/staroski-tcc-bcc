@@ -8,5 +8,5 @@ if exist C:\Program Files (x86)\Java\jdk1.8.0_101 (
 )
 
 echo "Executing OBD-JRP..."
-"%JAVA_HOME%\bin\java.exe" -classpath ".\win-libs\bluecove-2.1.1-SNAPSHOT.jar;.\bin" ObdJrp
+"%JAVA_HOME%\bin\java.exe" -classpath ".\win-libs\bluecove-2.1.0.jar;.\bin" ObdJrp
 echo "Execution finished!"

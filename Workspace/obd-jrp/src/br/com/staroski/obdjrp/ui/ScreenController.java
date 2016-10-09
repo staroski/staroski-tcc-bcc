@@ -64,7 +64,13 @@ public final class ScreenController {
 		if (isEmpty(deviceAddress) || isEmpty(serviceName)) {
 			return;
 		}
-		connect(deviceAddress, serviceName);
+		try {
+			System.out.printf("tentando conectar automaticamente com\n\tdispositivo: %s\n\tservico:     %s%n", deviceAddress, serviceName);
+			connect(deviceAddress, serviceName);
+		} catch (Throwable t) {
+			System.out.printf("nao foi possivel conectar automaticamente!%n");
+			t.printStackTrace();
+		}
 	}
 
 	private void connect(String deviceAddress, String serviceName) {
