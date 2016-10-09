@@ -1,6 +1,7 @@
 package br.com.staroski.obdjrp.ui;
 
 import java.awt.BorderLayout;
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
@@ -24,7 +25,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
-import br.com.staroski.obdjrp.bluetooth.Bluetooth;
+import br.com.staroski.obdjrp.io.bluetooth.Bluetooth;
 
 final class ConnectionPanel extends JPanel {
 
@@ -172,7 +173,7 @@ final class ConnectionPanel extends JPanel {
 
 		RemoteDevice device = getDevices().get(deviceIndex);
 		ServiceRecord service = getServices().get(serviceIndex);
-		ScreenController.get().connect(device, service);
+		UIController.get().connect(device, service);
 	}
 
 	private void deviceChanged() {
@@ -191,6 +192,8 @@ final class ConnectionPanel extends JPanel {
 	}
 
 	private void search() {
+		final UIController controller = UIController.get();
+		final Cursor cursor = controller.setCursor(Cursor.WAIT_CURSOR);
 		try {
 			servicesMap = new HashMap<>();
 			devices = new ArrayList<>(Bluetooth.getDevices());
@@ -215,6 +218,9 @@ final class ConnectionPanel extends JPanel {
 			}
 		} catch (Throwable t) {
 			t.printStackTrace();
+		} finally {
+			controller.setCursor(cursor);
 		}
 	}
+
 }

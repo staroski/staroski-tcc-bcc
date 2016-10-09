@@ -10,7 +10,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.nio.file.Files;
 
-public class HttpFileUploader {
+public final class HttpFileUploader {
 
 	public static void upload(String url, File binaryFile) throws IOException {
 		final String charset = "UTF-8";

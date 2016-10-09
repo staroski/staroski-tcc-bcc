@@ -3,6 +3,7 @@ package br.com.staroski.obdjrp.ui;
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.Container;
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.io.IOException;
 import java.util.LinkedList;
@@ -18,20 +19,20 @@ import javax.swing.JTable;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.AbstractTableModel;
 
-import br.com.staroski.obdjrp.bluetooth.Bluetooth;
+import br.com.staroski.obdjrp.ELM327;
+import br.com.staroski.obdjrp.ELM327Monitor;
+import br.com.staroski.obdjrp.ObdJrpListener;
+import br.com.staroski.obdjrp.data.Data;
+import br.com.staroski.obdjrp.data.Package;
+import br.com.staroski.obdjrp.data.Scan;
+import br.com.staroski.obdjrp.data.Translation;
+import br.com.staroski.obdjrp.data.Translator;
 import br.com.staroski.obdjrp.io.IO;
-import br.com.staroski.obdjrp.obd2.ELM327;
-import br.com.staroski.obdjrp.obd2.ELM327Monitor;
-import br.com.staroski.obdjrp.obd2.OBD2Data;
-import br.com.staroski.obdjrp.obd2.OBD2Listener;
-import br.com.staroski.obdjrp.obd2.OBD2Package;
-import br.com.staroski.obdjrp.obd2.OBD2Scan;
-import br.com.staroski.obdjrp.obd2.OBD2Translation;
-import br.com.staroski.obdjrp.obd2.OBD2Translator;
+import br.com.staroski.obdjrp.io.bluetooth.Bluetooth;
 
 final class DataPanel extends JPanel {
 
-	private class OBD2DataListener implements OBD2Listener {
+	private class OBD2DataListener implements ObdJrpListener {
 
 		@Override
 		public void onError(Throwable error) {
@@ -42,19 +43,19 @@ final class DataPanel extends JPanel {
 		}
 
 		@Override
-		public void onFinishPackage(OBD2Package dataPackage) {
+		public void onFinishPackage(Package dataPackage) {
 			// ignora
 		}
 
 		@Override
-		public void onScanned(OBD2Scan scannedData) {
+		public void onScanned(Scan scannedData) {
 			DataPanel.this.dataList = scannedData.getData();
 			OBD2DataModel model = (OBD2DataModel) table.getModel();
 			model.update();
 		}
 
 		@Override
-		public void onStartPackage(OBD2Package dataPackage) {
+		public void onStartPackage(Package dataPackage) {
 			DataPanel.this.labelVIN.setText("VIN: " + dataPackage.getVIN());
 		}
 	}
@@ -100,8 +101,8 @@ final class DataPanel extends JPanel {
 
 		@Override
 		public Object getValueAt(int row, int col) {
-			OBD2Data rawData = dataList.get(row);
-			OBD2Translation translated = OBD2Translator.getTranslation(rawData);
+			Data rawData = dataList.get(row);
+			Translation translated = Translator.getTranslation(rawData);
 			switch (col) {
 				case 0:
 					return rawData.getPID();
@@ -125,7 +126,9 @@ final class DataPanel extends JPanel {
 	private JLabel labelVIN;
 	private JTable table;
 
-	private List<OBD2Data> dataList = new LinkedList<>();
+	private List<Data> dataList = new LinkedList<>();
+
+	private ELM327Monitor elm327monitor;
 
 	/**
 	 * Create the panel.
@@ -159,9 +162,9 @@ final class DataPanel extends JPanel {
 		elm327.exec("AT SP 0"); // protocolo automatico
 		elm327.exec("AT H0"); // desligando envio dos cabeçalhos
 
-		ELM327Monitor monitor = new ELM327Monitor(elm327);
-		monitor.addListener(new OBD2DataListener());
-		monitor.start();
+		elm327monitor = new ELM327Monitor(elm327);
+		elm327monitor.addListener(new OBD2DataListener());
+		elm327monitor.start();
 	}
 
 	void connect(RemoteDevice device, ServiceRecord service) {
@@ -179,6 +182,18 @@ final class DataPanel extends JPanel {
 			connect(connection);
 		} catch (IOException e) {
 			e.printStackTrace();
+		}
+	}
+
+	void stop() {
+		final UIController controller = UIController.get();
+		final Cursor cursor = controller.setCursor(Cursor.WAIT_CURSOR);
+		try {
+			if (elm327monitor != null) {
+				elm327monitor.stop();
+			}
+		} finally {
+			controller.setCursor(cursor);
 		}
 	}
 }
