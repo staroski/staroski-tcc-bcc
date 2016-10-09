@@ -1,4 +1,4 @@
-package br.com.staroski.obdjrp;
+package br.com.staroski.obdjrp.web;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -13,32 +13,18 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.Part;
 
-// web.xml
-//
-//<multipart-config>
-//<location>/tmp</location>
-//<max-file-size>20848820</max-file-size>
-//<max-request-size>418018841</max-request-size>
-//<file-size-threshold>1048576</file-size-threshold>
-//</multipart-config
-
-@WebServlet(name = "ObdJrpServlet", urlPatterns = { "/send-data" })
-@MultipartConfig(location = "T:\\obd-jrp-web\\tmp", fileSizeThreshold = 1024 * 1024, maxFileSize = 1024 * 1024 * 5, maxRequestSize = 1024 * 1024 * 5 * 5)
-public final class ObdJrpServlet extends HttpServlet {
+@WebServlet(name = "SendDataServlet", urlPatterns = { "/send-data" })
+@MultipartConfig( //
+		location = "T:\\obd-jrp-web\\tmp", //
+		fileSizeThreshold = 1024 * 1024, //
+		maxFileSize = 1024 * 1024 * 5, //
+		maxRequestSize = 1024 * 1024 * 5 * 5 //
+)
+public final class ObdJrpSendDataServlet extends HttpServlet {
 
 	private static final long serialVersionUID = 1L;
 
-	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		// getServletContext().getRequestDispatcher("/WEB-INF/form.jsp").forward(request, response);
-		process(request, response);
-	}
-
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		process(request, response);
-	}
-
-	private void process(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-
 		PrintWriter out = response.getWriter();
 
 		Collection<Part> parts = request.getParts();
