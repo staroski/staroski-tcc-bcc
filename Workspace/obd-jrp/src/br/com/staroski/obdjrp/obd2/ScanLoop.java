@@ -14,21 +14,31 @@ final class ScanLoop {
 		this.obd2Monitor = obd2Monitor;
 	}
 
+	private Thread thread;
+
 	public void start() {
 		if (!scanning) {
 			scanning = true;
-			new Thread(new Runnable() {
+			thread = new Thread(new Runnable() {
 
 				@Override
 				public void run() {
 					execute();
 				}
-			}).start();
+			});
+			thread.start();
 		}
 	}
 
 	public void stop() {
 		scanning = false;
+		if (thread != null && thread.isAlive()) {
+			try {
+				thread.join();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
 	}
 
 	private void execute() {
@@ -42,7 +52,7 @@ final class ScanLoop {
 				System.out.printf("preparing new data package...%n");
 
 				obd2Monitor.notifyStartPackage(obd2Package);
-				for (int i = 0; i < packageMaxSize && scanning; i++) {
+				for (int i = 0; scanning && i < packageMaxSize; i++) {
 
 					System.out.printf("scanning data %d of %d to package...", (i + 1), packageMaxSize);
 
