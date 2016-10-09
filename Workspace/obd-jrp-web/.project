@@ -3,6 +3,7 @@
 	<name>obd-jrp-web</name>
 	<comment></comment>
 	<projects>
+		<project>obd-jrp</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>

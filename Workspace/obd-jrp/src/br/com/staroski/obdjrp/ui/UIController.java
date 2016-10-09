@@ -11,6 +11,7 @@ import java.awt.event.WindowEvent;
 import javax.bluetooth.RemoteDevice;
 import javax.bluetooth.ServiceRecord;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 
 import br.com.staroski.obdjrp.ObdJrpProperties;
 import br.com.staroski.obdjrp.io.bluetooth.Bluetooth;
@@ -77,6 +78,12 @@ public final class UIController {
 
 	public Cursor setCursor(int cursor) {
 		return setCursor(Cursor.getPredefinedCursor(cursor));
+	}
+
+	public void showError(Throwable error) {
+		JOptionPane.showMessageDialog(getMainFrame(), error.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
+
+		cardLayout.show(parentPanel, connectionPanel.getName());
 	}
 
 	private void checkAutoConnec() {

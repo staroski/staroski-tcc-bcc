@@ -26,6 +26,10 @@ public final class ObdJrpProperties extends Properties {
 		return getProperty("device_address");
 	}
 
+	public String getObdJrpWebServer() {
+		return getProperty("obd_jrp_web_server");
+	}
+
 	public File getPackageDir() {
 		String value = getProperty("package_dir");
 		return ObdJrpUtils.isEmpty(value) ? Package.DEFAULT_DIR : new File(value);
@@ -42,5 +46,10 @@ public final class ObdJrpProperties extends Properties {
 
 	public String getTranslatorClassForPID(String pid) {
 		return getProperty("translator_" + pid);
+	}
+
+	public boolean isSavePackageAsXml() {
+		String value = getProperty("save_package_as_xml");
+		return ObdJrpUtils.isEmpty(value) ? false : "yes".equalsIgnoreCase(value) || "true".equalsIgnoreCase(value);
 	}
 }

@@ -1,8 +1,6 @@
 package br.com.staroski.obdjrp.ui;
 
 import java.awt.BorderLayout;
-import java.awt.CardLayout;
-import java.awt.Container;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.io.IOException;
@@ -12,7 +10,6 @@ import java.util.List;
 import javax.bluetooth.RemoteDevice;
 import javax.bluetooth.ServiceRecord;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
@@ -21,7 +18,7 @@ import javax.swing.table.AbstractTableModel;
 
 import br.com.staroski.obdjrp.ELM327;
 import br.com.staroski.obdjrp.ELM327Monitor;
-import br.com.staroski.obdjrp.ObdJrpListener;
+import br.com.staroski.obdjrp.ObdJrpAdapter;
 import br.com.staroski.obdjrp.data.Data;
 import br.com.staroski.obdjrp.data.Package;
 import br.com.staroski.obdjrp.data.Scan;
@@ -32,19 +29,11 @@ import br.com.staroski.obdjrp.io.bluetooth.Bluetooth;
 
 final class DataPanel extends JPanel {
 
-	private class OBD2DataListener implements ObdJrpListener {
+	private class OBD2DataListener extends ObdJrpAdapter {
 
 		@Override
 		public void onError(Throwable error) {
-			Container parent = getParent();
-			JOptionPane.showMessageDialog(parent, error.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
-			CardLayout layout = (CardLayout) parent.getLayout();
-			layout.previous(parent);
-		}
-
-		@Override
-		public void onFinishPackage(Package dataPackage) {
-			// ignora
+			UIController.get().showError(error);
 		}
 
 		@Override

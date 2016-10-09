@@ -1,6 +1,7 @@
 import javax.swing.JFrame;
 import javax.swing.UIManager;
 
+import br.com.staroski.obdjrp.FolderMonitor;
 import br.com.staroski.obdjrp.ui.UIController;
 
 public final class ObdJrp {
@@ -17,7 +18,7 @@ public final class ObdJrp {
 	private ObdJrp() {}
 
 	private void execute() {
-		startDataDirMonitor();
+		startFolderMonitor();
 		openMainFrame();
 	}
 
@@ -35,7 +36,12 @@ public final class ObdJrp {
 		}
 	}
 
-	private void startDataDirMonitor() {
-		// TODO Auto-generated method stub
+	private void startFolderMonitor() {
+		try {
+			new FolderMonitor().start();
+		} catch (Exception e) {
+			System.out.println("folder monitor aborted!");
+			e.printStackTrace();
+		}
 	}
 }

@@ -1,9 +1,13 @@
 package br.com.staroski.obdjrp.web;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintWriter;
 import java.net.HttpURLConnection;
-import java.util.Collection;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.MultipartConfig;
@@ -12,6 +16,9 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.Part;
+
+import br.com.staroski.obdjrp.data.Package;
+import br.com.staroski.obdjrp.io.ByteSerializer;
 
 @WebServlet(name = "SendDataServlet", urlPatterns = { "/send-data" })
 @MultipartConfig( //
@@ -26,47 +33,61 @@ public final class ObdJrpSendDataServlet extends HttpServlet {
 
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		PrintWriter out = response.getWriter();
-
-		Collection<Part> parts = request.getParts();
-
-		System.out.println("<h2> Total parts : " + parts.size() + "</h2>");
-
-		for (Part part : parts) {
-			printEachPart(part);
-			String fileName = getFileName(part);
-			System.out.println(fileName);
-			out.write(fileName + " processed!");
-
-			// part.write(getFileName(part));
+		Part part = request.getPart("fileUpload");
+		if (part != null) {
+			if (savePart(part)) {
+				out.write("OK");
+			} else {
+				out.write("ERROR");
+			}
 		}
 		response.setStatus(HttpURLConnection.HTTP_OK);
 	}
 
-	private void printEachPart(Part part) {
-		StringBuffer sb = new StringBuffer();
-		sb.append("<p>");
-		sb.append("Name : " + part.getName());
-		sb.append("<br>");
-		sb.append("Content Type : " + part.getContentType());
-		sb.append("<br>");
-		sb.append("Size : " + part.getSize());
-		sb.append("<br>");
-		for (String header : part.getHeaderNames()) {
-			sb.append(header + " : " + part.getHeader(header));
-			sb.append("<br>");
+	private boolean savePart(Part part) {
+		try {
+			InputStream input = part.getInputStream();
+			Package dataPackage = ByteSerializer.readFrom(input);
+			return saveDataPackage(dataPackage);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return false;
 		}
-		sb.append("</p>");
-		System.out.println(sb.toString());
-
 	}
 
-	private String getFileName(Part part) {
-		String partHeader = part.getHeader("content-disposition");
-		for (String cd : partHeader.split(";")) {
-			if (cd.trim().startsWith("filename")) {
-				return cd.substring(cd.indexOf('=') + 1).trim().replace("\"", "");
-			}
-		}
-		return null;
+	private File getFile(Package dataPackage, String extension) throws IOException {
+		File file = getDataDir(dataPackage);
+		SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss");
+		String name = formatter.format(new Date(dataPackage.getTime()));
+		file = new File(file, name + extension);
+		file.createNewFile();
+		return file;
 	}
+
+	private boolean saveDataPackage(Package dataPackage) {
+		try {
+			File obdFile = getFile(dataPackage, ".obd");
+			System.out.printf("Gravando \"%s\"...", obdFile.getAbsolutePath());
+			FileOutputStream obdOutput = new FileOutputStream(obdFile);
+			ByteSerializer.writeTo(obdOutput, dataPackage);
+			obdOutput.close();
+			System.out.println("  OK!");
+			return true;
+		} catch (IOException e) {
+			System.out.println("  ERRO!");
+			e.printStackTrace();
+			return false;
+		}
+	}
+
+	private File getDataDir(Package dataPackage) {
+		String vin = dataPackage.getVIN();
+		// String path = getServletContext().getRealPath("/obd-jrp-data/" + vin);
+		File file = new File("T:\\obd-jrp-web\\obd-jrp-data", vin);
+		if (!file.exists()) {
+			file.mkdirs();
+		}
+		return file;
+	}
+
 }
