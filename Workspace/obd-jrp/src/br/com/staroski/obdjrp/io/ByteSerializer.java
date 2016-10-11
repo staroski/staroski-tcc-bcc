@@ -22,7 +22,7 @@ public final class ByteSerializer {
 		List<Scan> scannedData = dataPackage.getScans();
 		final int scanCount = in.readInt();
 		for (int scanIndex = 0; scanIndex < scanCount; scanIndex++) {
-			Scan dataScan = new Scan();
+			Scan dataScan = new Scan(in.readLong());
 			List<Data> dataList = dataScan.getData();
 			final int dataCount = in.readInt();
 			for (int dataIndex = 0; dataIndex < dataCount; dataIndex++) {
@@ -48,6 +48,7 @@ public final class ByteSerializer {
 		List<Scan> scannedData = dataPackage.getScans();
 		out.writeInt(scannedData.size());
 		for (Scan dataScan : scannedData) {
+			out.writeLong(dataScan.getTime());
 			List<Data> dataList = dataScan.getData();
 			out.writeInt(dataList.size());
 			for (Data data : dataList) {

@@ -14,7 +14,7 @@ import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.List;
 
-public class HttpPost {
+public final class HttpPost {
 
 	private static final String LINE_FEED = "\r\n";
 	private final String boundary;

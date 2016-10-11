@@ -46,6 +46,7 @@ final class FileHandler extends ObdJrpAdapter {
 				FileOutputStream xmlOutput = new FileOutputStream(xmlFile);
 				XmlSerializer.writeTo(xmlOutput, dataPackage);
 				xmlOutput.close();
+				xmlFile.setLastModified(dataPackage.getTime());
 				System.out.println("  OK!");
 			}
 			File obdFile = getFile(dataPackage, ".obd");
@@ -53,6 +54,7 @@ final class FileHandler extends ObdJrpAdapter {
 			FileOutputStream obdOutput = new FileOutputStream(obdFile);
 			ByteSerializer.writeTo(obdOutput, dataPackage);
 			obdOutput.close();
+			obdFile.setLastModified(dataPackage.getTime());
 			System.out.println("  OK!");
 		} catch (IOException e) {
 			System.out.println("  ERRO!");

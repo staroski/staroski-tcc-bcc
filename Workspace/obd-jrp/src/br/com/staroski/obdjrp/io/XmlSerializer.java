@@ -41,6 +41,10 @@ public final class XmlSerializer {
 			for (Scan scanned : dataPackage.getScans()) {
 				Element scanElement = document.createElement("scan");
 
+				Attr scanTimeAttr = document.createAttribute("time");
+				scanTimeAttr.setValue(String.valueOf(scanned.getTime()));
+				scanElement.setAttributeNode(scanTimeAttr);
+
 				for (Data data : scanned.getData()) {
 					Element dataElement = document.createElement("data");
 

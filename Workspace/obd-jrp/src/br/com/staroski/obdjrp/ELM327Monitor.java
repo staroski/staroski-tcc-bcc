@@ -150,8 +150,8 @@ public final class ELM327Monitor {
 	}
 
 	Scan scan() throws IOException {
-		Scan dataPackage = new Scan();
-		List<Data> dataList = dataPackage.getData();
+		Scan scan = new Scan(System.currentTimeMillis());
+		List<Data> dataList = scan.getData();
 		List<String> pids = getSupportedPIDs();
 		for (String pid : pids) {
 			String result = execute(SHOW_CURRENT_DATA, pid, RESPONSES_TO_WAIT);
@@ -160,6 +160,6 @@ public final class ELM327Monitor {
 				dataList.add(new Data(pid, result));
 			}
 		}
-		return dataPackage;
+		return scan;
 	}
 }
