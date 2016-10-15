@@ -12,11 +12,11 @@ public final class Scan {
 		this.time = time;
 	}
 
-	public long getTime() {
-		return time;
-	}
-
 	public List<Data> getData() {
 		return data;
+	}
+
+	public long getTime() {
+		return time;
 	}
 }

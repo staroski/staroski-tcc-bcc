@@ -4,7 +4,7 @@ import br.com.staroski.obdjrp.data.Data;
 import br.com.staroski.obdjrp.data.Translation;
 import br.com.staroski.obdjrp.data.Translator;
 
-public class ThrottlePosition extends Translator {
+public class ThrottlePosition implements Translator {
 
 	@Override
 	public Translation translate(Data data) {

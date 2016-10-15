@@ -4,7 +4,7 @@ import br.com.staroski.obdjrp.data.Data;
 import br.com.staroski.obdjrp.data.Translation;
 import br.com.staroski.obdjrp.data.Translator;
 
-public class IntakeAirTemperature extends Translator {
+public class IntakeAirTemperature implements Translator {
 
 	@Override
 	public Translation translate(Data data) {

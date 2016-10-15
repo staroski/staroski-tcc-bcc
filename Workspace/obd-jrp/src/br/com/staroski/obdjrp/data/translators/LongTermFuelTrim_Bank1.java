@@ -4,7 +4,7 @@ import br.com.staroski.obdjrp.data.Data;
 import br.com.staroski.obdjrp.data.Translation;
 import br.com.staroski.obdjrp.data.Translator;
 
-public class LongTermFuelTrim_Bank1 extends Translator {
+public class LongTermFuelTrim_Bank1 implements Translator {
 
 	@Override
 	public Translation translate(Data data) {
