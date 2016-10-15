@@ -11,9 +11,11 @@ import java.util.List;
 import br.com.staroski.obdjrp.data.Data;
 import br.com.staroski.obdjrp.data.Package;
 import br.com.staroski.obdjrp.data.Scan;
-import br.com.staroski.obdjrp.data.Translator;
+import br.com.staroski.obdjrp.data.Translators;
 
 public final class CsvSerializer {
+
+	private static final String SEPARATOR = ",";
 
 	private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
@@ -29,7 +31,7 @@ public final class CsvSerializer {
 			if (header) {
 				line.append("Date time");
 				for (Data data : scan.getData()) {
-					line.append(",").append(Translator.getTranslation(data).getDescription());
+					line.append(SEPARATOR).append(Translators.translate(data).getDescriptions(SEPARATOR));
 				}
 				csv.add(line.toString());
 				line = new StringBuilder();
@@ -37,7 +39,7 @@ public final class CsvSerializer {
 			}
 			line.append(DATE_FORMAT.format(new Date(scan.getTime())));
 			for (Data data : scan.getData()) {
-				line.append(",").append(Translator.getTranslation(data).getValue());
+				line.append(SEPARATOR).append(Translators.translate(data).getValues(SEPARATOR));
 			}
 			csv.add(line.toString());
 		}

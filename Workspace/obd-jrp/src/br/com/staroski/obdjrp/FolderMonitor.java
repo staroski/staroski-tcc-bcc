@@ -41,31 +41,39 @@ public class FolderMonitor {
 
 	private boolean scanning;
 
-	private Thread thread;
+	private Thread scanThread;
 
 	private ObdJrpProperties properties;
 
-	public FolderMonitor() {}
+	public FolderMonitor() {
+		Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
+
+			@Override
+			public void run() {
+				stop();
+			}
+		}, FolderMonitor.class.getSimpleName() + "_ShutdownHook"));
+	}
 
 	public void start() {
 		if (!scanning) {
 			scanning = true;
-			thread = new Thread(new Runnable() {
+			scanThread = new Thread(new Runnable() {
 
 				@Override
 				public void run() {
 					execute();
 				}
-			});
-			thread.start();
+			}, FolderMonitor.class.getSimpleName() + "_ScanThread");
+			scanThread.start();
 		}
 	}
 
 	public void stop() {
 		scanning = false;
-		if (thread != null && thread.isAlive()) {
+		if (scanThread != null && scanThread.isAlive()) {
 			try {
-				thread.join();
+				scanThread.join();
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}

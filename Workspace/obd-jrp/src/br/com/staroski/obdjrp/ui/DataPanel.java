@@ -23,7 +23,7 @@ import br.com.staroski.obdjrp.data.Data;
 import br.com.staroski.obdjrp.data.Package;
 import br.com.staroski.obdjrp.data.Scan;
 import br.com.staroski.obdjrp.data.Translation;
-import br.com.staroski.obdjrp.data.Translator;
+import br.com.staroski.obdjrp.data.Translators;
 import br.com.staroski.obdjrp.io.IO;
 import br.com.staroski.obdjrp.io.bluetooth.Bluetooth;
 
@@ -91,17 +91,17 @@ final class DataPanel extends JPanel {
 		@Override
 		public Object getValueAt(int row, int col) {
 			Data rawData = dataList.get(row);
-			Translation translated = Translator.getTranslation(rawData);
+			Translation translated = Translators.translate(rawData);
 			switch (col) {
 				case 0:
 					return rawData.getPID();
 				case 1:
 					return rawData.getValue();
 				case 2:
-					return translated.getDescription();
+					return translated.getDescriptions("  |  ");
 				case 3:
 				default:
-					return translated.getValue();
+					return translated.getValues("  |  ");
 			}
 		}
 

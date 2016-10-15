@@ -19,4 +19,8 @@ public final class Scan {
 	public long getTime() {
 		return time;
 	}
+
+	public boolean isEmpty() {
+		return data.isEmpty();
+	}
 }

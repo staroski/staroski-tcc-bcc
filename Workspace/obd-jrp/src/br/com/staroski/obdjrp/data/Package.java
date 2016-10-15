@@ -30,4 +30,8 @@ public final class Package {
 	public String getVIN() {
 		return vin;
 	}
+
+	public boolean isEmpty() {
+		return scans.isEmpty();
+	}
 }
