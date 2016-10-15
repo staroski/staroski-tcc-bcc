@@ -20,7 +20,7 @@ import br.com.staroski.obdjrp.data.Data;
 import br.com.staroski.obdjrp.data.Package;
 import br.com.staroski.obdjrp.data.Scan;
 
-public final class XmlSerializer {
+public final class XmlHelper {
 
 	public static Document packageToDocument(Package dataPackage) throws IOException {
 		try {
@@ -85,5 +85,5 @@ public final class XmlSerializer {
 		}
 	}
 
-	private XmlSerializer() {}
+	private XmlHelper() {}
 }

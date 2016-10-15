@@ -7,8 +7,8 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import br.com.staroski.obdjrp.data.Package;
-import br.com.staroski.obdjrp.io.ByteSerializer;
-import br.com.staroski.obdjrp.io.XmlSerializer;
+import br.com.staroski.obdjrp.io.ByteHelper;
+import br.com.staroski.obdjrp.io.XmlHelper;
 
 final class FileHandler extends ObdJrpAdapter {
 
@@ -44,7 +44,7 @@ final class FileHandler extends ObdJrpAdapter {
 				File xmlFile = getFile(dataPackage, ".xml");
 				System.out.printf("Gravando \"%s\"...", xmlFile.getAbsolutePath());
 				FileOutputStream xmlOutput = new FileOutputStream(xmlFile);
-				XmlSerializer.writeTo(xmlOutput, dataPackage);
+				XmlHelper.writeTo(xmlOutput, dataPackage);
 				xmlOutput.close();
 				xmlFile.setLastModified(dataPackage.getTime());
 				System.out.println("  OK!");
@@ -52,7 +52,7 @@ final class FileHandler extends ObdJrpAdapter {
 			File obdFile = getFile(dataPackage, ".obd");
 			System.out.printf("Gravando \"%s\"...", obdFile.getAbsolutePath());
 			FileOutputStream obdOutput = new FileOutputStream(obdFile);
-			ByteSerializer.writeTo(obdOutput, dataPackage);
+			ByteHelper.writeTo(obdOutput, dataPackage);
 			obdOutput.close();
 			obdFile.setLastModified(dataPackage.getTime());
 			System.out.println("  OK!");

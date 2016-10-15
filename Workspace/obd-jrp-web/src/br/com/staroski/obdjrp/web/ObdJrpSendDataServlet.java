@@ -12,14 +12,13 @@ import java.util.Date;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.Part;
 
 import br.com.staroski.obdjrp.data.Package;
-import br.com.staroski.obdjrp.io.ByteSerializer;
-import br.com.staroski.obdjrp.io.CsvSerializer;
+import br.com.staroski.obdjrp.io.ByteHelper;
+import br.com.staroski.obdjrp.io.CsvHelper;
 
 @WebServlet(name = "SendDataServlet", urlPatterns = { "/send-data" })
 @MultipartConfig( //
@@ -28,7 +27,7 @@ import br.com.staroski.obdjrp.io.CsvSerializer;
 		maxFileSize = 1024 * 1024 * 5, //
 		maxRequestSize = 1024 * 1024 * 5 * 5 //
 )
-public final class ObdJrpSendDataServlet extends HttpServlet {
+public final class ObdJrpSendDataServlet extends ObdJrpServlet {
 
 	private static final long serialVersionUID = 1L;
 
@@ -48,7 +47,7 @@ public final class ObdJrpSendDataServlet extends HttpServlet {
 	private boolean savePart(Part part) {
 		try {
 			InputStream input = part.getInputStream();
-			Package dataPackage = ByteSerializer.readFrom(input);
+			Package dataPackage = ByteHelper.readFrom(input);
 			return saveDataPackage(dataPackage);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -70,7 +69,7 @@ public final class ObdJrpSendDataServlet extends HttpServlet {
 			File obdFile = getFile(dataPackage, ".obd");
 			System.out.printf("Gravando \"%s\"...", obdFile.getAbsolutePath());
 			FileOutputStream obdOutput = new FileOutputStream(obdFile);
-			ByteSerializer.writeTo(obdOutput, dataPackage);
+			ByteHelper.writeTo(obdOutput, dataPackage);
 			obdOutput.close();
 			obdFile.setLastModified(dataPackage.getTime());
 			System.out.println("  OK!");
@@ -78,7 +77,7 @@ public final class ObdJrpSendDataServlet extends HttpServlet {
 			File csvFile = getFile(dataPackage, ".csv");
 			System.out.printf("Gravando \"%s\"...", csvFile.getAbsolutePath());
 			FileOutputStream csvOutput = new FileOutputStream(csvFile);
-			CsvSerializer.writeTo(csvOutput, dataPackage);
+			CsvHelper.writeTo(csvOutput, dataPackage);
 			csvOutput.close();
 			csvFile.setLastModified(dataPackage.getTime());
 			System.out.println("  OK!");
@@ -90,15 +89,4 @@ public final class ObdJrpSendDataServlet extends HttpServlet {
 			return false;
 		}
 	}
-
-	private File getDataDir(Package dataPackage) {
-		String vin = dataPackage.getVIN();
-		// String path = getServletContext().getRealPath("/obd-jrp-data/" + vin);
-		File file = new File("T:\\obd-jrp-web\\obd-jrp-data", vin);
-		if (!file.exists()) {
-			file.mkdirs();
-		}
-		return file;
-	}
-
 }

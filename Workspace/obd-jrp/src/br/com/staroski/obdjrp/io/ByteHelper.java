@@ -14,7 +14,7 @@ import br.com.staroski.obdjrp.data.Data;
 import br.com.staroski.obdjrp.data.Package;
 import br.com.staroski.obdjrp.data.Scan;
 
-public final class ByteSerializer {
+public final class ByteHelper {
 
 	public static Package bytesToPackage(byte[] bytes) throws IOException {
 		DataInputStream in = new DataInputStream(new ByteArrayInputStream(bytes));
@@ -78,5 +78,5 @@ public final class ByteSerializer {
 		output.flush();
 	}
 
-	private ByteSerializer() {}
+	private ByteHelper() {}
 }
