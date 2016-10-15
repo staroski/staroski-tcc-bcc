@@ -4,6 +4,6 @@ public class ShortTermFuelTrim_Bank1 extends FuelTrim {
 
 	@Override
 	String getDescription() {
-		return "Short term fuel trim—Bank 1";
+		return "Short term fuel trim Bank 1";
 	}
 }

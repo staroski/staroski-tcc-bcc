@@ -50,4 +50,8 @@ public final class Translation {
 		}
 		return value.toString();
 	}
+
+	public boolean isUnknown() {
+		return this == UNKNOWN;
+	}
 }
