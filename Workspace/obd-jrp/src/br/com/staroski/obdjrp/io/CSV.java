@@ -7,15 +7,14 @@ import java.util.Map;
 
 public final class CSV {
 
-	public static final String SEPARATOR = ",";
+	public static final String SEPARATOR = ";";
 
 	private final int lines;
 	private final List<String> headers = new ArrayList<>();
 	private final Map<String, List<String>> headerValues = new HashMap<>();
 
 	CSV(List<String> csvLines) {
-		lines = csvLines.size() - 1; // -1 pra ignorar o header
-		load(csvLines);
+		lines = load(csvLines);
 	}
 
 	public String getHeader(int index) {
@@ -39,6 +38,10 @@ public final class CSV {
 		return values.get(row);
 	}
 
+	public boolean isEmpty() {
+		return getLines() < 1;
+	}
+
 	private void addValue(int column, String value) {
 		String key = headers.get(column);
 		List<String> values = headerValues.get(key);
@@ -49,17 +52,21 @@ public final class CSV {
 		values.add(value);
 	}
 
-	private void load(List<String> csvLines) {
+	private int load(List<String> csvLines) {
+		if (csvLines.isEmpty()) {
+			return 0;
+		}
 		String text = csvLines.get(0);
-		for (String header : text.split("\\" + SEPARATOR)) {
+		for (String header : text.split(SEPARATOR)) {
 			headers.add(header);
 		}
 		for (int line = 1, lines = csvLines.size(); line < lines; line++) {
 			text = csvLines.get(line);
-			String[] values = text.split("\\" + SEPARATOR);
+			String[] values = text.split(SEPARATOR);
 			for (int column = 0, columns = values.length; column < columns; column++) {
 				addValue(column, values[column]);
 			}
 		}
+		return csvLines.size() - 1;
 	}
 }

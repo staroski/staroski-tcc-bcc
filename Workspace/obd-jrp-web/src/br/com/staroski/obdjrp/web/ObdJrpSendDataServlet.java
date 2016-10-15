@@ -31,30 +31,6 @@ public final class ObdJrpSendDataServlet extends ObdJrpServlet {
 
 	private static final long serialVersionUID = 1L;
 
-	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		PrintWriter out = response.getWriter();
-		Part part = request.getPart("fileUpload");
-		if (part != null) {
-			if (savePart(part)) {
-				out.write("OK");
-			} else {
-				out.write("ERROR");
-			}
-		}
-		response.setStatus(HttpURLConnection.HTTP_OK);
-	}
-
-	private boolean savePart(Part part) {
-		try {
-			InputStream input = part.getInputStream();
-			Package dataPackage = ByteHelper.readFrom(input);
-			return saveDataPackage(dataPackage);
-		} catch (Exception e) {
-			e.printStackTrace();
-			return false;
-		}
-	}
-
 	private File getFile(Package dataPackage, String extension) throws IOException {
 		File file = getDataDir(dataPackage);
 		SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss");
@@ -88,5 +64,29 @@ public final class ObdJrpSendDataServlet extends ObdJrpServlet {
 			e.printStackTrace();
 			return false;
 		}
+	}
+
+	private boolean savePart(Part part) {
+		try {
+			InputStream input = part.getInputStream();
+			Package dataPackage = ByteHelper.readFrom(input);
+			return saveDataPackage(dataPackage);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return false;
+		}
+	}
+
+	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		PrintWriter out = response.getWriter();
+		Part part = request.getPart("fileUpload");
+		if (part != null) {
+			if (savePart(part)) {
+				out.write("OK");
+			} else {
+				out.write("ERROR");
+			}
+		}
+		response.setStatus(HttpURLConnection.HTTP_OK);
 	}
 }
