@@ -1,4 +1,5 @@
 .settings
 bin
 obd-jrp-data
+target
 **/*.class
