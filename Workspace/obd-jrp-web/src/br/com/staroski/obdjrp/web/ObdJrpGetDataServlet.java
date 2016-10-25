@@ -17,15 +17,15 @@ public class ObdJrpGetDataServlet extends ObdJrpServlet {
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		PrintWriter out = response.getWriter();
-		String vim = request.getParameter("vim");
-		if (vim == null || vim.isEmpty()) {
-			out.println("Availiable VIMs:");
+		String vin = request.getParameter("vin");
+		if (vin == null || vin.isEmpty()) {
+			out.println("Availiable VINs:");
 			File dir = getDataDir();
 			for (File f : dir.listFiles()) {
 				out.println("\t" + f.getName());
 			}
 		} else {
-			out.println(HtmlChartBuilder.createPage(vim));
+			out.println(HtmlChartBuilder.createPage(vin));
 		}
 		response.setStatus(HttpURLConnection.HTTP_OK);
 	}

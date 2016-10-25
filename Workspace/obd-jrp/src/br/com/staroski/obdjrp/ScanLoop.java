@@ -13,7 +13,9 @@ final class ScanLoop {
 
 	private boolean scanning;
 
-	private Thread thread;
+	private Thread loop_thread;
+
+	private long begin_scan;
 
 	public ScanLoop(ELM327Monitor obd2Monitor) {
 		this.obd2Monitor = obd2Monitor;
@@ -22,25 +24,46 @@ final class ScanLoop {
 	public void start() {
 		if (!scanning) {
 			scanning = true;
-			thread = new Thread(new Runnable() {
+			loop_thread = new Thread(new Runnable() {
 
 				@Override
 				public void run() {
 					execute();
 				}
 			});
-			thread.start();
+			loop_thread.start();
 		}
 	}
 
 	public void stop() {
+		if (!scanning) {
+			return;
+		}
 		scanning = false;
-		if (thread != null && thread.isAlive()) {
+		if (loop_thread != null && loop_thread.isAlive()) {
 			try {
-				thread.join();
+				loop_thread.join();
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
+		}
+	}
+
+	private void begin_scan() {
+		begin_scan = System.currentTimeMillis();
+	}
+
+	private void end_scan() {
+		long end_scan = System.currentTimeMillis();
+		long elapsed_time = end_scan - begin_scan;
+		if (elapsed_time < ONE_SECOND) {
+			try {
+				Thread.sleep(ONE_SECOND - elapsed_time);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		} else {
+			Thread.yield();
 		}
 	}
 
@@ -55,34 +78,39 @@ final class ScanLoop {
 				System.out.printf("creating new data package...%n");
 				obd2Monitor.notifyStartPackage(obd2Package);
 				for (int i = 0; scanning && i < packageMaxSize; i++) {
-					System.out.printf("scanning data %d of %d...", (i + 1), packageMaxSize);
-					long begin = System.currentTimeMillis();
-					Scan scan = obd2Monitor.scan();
-					scans.add(scan);
-					obd2Monitor.notifyScanned(scan);
-					System.out.printf("    DONE! %d PIDs scanned!%n", scan.getData().size());
-					long end = System.currentTimeMillis();
-					long elapsed = end - begin;
-					if (elapsed < ONE_SECOND) {
-						Thread.sleep(ONE_SECOND - elapsed);
-					} else {
-						Thread.yield();
+					begin_scan();
+					{
+						System.out.printf("scanning data %d of %d...", (i + 1), packageMaxSize);
+						Scan scan = obd2Monitor.scan();
+						scans.add(scan);
+						obd2Monitor.notifyScanned(scan);
+						System.out.printf("    DONE! %d PIDs scanned!%n", scan.getData().size());
 					}
+					end_scan();
 					if (!scanning) {
 						break;
 					}
 				}
-				obd2Monitor.notifyFinishPackage(obd2Package);
-				System.out.println("data package saved!");
+				save(obd2Package);
 			} catch (Throwable e) {
 				scanning = false;
-				if (obd2Package != null) {
-					System.out.println("a error happened! trying to save data package...");
-					obd2Monitor.notifyFinishPackage(obd2Package);
-					System.out.println("data package saved!");
-				}
+				System.out.println("a error happened!");
 				e.printStackTrace();
 				obd2Monitor.notifyError(e);
+				save(obd2Package);
+				return;
+			}
+		}
+	}
+
+	private void save(Package obd2Package) {
+		if (obd2Package != null) {
+			if (obd2Package.isEmpty()) {
+				System.out.println("empty package ignored!");
+			} else {
+				System.out.println("trying to save data package...");
+				obd2Monitor.notifyFinishPackage(obd2Package);
+				System.out.println("data package saved!");
 			}
 		}
 	}

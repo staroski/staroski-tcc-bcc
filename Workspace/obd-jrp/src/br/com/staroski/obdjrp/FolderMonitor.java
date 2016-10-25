@@ -11,7 +11,7 @@ import java.util.Queue;
 
 import br.com.staroski.obdjrp.io.HttpPost;
 
-public class FolderMonitor {
+public final class FolderMonitor {
 
 	private static final int ONE_MINUTE = 60000;
 
@@ -45,6 +45,10 @@ public class FolderMonitor {
 
 	private ObdJrpProperties properties;
 
+	private long begin_scan;
+
+	private final Object LOCK = new Object();
+
 	public FolderMonitor() {
 		Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
 
@@ -71,6 +75,9 @@ public class FolderMonitor {
 
 	public void stop() {
 		scanning = false;
+		synchronized (LOCK) {
+			LOCK.notify();
+		}
 		if (scanThread != null && scanThread.isAlive()) {
 			try {
 				scanThread.join();
@@ -80,28 +87,40 @@ public class FolderMonitor {
 		}
 	}
 
-	private void execute() {
-		while (scanning) {
-			properties = new ObdJrpProperties();
-			long begin = System.currentTimeMillis();
-			try {
-				Queue<File> files = getFiles();
-				while (scanning && !files.isEmpty()) {
-					File file = files.poll();
-					if (upload(file)) {
-						file.delete();
-					}
-				}
-			} catch (Throwable t) {
-				t.printStackTrace();
-			}
-			long elapsed = System.currentTimeMillis() - begin;
-			if (elapsed < ONE_MINUTE) {
+	private void begin_scan() {
+		begin_scan = System.currentTimeMillis();
+	}
+
+	private void end_scan() {
+		long elapsed = System.currentTimeMillis() - begin_scan;
+		if (elapsed < ONE_MINUTE) {
+			synchronized (LOCK) {
 				try {
-					Thread.sleep(ONE_MINUTE - elapsed);
+					LOCK.wait(ONE_MINUTE - elapsed);
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
+			}
+		}
+	}
+
+	private void execute() {
+		while (scanning) {
+			try {
+				properties = new ObdJrpProperties();
+				begin_scan();
+				{
+					Queue<File> files = getFiles();
+					while (scanning && !files.isEmpty()) {
+						File file = files.poll();
+						if (upload(file)) {
+							file.delete();
+						}
+					}
+				}
+				end_scan();
+			} catch (Throwable t) {
+				t.printStackTrace();
 			}
 		}
 	}
