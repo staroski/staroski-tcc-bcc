@@ -8,21 +8,12 @@ REM ##########
 @echo Preparando para executar subst...
 @pause
 
-REM Criando unidade G: para a pasta de instalação do Delphi
-call:create_unit G: C:\PROGRA~2\Borland\Delphi5
-
-REM Criando unidade M: para a execucao dos sistemas Delphi
-call:create_unit M: C:\Desenvolvimento\repositorios\svcl-fontes\runtime
-
-REM Criando unidade R: para os repositórios GIT
-call:create_unit R: C:\Desenvolvimento\repositorios
-
 REM Criando unidade S: para o workspace pessoal do Staroski
 if exist E:\unidade_S (
 	@echo Criando unidade S: no HD externo E:
 	call:create_unit S: E:\unidade_S
 ) else (
-	call:create_unit S: C:\Desenvolvimento\staroski_workspace
+	call:create_unit S: C:\unidade_S
 )
 
 REM Criando unidade T: para o eclipse workspace do TCC do Staroski
@@ -30,14 +21,8 @@ if exist E:\unidade_T (
 	@echo Criando unidade T: no HD externo E:
 	call:create_unit T: E:\unidade_T
 ) else (
-	call:create_unit T: C:\Desenvolvimento\staroski_workspace\staroski-tcc-bcc\default\Workspace
+	call:create_unit T: C:\unidade_S\staroski-tcc-bcc\default\Workspace
 )
-
-REM Criando unidade W: para o workspace do eclipse neon
-call:create_unit W: C:\Desenvolvimento\workspaces\eclipse-neon
-
-REM Criando unidade Z: para os repositorios dos fontes Delphi
-call:create_unit Z: C:\Desenvolvimento\repositorios
 
 REM ##########
 REM #  Final #
@@ -45,25 +30,16 @@ REM ##########
 @pause
 goto:eof
 
-:run_local
-%~1 %~2 %~3
-goto:eof
-
-:run_admin
-runas /savecred /user:pcbnu008775\Administrador "%~1 %~2 %~3"  
-goto:eof
-
-:run_local_and_admin
-call:run_local %~1 %~2 %~3
-call:run_admin %~1 %~2 %~3
-goto:eof
 
 :create_unit
-@echo Criando unidade %~1...
-call:run_local_and_admin subst %~1 /D
-call:run_local_and_admin subst %~1 %~2
+@echo tentando apagar unidade %~1 existente...
+subst %~1 /D
+@echo criando unidade %~1...
+subst %~1 %~2
 if exist %~1 (
-  @echo Unidade %~1 criada com sucesso!
+  @echo unidade %~1 criada com sucesso!
+) else (
+  @echo nao foi possivel criar unidade %~1
 )
 @echo(
 goto:eof

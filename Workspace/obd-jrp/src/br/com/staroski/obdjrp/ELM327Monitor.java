@@ -23,7 +23,7 @@ public final class ELM327Monitor {
 	}
 
 	private static String resultBytes(String mode, String pid, String result) {
-		String text = result;
+		String text = result.replaceAll(" ", "");
 		String responseHeader = responseHeader(mode, pid);
 		int offset = text.indexOf(responseHeader);
 		if (offset != -1) {
@@ -120,6 +120,9 @@ public final class ELM327Monitor {
 		String[] lines = value.split(String.valueOf(ELM327.RETURN));
 		StringBuilder text = new StringBuilder();
 		for (String line : lines) {
+			if(line.startsWith("4902")){
+				line=line.substring(4);
+			}
 			line = line.substring(2); // remover indice
 			text.append(line);
 		}

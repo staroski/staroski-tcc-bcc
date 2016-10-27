@@ -21,7 +21,7 @@ final class FileHandler extends ObdJrpAdapter {
 
 	private File getDataDir(Package dataPackage) {
 		File folder = props.getPackageDir();
-		File file = new File(folder, dataPackage.getVIN());
+		File file = new File(folder, "vin-" + dataPackage.getVIN().trim());
 		if (!file.exists()) {
 			file.mkdirs();
 		}

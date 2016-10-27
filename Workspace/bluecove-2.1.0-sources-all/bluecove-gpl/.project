@@ -2,7 +2,9 @@
 <projectDescription>
   <name>bluecove-gpl</name>
   <comment>BlueCove Linux BlueZ module. NO_M2ECLIPSE_SUPPORT: Project files created with the maven-eclipse-plugin are not supported in M2Eclipse.</comment>
-  <projects/>
+  <projects>
+    <project>bluecove</project>
+  </projects>
   <buildSpec>
     <buildCommand>
       <name>org.eclipse.jdt.core.javabuilder</name>

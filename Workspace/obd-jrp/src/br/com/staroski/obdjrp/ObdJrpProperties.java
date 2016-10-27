@@ -32,7 +32,9 @@ public final class ObdJrpProperties extends Properties {
 
 	public File getPackageDir() {
 		String value = getProperty("package_dir");
-		return ObdJrpUtils.isEmpty(value) ? Package.DEFAULT_DIR : new File(value);
+		File dir = ObdJrpUtils.isEmpty(value) ? Package.DEFAULT_DIR : new File(value);
+		dir.mkdirs();
+		return dir;
 	}
 
 	public int getPackageMaxSize() {
