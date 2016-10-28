@@ -1,5 +1,5 @@
-.settings
-bin
-obd-jrp-data
-target
-**/*.class
+/.settings
+/bin/
+/*obd-jrp-data
+/target
+/**/*.class
