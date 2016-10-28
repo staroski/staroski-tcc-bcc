@@ -12,12 +12,9 @@ import javax.bluetooth.RemoteDevice;
 import javax.bluetooth.ServiceRecord;
 import javax.bluetooth.UUID;
 
-final class Services implements DiscoveryListener {
+final class ServiceScanner implements DiscoveryListener {
 
-	public static final short ATTRIBUTE_SERVICE_NAME = 0x0100;
-	public static final short UUID_SERIAL_PORT_PROFILE = 0x1101;
-
-	private static final Services SCANNER = new Services();
+	private static final ServiceScanner SCANNER = new ServiceScanner();
 
 	public static ServiceRecord find(final RemoteDevice device, String serviceName) throws IOException {
 		List<ServiceRecord> services = list(device);
@@ -34,38 +31,19 @@ final class Services implements DiscoveryListener {
 	}
 
 	public static String getName(ServiceRecord service) {
-		String name = (String) service.getAttributeValue(ATTRIBUTE_SERVICE_NAME).getValue();
+		String name = (String) service.getAttributeValue(Bluetooth.ATTRIBUTE_SERVICE_NAME).getValue();
 		return name.trim();
 	}
 
 	public static List<ServiceRecord> list(final RemoteDevice device) throws IOException {
-		return showServices(SCANNER.listServices(device));
-	}
-
-	private static List<ServiceRecord> showServices(List<ServiceRecord> services) {
-		if (Bluetooth.PRINT_DEBUG_INFO) {
-			if (services.isEmpty()) {
-				System.out.println("no services found!");
-				return services;
-			}
-			System.out.println("services {");
-			for (ServiceRecord service : services) {
-				String address = service.getHostDevice().getBluetoothAddress();
-				System.out.println("    " + address + " {");
-				String name = getName(service);
-				System.out.println("        name: \"" + name + "\"");
-				System.out.println("    }");
-			}
-			System.out.println("}");
-		}
-		return services;
+		return SCANNER.listServices(device);
 	}
 
 	private final Object LOCK = new Object();
 
 	private final List<ServiceRecord> services = new ArrayList<>();
 
-	private Services() {}
+	private ServiceScanner() {}
 
 	@Override
 	public void deviceDiscovered(RemoteDevice btDevice, DeviceClass cod) {}
@@ -89,8 +67,8 @@ final class Services implements DiscoveryListener {
 		try {
 			synchronized (LOCK) {
 				services.clear();
-				int[] attributes = new int[] { ATTRIBUTE_SERVICE_NAME };
-				UUID[] uuids = new UUID[] { BaseUUID.merge16bits(UUID_SERIAL_PORT_PROFILE) };
+				int[] attributes = new int[] { Bluetooth.ATTRIBUTE_SERVICE_NAME };
+				UUID[] uuids = new UUID[] { Bluetooth.UUID_SERIAL_PORT_PROFILE };
 				int transactionID = LocalDevice.getLocalDevice().getDiscoveryAgent().searchServices(attributes, uuids, device, this);
 				if (transactionID > 0) {
 					LOCK.wait();

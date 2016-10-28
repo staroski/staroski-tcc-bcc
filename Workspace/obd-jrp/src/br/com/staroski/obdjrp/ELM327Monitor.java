@@ -15,24 +15,41 @@ public final class ELM327Monitor {
 
 	private static final String SHOW_CURRENT_DATA = "01";
 	private static final String REQUEST_VEHICLE_INFORMATION = "09";
+	private static final String PROMPT_CHARACTER = ">";
 	private static final int RESPONSES_TO_WAIT = 1;
 
-	private static String responseHeader(String mode, String pid) {
-		String response = "4" + mode.charAt(mode.length() - 1);
-		return response + pid;
-	}
-
-	private static String resultBytes(String mode, String pid, String result) {
-		String text = result.replaceAll(" ", "");
+	private static String formatResult(String mode, String pid, String result) {
+		String text = result;
 		String responseHeader = responseHeader(mode, pid);
 		int offset = text.indexOf(responseHeader);
 		if (offset != -1) {
 			text = text.substring(offset).trim();
 		}
-		if (text.endsWith(">")) {
-			text = text.substring(0, text.length() - 1).trim();
+		offset = text.indexOf(PROMPT_CHARACTER);
+		if (offset != -1) {
+			text = text.substring(0, offset).trim();
 		}
+		text = removeSpaces(text);
 		return text;
+	}
+
+	private static String removeSpaces(String string) {
+		StringBuilder text = new StringBuilder(string);
+		for (int i = 0; i < text.length(); i++) {
+			switch (text.charAt(i)) {
+				case ' ':
+				case '\r':
+					text.deleteCharAt(i);
+					i--;
+					continue;
+			}
+		}
+		return text.toString();
+	}
+
+	private static String responseHeader(String mode, String pid) {
+		String response = "4" + mode.charAt(mode.length() - 1);
+		return response + pid;
 	}
 
 	private final EventMulticaster eventMulticaster;
@@ -85,13 +102,13 @@ public final class ELM327Monitor {
 		}
 	}
 
-	private String execute(String mode, String pid, int responses) throws IOException {
+	private String execute(String mode, String pid, int responsesToWait) throws IOException {
 		StringBuilder cmd = new StringBuilder(mode).append(" ").append(pid);
-		if (responses > 0) {
-			cmd.append(" ").append(responses);
+		if (responsesToWait > 0) {
+			cmd.append(" ").append(responsesToWait);
 		}
 		String result = elm327.exec(cmd.toString());
-		return resultBytes(mode, pid, result);
+		return formatResult(mode, pid, result);
 	}
 
 	private List<String> getSupportedPIDs() throws IOException {
@@ -120,15 +137,15 @@ public final class ELM327Monitor {
 		String[] lines = value.split(String.valueOf(ELM327.RETURN));
 		StringBuilder text = new StringBuilder();
 		for (String line : lines) {
-			if(line.startsWith("4902")){
-				line=line.substring(4);
+			if (line.startsWith("4902")) {
+				line = line.substring(4);
 			}
 			line = line.substring(2); // remover indice
 			text.append(line);
 		}
 		value = text.toString();
 		value = ObdJrpUtils.hexaToASCII(value);
-		return value;
+		return value.trim();
 	}
 
 	String getVIN() throws IOException {

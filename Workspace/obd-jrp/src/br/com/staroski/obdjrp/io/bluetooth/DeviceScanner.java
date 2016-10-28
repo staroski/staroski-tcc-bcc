@@ -11,9 +11,9 @@ import javax.bluetooth.LocalDevice;
 import javax.bluetooth.RemoteDevice;
 import javax.bluetooth.ServiceRecord;
 
-final class Devices implements DiscoveryListener {
+final class DeviceScanner implements DiscoveryListener {
 
-	private static final Devices SCANNER = new Devices();
+	private static final DeviceScanner SCANNER = new DeviceScanner();
 
 	public static RemoteDevice find(String deviceAddress) throws IOException {
 		List<RemoteDevice> devices = list();
@@ -29,37 +29,14 @@ final class Devices implements DiscoveryListener {
 	}
 
 	public static List<RemoteDevice> list() throws IOException {
-		return showDevices(SCANNER.listDevices());
-	}
-
-	private static List<RemoteDevice> showDevices(List<RemoteDevice> devices) {
-		if (Bluetooth.PRINT_DEBUG_INFO) {
-			if (devices.isEmpty()) {
-				System.out.println("no devices found!");
-				return devices;
-			}
-			System.out.println("devices {");
-			for (RemoteDevice device : devices) {
-				try {
-					String address = device.getBluetoothAddress();
-					String name = device.getFriendlyName(false);
-					System.out.println("    " + address + " {");
-					System.out.println("        name: \"" + name + "\"");
-					System.out.println("    }");
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			}
-			System.out.println("}");
-		}
-		return devices;
+		return SCANNER.listDevices();
 	}
 
 	private final Object LOCK = new Object();
 
 	private final List<RemoteDevice> devices = new ArrayList<>();
 
-	private Devices() {}
+	private DeviceScanner() {}
 
 	public void deviceDiscovered(RemoteDevice btDevice, DeviceClass cod) {
 		devices.add(btDevice);
@@ -84,6 +61,7 @@ final class Devices implements DiscoveryListener {
 			synchronized (LOCK) {
 				devices.clear();
 				DiscoveryAgent discoveryAgent = LocalDevice.getLocalDevice().getDiscoveryAgent();
+
 				boolean started = discoveryAgent.startInquiry(DiscoveryAgent.GIAC, this);
 				if (started) {
 					LOCK.wait();

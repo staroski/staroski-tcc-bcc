@@ -33,7 +33,9 @@ public final class ObdJrpProperties extends Properties {
 	public File getPackageDir() {
 		String value = getProperty("package_dir");
 		File dir = ObdJrpUtils.isEmpty(value) ? Package.DEFAULT_DIR : new File(value);
-		dir.mkdirs();
+		if (!dir.exists()) {
+			dir.mkdirs();
+		}
 		return dir;
 	}
 

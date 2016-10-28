@@ -16,16 +16,20 @@ public class ListDevices {
 		}
 	}
 
+	private ListDevices() {}
+
 	private void execute() throws IOException {
-		List<RemoteDevice> devices = Bluetooth.getDevices();
-		for (RemoteDevice device : devices) {
-			System.out.printf("device \"%s\" {%n", device.getBluetoothAddress());
-			List<ServiceRecord> services = Bluetooth.getServices(device);
-			for (ServiceRecord service : services) {
-				System.out.printf("\t\"%s\"%n", Bluetooth.getName(service));
-			}
+		List<RemoteDevice> remoteDevices = Bluetooth.getRemoteDevices();
+		for (RemoteDevice remoteDevice : remoteDevices) {
+			System.out.printf("device \"%s\" - \"%s\" {", remoteDevice.getBluetoothAddress(), remoteDevice.getFriendlyName(false));
+			printServices(Bluetooth.getServices(remoteDevice));
 			System.out.printf("}%n%n");
 		}
 	}
 
+	private void printServices(List<ServiceRecord> services) {
+		for (ServiceRecord service : services) {
+			System.out.printf("%n\t\"%s\"%n", Bluetooth.getName(service));
+		}
+	}
 }

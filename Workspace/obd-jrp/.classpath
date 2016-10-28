@@ -8,6 +8,10 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/jdk1.8.0_112 32bits"/>
-	<classpathentry exported="true" kind="lib" path="win-libs/bluecove-2.1.0.jar"/>
+	<classpathentry exported="true" kind="lib" path="win-libs/bluecove-2.1.0.jar" sourcepath="/bluecove">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="../"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
