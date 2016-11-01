@@ -2,4 +2,5 @@
 /bin/
 /*obd-jrp-data
 /target
+/*.log
 /**/*.class

@@ -9,7 +9,7 @@ final class ScanLoop {
 
 	private static final int ONE_SECOND = 1000;
 
-	private final ELM327Monitor obd2Monitor;
+	private final ObdJrpScanner obd2Monitor;
 
 	private boolean scanning;
 
@@ -17,7 +17,7 @@ final class ScanLoop {
 
 	private long begin_scan;
 
-	public ScanLoop(ELM327Monitor obd2Monitor) {
+	public ScanLoop(ObdJrpScanner obd2Monitor) {
 		this.obd2Monitor = obd2Monitor;
 	}
 
@@ -71,8 +71,9 @@ final class ScanLoop {
 		while (scanning) {
 			Package obd2Package = null;
 			try {
-				final int packageMaxSize = new ObdJrpProperties().getPackageMaxSize();
-				final String vin = obd2Monitor.getVIN();
+				ObdJrpProperties properties = new ObdJrpProperties();
+				final int packageMaxSize = properties.getPackageMaxSize();
+				final String vin = properties.getVehicleId();
 				obd2Package = new Package(vin, System.currentTimeMillis());
 				final List<Scan> scans = obd2Package.getScans();
 				System.out.printf("creating new data package...%n");

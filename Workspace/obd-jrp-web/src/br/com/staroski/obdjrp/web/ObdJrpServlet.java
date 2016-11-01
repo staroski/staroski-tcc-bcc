@@ -19,7 +19,7 @@ abstract class ObdJrpServlet extends HttpServlet {
 	}
 
 	public static File getDataDir(Package dataPackage) {
-		File file = new File(getDataDir(), dataPackage.getVIN());
+		File file = new File(getDataDir(), dataPackage.getVehicleId());
 		if (!file.exists()) {
 			file.mkdirs();
 		}

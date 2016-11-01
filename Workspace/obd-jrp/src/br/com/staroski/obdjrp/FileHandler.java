@@ -1,6 +1,7 @@
 package br.com.staroski.obdjrp;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -16,12 +17,21 @@ final class FileHandler extends ObdJrpAdapter {
 
 	@Override
 	public void onFinishPackage(Package dataPackage) {
-		saveDataPackage(dataPackage);
+		this.props = new ObdJrpProperties();
+		try {
+			if (props.isSavePackageAsXml()) {
+				saveAsXml(dataPackage);
+			}
+			saveAsObd(dataPackage);
+		} catch (IOException e) {
+			System.out.println("  ERRO!");
+			e.printStackTrace();
+		}
 	}
 
 	private File getDataDir(Package dataPackage) {
 		File folder = props.getPackageDir();
-		File file = new File(folder, "vin-" + dataPackage.getVIN());
+		File file = new File(folder, dataPackage.getVehicleId());
 		if (!file.exists()) {
 			file.mkdirs();
 		}
@@ -37,28 +47,23 @@ final class FileHandler extends ObdJrpAdapter {
 		return file;
 	}
 
-	private void saveDataPackage(Package dataPackage) {
-		this.props = new ObdJrpProperties();
-		try {
-			if (props.isSavePackageAsXml()) {
-				File xmlFile = getFile(dataPackage, ".xml");
-				System.out.printf("Gravando \"%s\"...", xmlFile.getAbsolutePath());
-				FileOutputStream xmlOutput = new FileOutputStream(xmlFile);
-				XmlHelper.writeTo(xmlOutput, dataPackage);
-				xmlOutput.close();
-				xmlFile.setLastModified(dataPackage.getTime());
-				System.out.println("  OK!");
-			}
-			File obdFile = getFile(dataPackage, ".obd");
-			System.out.printf("Gravando \"%s\"...", obdFile.getAbsolutePath());
-			FileOutputStream obdOutput = new FileOutputStream(obdFile);
-			ByteHelper.writeTo(obdOutput, dataPackage);
-			obdOutput.close();
-			obdFile.setLastModified(dataPackage.getTime());
-			System.out.println("  OK!");
-		} catch (IOException e) {
-			System.out.println("  ERRO!");
-			e.printStackTrace();
-		}
+	private void saveAsObd(Package dataPackage) throws IOException, FileNotFoundException {
+		File obdFile = getFile(dataPackage, ".obd");
+		System.out.printf("Gravando \"%s\"...", obdFile.getAbsolutePath());
+		FileOutputStream obdOutput = new FileOutputStream(obdFile);
+		ByteHelper.writeTo(obdOutput, dataPackage);
+		obdOutput.close();
+		obdFile.setLastModified(dataPackage.getTime());
+		System.out.println("  OK!");
+	}
+
+	private void saveAsXml(Package dataPackage) throws IOException, FileNotFoundException {
+		File xmlFile = getFile(dataPackage, ".xml");
+		System.out.printf("Gravando \"%s\"...", xmlFile.getAbsolutePath());
+		FileOutputStream xmlOutput = new FileOutputStream(xmlFile);
+		XmlHelper.writeTo(xmlOutput, dataPackage);
+		xmlOutput.close();
+		xmlFile.setLastModified(dataPackage.getTime());
+		System.out.println("  OK!");
 	}
 }

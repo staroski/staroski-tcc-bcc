@@ -1,4 +1,4 @@
-package br.com.staroski.obdjrp.ui.v2;
+package br.com.staroski.obdjrp.ui;
 
 import java.awt.BorderLayout;
 import java.awt.Container;

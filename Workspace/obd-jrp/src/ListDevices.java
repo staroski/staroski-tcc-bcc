@@ -6,11 +6,12 @@ import javax.bluetooth.ServiceRecord;
 
 import br.com.staroski.obdjrp.io.bluetooth.Bluetooth;
 
-public class ListDevices {
+public final class ListDevices {
 
 	public static void main(String[] args) {
 		try {
-			new ListDevices().execute();
+			ListDevices deviceSearch = new ListDevices();
+			deviceSearch.execute();
 		} catch (Throwable t) {
 			t.printStackTrace();
 		}

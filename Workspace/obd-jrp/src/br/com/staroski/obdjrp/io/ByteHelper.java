@@ -43,7 +43,7 @@ public final class ByteHelper {
 	public static byte[] packageToBytes(Package dataPackage) throws IOException {
 		ByteArrayOutputStream bytes = new ByteArrayOutputStream();
 		DataOutputStream out = new DataOutputStream(bytes);
-		out.writeUTF(dataPackage.getVIN());
+		out.writeUTF(dataPackage.getVehicleId());
 		out.writeLong(dataPackage.getTime());
 		List<Scan> scannedData = dataPackage.getScans();
 		out.writeInt(scannedData.size());

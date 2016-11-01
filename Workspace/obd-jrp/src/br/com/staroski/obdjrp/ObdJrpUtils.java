@@ -1,5 +1,7 @@
 package br.com.staroski.obdjrp;
 
+import java.nio.charset.StandardCharsets;
+
 public final class ObdJrpUtils {
 
 	public static String bytesToHexas(byte[] value) {
@@ -34,12 +36,13 @@ public final class ObdJrpUtils {
 	}
 
 	public static String hexaToASCII(String hexa) {
-		StringBuilder ascii = new StringBuilder();
-		for (int i = 0; i < hexa.length(); i += 2) {
+		byte[] bytes = new byte[hexa.length() / 2];
+		for (int i = 0, n = 0; i < hexa.length(); i += 2, n++) {
 			String hexByte = hexa.substring(i, i + 2);
-			ascii.append((char) Integer.parseInt(hexByte, 16));
+			bytes[n] = ObdJrpUtils.hexaToByte(hexByte);
 		}
-		return ascii.toString();
+		String ascii = new String(bytes, StandardCharsets.US_ASCII);
+		return ascii;
 	}
 
 	public static String hexaToBinary(String hexa, int bits) {

@@ -1,4 +1,4 @@
-package br.com.staroski.obdjrp.ui.v2;
+package br.com.staroski.obdjrp.ui;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -129,6 +129,6 @@ final class ListenerPanel extends JPanel implements ObdJrpListener {
 
 	@Override
 	public void onStartPackage(Package dataPackage) {
-		labelVIN.setText("VIN: " + dataPackage.getVIN());
+		labelVIN.setText("Vehicle: " + dataPackage.getVehicleId());
 	}
 }

@@ -1,11 +1,15 @@
 package br.com.staroski.obdjrp;
 
 import java.io.ByteArrayOutputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.PrintStream;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import br.com.staroski.obdjrp.io.IO;
 
-public final class ELM327 {
+final class ELM327 {
 
 	public static final char PROMPT = '>';
 	public static final char RETURN = '\r';
@@ -16,22 +20,27 @@ public final class ELM327 {
 		return text;
 	}
 
-	private static byte[] textToBytes(String command) {
+	private static String checkReturn(String command) {
 		command = command.trim();
 		if (command.charAt(command.length() - 1) != RETURN) {
 			command += RETURN;
 		}
-		return command.getBytes();
+		return command;
 	}
 
 	private final IO io;
 
+	private final PrintStream debug;
+
 	public ELM327(IO connection) {
 		this.io = connection;
+		debug = createDebugPrintStream();
 	}
 
 	public String exec(String command) throws IOException {
-		byte[] buffer = textToBytes(command);
+		command = checkReturn(command);
+		debug("command:%n\"%s\"%n", command);
+		byte[] buffer = command.getBytes();
 		io.write(buffer, 0, buffer.length);
 		io.flush();
 		ByteArrayOutputStream bytes = new ByteArrayOutputStream();
@@ -47,7 +56,26 @@ public final class ELM327 {
 			buffer = updateBuffer(buffer);
 		}
 		buffer = bytes.toByteArray();
-		return bytesToText(buffer);
+		String respose = bytesToText(buffer);
+		debug("response:%n\"%s\"%n", respose);
+		return respose;
+	}
+
+	private PrintStream createDebugPrintStream() {
+		try {
+			SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss");
+			String instant = formatter.format(new Date());
+			String name = getClass().getSimpleName();
+			FileOutputStream output = new FileOutputStream(name + "_" + instant + ".log");
+			return new PrintStream(output);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return System.out;
+		}
+	}
+
+	private void debug(String format, Object... args) {
+		debug.printf(format, args);
 	}
 
 	private byte[] updateBuffer(byte[] buffer) throws IOException {

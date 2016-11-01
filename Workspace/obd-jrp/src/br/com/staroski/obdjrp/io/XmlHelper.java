@@ -30,8 +30,8 @@ public final class XmlHelper {
 			Document document = docBuilder.newDocument();
 			Element obd2Element = document.createElement("obd-jrp");
 
-			Attr vinAttr = document.createAttribute("vin");
-			vinAttr.setValue(dataPackage.getVIN());
+			Attr vinAttr = document.createAttribute("vehicle");
+			vinAttr.setValue(dataPackage.getVehicleId());
 			obd2Element.setAttributeNode(vinAttr);
 
 			Attr timeAttr = document.createAttribute("time");

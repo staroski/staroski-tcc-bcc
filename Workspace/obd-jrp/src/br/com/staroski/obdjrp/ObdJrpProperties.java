@@ -52,6 +52,11 @@ public final class ObdJrpProperties extends Properties {
 		return getProperty("translator_" + pid);
 	}
 
+	public String getVehicleId() {
+		String value = getProperty("vehicle_id");
+		return ObdJrpUtils.isEmpty(value) ? Package.UNKNOWN_VEHICLE_ID : value;
+	}
+
 	public boolean isSavePackageAsXml() {
 		String value = getProperty("save_package_as_xml");
 		return ObdJrpUtils.isEmpty(value) ? false : "yes".equalsIgnoreCase(value) || "true".equalsIgnoreCase(value);
