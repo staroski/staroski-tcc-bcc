@@ -20,7 +20,7 @@ public final class Package {
 		for (Scan scan : scannedData) {
 			for (Data data : scan.getData()) {
 				if (onlyWithTranslation) {
-					Translation translation = Translators.translate(data);
+					Parsed translation = Parsing.parse(data);
 					if (!translation.isUnknown()) {
 						pids.add(data.getPID());
 					}

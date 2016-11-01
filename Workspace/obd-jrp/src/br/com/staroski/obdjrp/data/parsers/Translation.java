@@ -1,4 +1,4 @@
-package br.com.staroski.obdjrp.data.translators;
+package br.com.staroski.obdjrp.data.parsers;
 
 public final class Translation {
 

@@ -16,7 +16,6 @@ public final class ObdJrpScanner {
 
 	private static final String SHOW_CURRENT_DATA = "01";
 	private static final String PROMPT_CHARACTER = ">";
-	private static final int RESPONSES_TO_WAIT = 1;
 
 	private static String formatResult(String mode, String pid, String result) {
 		String text = result;
@@ -44,7 +43,8 @@ public final class ObdJrpScanner {
 	private List<String> supportedPIDs;
 
 	public ObdJrpScanner(IO connection) throws IOException {
-		this.elm327 = new ELM327(connection);
+		ObdJrpProperties properties = new ObdJrpProperties();
+		this.elm327 = new ELM327(connection, properties.isLogEML327());
 		this.eventMulticaster = new EventMulticaster();
 		this.scanLoop = new ScanLoop(this);
 		addListener(new FileHandler());
@@ -64,6 +64,7 @@ public final class ObdJrpScanner {
 		elm327.exec("ATH0"); // desligando envio dos cabeçalhos
 		elm327.exec("ATS0"); // desligando espaços em branco
 		elm327.exec("ATSP0"); // definindo detecção automática de protocolo
+		loadSupportedPIDs();
 		scanLoop.start();
 	}
 
@@ -72,38 +73,29 @@ public final class ObdJrpScanner {
 		elm327.exec("ATPC"); // encerra o protocolo atual
 	}
 
-	private String execute(String mode, String pid, int responsesToWait) throws IOException {
-		StringBuilder cmd = new StringBuilder(mode).append(pid);
-		if (responsesToWait > 0) {
-			cmd.append(responsesToWait);
-		}
-		String result = elm327.exec(cmd.toString());
+	private String execute(String mode, String pid) throws IOException {
+		String result = elm327.exec(mode + pid);
 		return formatResult(mode, pid, result);
 	}
 
-	private List<String> getSupportedPIDs() throws IOException {
-		if (supportedPIDs != null) {
-			return supportedPIDs;
-		}
+	private void loadSupportedPIDs() {
 		try {
 			supportedPIDs = new ArrayList<>();
 			List<String> reservedPIDs = Arrays.asList(new String[] { "00", "20", "40", "60", "80", "A0", "C0", "E0" });
-			List<String> validPIDs = new ArrayList<>(reservedPIDs);
+			List<String> validPIDs = Arrays.asList(reservedPIDs.get(0));
 			for (String pid : reservedPIDs) {
 				if (!validPIDs.contains(pid)) {
 					break;
 				}
-				String bitmask = execute(SHOW_CURRENT_DATA, pid, RESPONSES_TO_WAIT);
+				String bitmask = execute(SHOW_CURRENT_DATA, pid);
 				validPIDs = processBitmask(pid, bitmask);
 				supportedPIDs.addAll(validPIDs);
 			}
 			supportedPIDs.removeAll(reservedPIDs);
 		} catch (Throwable t) {
 			t.printStackTrace();
-			supportedPIDs = null;
-			return new ArrayList<>();
+			supportedPIDs = new ArrayList<>();
 		}
-		return supportedPIDs;
 	}
 
 	private List<String> processBitmask(String pid, String bytes) throws IOException {
@@ -120,6 +112,14 @@ public final class ObdJrpScanner {
 		} catch (NumberFormatException e) {
 			return new ArrayList<>();
 		}
+	}
+
+	private String removeHeader(String result, String header) {
+		int offset = result.indexOf(header);
+		if (offset != -1) {
+			result = result.substring(offset + header.length());
+		}
+		return result;
 	}
 
 	void notifyError(Throwable error) {
@@ -141,11 +141,11 @@ public final class ObdJrpScanner {
 	Scan scan() throws IOException {
 		Scan scan = new Scan(System.currentTimeMillis());
 		List<Data> dataList = scan.getData();
-		List<String> pids = getSupportedPIDs();
-		for (String pid : pids) {
-			String result = execute(SHOW_CURRENT_DATA, pid, RESPONSES_TO_WAIT);
+		for (String pid : supportedPIDs) {
+			String result = execute(SHOW_CURRENT_DATA, pid);
 			if (!isEmpty(result)) {
-				result = result.substring(4); // remover cabeçalho de retorno
+				String header = responseHeader(SHOW_CURRENT_DATA, pid);
+				result = removeHeader(result, header);
 				dataList.add(new Data(pid, result));
 			}
 		}

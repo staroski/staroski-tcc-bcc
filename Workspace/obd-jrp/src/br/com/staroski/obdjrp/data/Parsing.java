@@ -6,30 +6,30 @@ import java.util.Map;
 import br.com.staroski.obdjrp.ObdJrpProperties;
 
 @SuppressWarnings("unchecked")
-public final class Translators {
+public final class Parsing {
 
-	private static final Map<String, Translator> TRANSLATORS = new HashMap<>();
+	private static final Map<String, Parser> PARSERS = new HashMap<>();
 
-	public static Translation translate(Data data) {
+	public static Parsed parse(Data data) {
 		String pid = data.getPID();
-		Translator translator = TRANSLATORS.get(pid);
+		Parser translator = PARSERS.get(pid);
 		if (translator == null) {
 			ObdJrpProperties properties = new ObdJrpProperties();
 			String className = properties.getTranslatorClassForPID(pid);
 			if (className == null) {
-				return Translation.UNKNOWN;
+				return Parsed.UNKNOWN;
 			}
 			try {
-				Class<Translator> clazz = (Class<Translator>) Class.forName(className);
+				Class<Parser> clazz = (Class<Parser>) Class.forName(className);
 				translator = clazz.newInstance();
 			} catch (Exception e) {
 				e.printStackTrace();
-				return Translation.UNKNOWN;
+				return Parsed.UNKNOWN;
 			}
-			TRANSLATORS.put(pid, translator);
+			PARSERS.put(pid, translator);
 		}
-		return translator.translate(data);
+		return translator.parse(data);
 	}
 
-	private Translators() {}
+	private Parsing() {}
 }

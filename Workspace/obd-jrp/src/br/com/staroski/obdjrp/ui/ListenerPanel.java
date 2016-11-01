@@ -16,8 +16,8 @@ import br.com.staroski.obdjrp.ObdJrpListener;
 import br.com.staroski.obdjrp.data.Data;
 import br.com.staroski.obdjrp.data.Package;
 import br.com.staroski.obdjrp.data.Scan;
-import br.com.staroski.obdjrp.data.Translation;
-import br.com.staroski.obdjrp.data.Translators;
+import br.com.staroski.obdjrp.data.Parsed;
+import br.com.staroski.obdjrp.data.Parsing;
 
 final class ListenerPanel extends JPanel implements ObdJrpListener {
 
@@ -63,7 +63,7 @@ final class ListenerPanel extends JPanel implements ObdJrpListener {
 		@Override
 		public Object getValueAt(int row, int col) {
 			Data rawData = dataList.get(row);
-			Translation translated = Translators.translate(rawData);
+			Parsed translated = Parsing.parse(rawData);
 			switch (col) {
 				case 0:
 					return rawData.getPID();

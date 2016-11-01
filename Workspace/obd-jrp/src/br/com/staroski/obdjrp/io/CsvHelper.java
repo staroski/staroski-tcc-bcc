@@ -17,8 +17,8 @@ import java.util.List;
 import br.com.staroski.obdjrp.data.Data;
 import br.com.staroski.obdjrp.data.Package;
 import br.com.staroski.obdjrp.data.Scan;
-import br.com.staroski.obdjrp.data.Translation;
-import br.com.staroski.obdjrp.data.Translators;
+import br.com.staroski.obdjrp.data.Parsed;
+import br.com.staroski.obdjrp.data.Parsing;
 
 public final class CsvHelper {
 
@@ -79,7 +79,7 @@ public final class CsvHelper {
 			if (header) {
 				line.append("Date time");
 				for (Data data : scan.getData()) {
-					Translation translation = Translators.translate(data);
+					Parsed translation = Parsing.parse(data);
 					if (!translation.isUnknown()) {
 						line.append(CSV.SEPARATOR).append(translation.getDescriptions(CSV.SEPARATOR));
 					}
@@ -90,7 +90,7 @@ public final class CsvHelper {
 			}
 			line.append(CSV_DATE_FORMAT.format(new Date(scan.getTime())));
 			for (Data data : scan.getData()) {
-				Translation translation = Translators.translate(data);
+				Parsed translation = Parsing.parse(data);
 				if (!translation.isUnknown()) {
 					line.append(CSV.SEPARATOR).append(translation.getValues(CSV.SEPARATOR));
 				}

@@ -17,9 +17,9 @@ public class ObdJrpGetDataServlet extends ObdJrpServlet {
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		PrintWriter out = response.getWriter();
-		String vin = request.getParameter("vin");
+		String vin = request.getParameter("vehicle");
 		if (vin == null || vin.isEmpty()) {
-			out.println("Availiable VINs:");
+			out.println("Availiable vehicles:");
 			File dir = getDataDir();
 			for (File f : dir.listFiles()) {
 				out.println("\t" + f.getName());

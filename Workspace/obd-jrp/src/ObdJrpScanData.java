@@ -15,7 +15,7 @@ import br.com.staroski.obdjrp.io.IO;
 import br.com.staroski.obdjrp.io.bluetooth.Bluetooth;
 import br.com.staroski.obdjrp.ui.ListenerFrame;
 
-public final class ScanObdData {
+public final class ObdJrpScanData {
 
 	public static void main(String[] args) {
 		try {
@@ -24,7 +24,7 @@ public final class ScanObdData {
 			t.printStackTrace();
 		}
 		try {
-			ScanObdData scanner = new ScanObdData();
+			ObdJrpScanData scanner = new ObdJrpScanData();
 			scanner.startScanning();
 		} catch (Throwable t) {
 			t.printStackTrace();
@@ -66,7 +66,7 @@ public final class ScanObdData {
 		}
 	};
 
-	private ScanObdData() {}
+	private ObdJrpScanData() {}
 
 	private ListenerFrame createScannerWindow() {
 		final ListenerFrame listenerFrame = new ListenerFrame();

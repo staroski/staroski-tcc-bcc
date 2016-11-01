@@ -1,19 +1,19 @@
 package br.com.staroski.obdjrp.data;
 
-public final class Translation {
+public final class Parsed {
 
 	private static final int DESCRIPTION_INDEX = 0;
 	private static final int VALUE_INDEX = 1;
 
-	public static final Translation UNKNOWN = new Translation("", "");
+	public static final Parsed UNKNOWN = new Parsed("", "");
 
 	private final String[][] array;
 
-	Translation(String description, String value) {
+	Parsed(String description, String value) {
 		this(new String[][] { new String[] { description, value } });
 	}
 
-	Translation(String[][] descriptionValues) {
+	Parsed(String[][] descriptionValues) {
 		this.array = descriptionValues;
 	}
 

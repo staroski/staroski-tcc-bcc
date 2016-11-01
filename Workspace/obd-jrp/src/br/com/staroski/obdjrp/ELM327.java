@@ -30,16 +30,16 @@ final class ELM327 {
 
 	private final IO io;
 
-	private final PrintStream debug;
+	private final PrintStream logFile;
 
-	public ELM327(IO connection) {
+	public ELM327(IO connection, boolean createLofFile) throws IOException {
 		this.io = connection;
-		debug = createDebugPrintStream();
+		logFile = createLogFile(createLofFile);
 	}
 
 	public String exec(String command) throws IOException {
 		command = checkReturn(command);
-		debug("command:%n\"%s\"%n", command);
+		log("command:%n\"%s\"%n", command);
 		byte[] buffer = command.getBytes();
 		io.write(buffer, 0, buffer.length);
 		io.flush();
@@ -57,25 +57,23 @@ final class ELM327 {
 		}
 		buffer = bytes.toByteArray();
 		String respose = bytesToText(buffer);
-		debug("response:%n\"%s\"%n", respose);
+		log("response:%n\"%s\"%n", respose);
 		return respose;
 	}
 
-	private PrintStream createDebugPrintStream() {
-		try {
+	private PrintStream createLogFile(boolean create) throws IOException {
+		if (create) {
 			SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss");
 			String instant = formatter.format(new Date());
 			String name = getClass().getSimpleName();
 			FileOutputStream output = new FileOutputStream(name + "_" + instant + ".log");
 			return new PrintStream(output);
-		} catch (Exception e) {
-			e.printStackTrace();
-			return System.out;
 		}
+		return System.out;
 	}
 
-	private void debug(String format, Object... args) {
-		debug.printf(format, args);
+	private void log(String format, String value) {
+		logFile.printf(format, value.replaceAll("\r", "\\r"));
 	}
 
 	private byte[] updateBuffer(byte[] buffer) throws IOException {

@@ -57,6 +57,11 @@ public final class ObdJrpProperties extends Properties {
 		return ObdJrpUtils.isEmpty(value) ? Package.UNKNOWN_VEHICLE_ID : value;
 	}
 
+	public boolean isLogEML327() {
+		String value = getProperty("log_elm327");
+		return ObdJrpUtils.isEmpty(value) ? false : "yes".equalsIgnoreCase(value) || "true".equalsIgnoreCase(value);
+	}
+
 	public boolean isSavePackageAsXml() {
 		String value = getProperty("save_package_as_xml");
 		return ObdJrpUtils.isEmpty(value) ? false : "yes".equalsIgnoreCase(value) || "true".equalsIgnoreCase(value);

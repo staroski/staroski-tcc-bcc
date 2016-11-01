@@ -1,17 +1,17 @@
 import br.com.staroski.obdjrp.FolderMonitor;
 
-public final class UploadObdData {
+public final class ObdJrpUploadData {
 
 	public static void main(String[] args) {
 		try {
-			UploadObdData uploader = new UploadObdData();
+			ObdJrpUploadData uploader = new ObdJrpUploadData();
 			uploader.execute();
 		} catch (Throwable t) {
 			t.printStackTrace();
 		}
 	}
 
-	private UploadObdData() {}
+	private ObdJrpUploadData() {}
 
 	private void execute() {
 		try {
