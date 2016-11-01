@@ -1,6 +1,7 @@
 /.settings
 /bin/
-/*obd-jrp-data
+/obd-jrp-data
 /target
+/sources.txt
 /*.log
 /**/*.class
