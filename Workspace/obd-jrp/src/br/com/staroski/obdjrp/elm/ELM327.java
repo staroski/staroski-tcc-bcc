@@ -14,6 +14,16 @@ public final class ELM327 {
 	public static final char PROMPT = '>';
 	public static final char RETURN = '\r';
 
+	private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss");
+
+	private static String checkError(String response) throws ELM327Error {
+		ELM327Error error = ELM327Error.findError(response);
+		if (error != null) {
+			throw error;
+		}
+		return response;
+	}
+
 	private static String prepareCommand(String command) {
 		command = command.trim();
 		if (command.charAt(command.length() - 1) != RETURN) {
@@ -39,7 +49,7 @@ public final class ELM327 {
 	}
 
 	public void disconnect() {
-		io.closeIO();
+		io.close();
 		Disconnector.remove(this);
 	}
 
@@ -48,18 +58,13 @@ public final class ELM327 {
 		printLog("command:%n\"%s\"%n", command);
 		byte[] bytes = send(command.getBytes());
 		String response = prepareResponse(bytes);
-		ELM327Error error = ELM327Error.getError(response);
-		if (error != null) {
-			error.raise();
-		}
-		printLog("response:%n\"%s\"%n", response);
-		return response;
+		printLog("response:%n\"%s\"%n%n", response);
+		return checkError(response);
 	}
 
 	private PrintStream createLogStream(boolean create) throws IOException {
 		if (create) {
-			SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss");
-			String instant = formatter.format(new Date());
+			String instant = DATE_FORMAT.format(new Date());
 			String name = getClass().getSimpleName();
 			FileOutputStream output = new FileOutputStream(name + "_" + instant + ".log");
 			return new PrintStream(output);
@@ -72,12 +77,14 @@ public final class ELM327 {
 	}
 
 	private byte[] send(byte[] buffer) throws IOException {
-		io.out.write(buffer);
-		io.out.flush();
+		synchronized (io.out) {
+			io.out.write(buffer);
+			io.out.flush();
+		}
 		ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-		int read = -1;
-		while ((read = io.in.read()) != -1) {
-			if (read > 0) {
+		synchronized (io.in) {
+			int read = -1;
+			while ((read = io.in.read()) != -1) {
 				bytes.write(read);
 				if (read == PROMPT) {
 					break;

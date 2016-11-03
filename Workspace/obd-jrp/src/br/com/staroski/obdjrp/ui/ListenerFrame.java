@@ -12,6 +12,7 @@ import javax.swing.JFrame;
 import br.com.staroski.obdjrp.ObdJrpListener;
 import br.com.staroski.obdjrp.data.Package;
 import br.com.staroski.obdjrp.data.Scan;
+import br.com.staroski.obdjrp.elm.ELM327Error;
 
 public final class ListenerFrame extends JFrame implements ObdJrpListener {
 
@@ -30,7 +31,7 @@ public final class ListenerFrame extends JFrame implements ObdJrpListener {
 	}
 
 	@Override
-	public void onError(Throwable error) {
+	public void onError(ELM327Error error) {
 		listenerPanel.onError(error);
 	}
 

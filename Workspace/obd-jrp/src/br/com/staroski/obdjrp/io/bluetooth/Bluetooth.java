@@ -1,16 +1,13 @@
 package br.com.staroski.obdjrp.io.bluetooth;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.List;
 
 import javax.bluetooth.RemoteDevice;
 import javax.bluetooth.ServiceRecord;
 import javax.bluetooth.UUID;
+import javax.microedition.io.Connection;
 import javax.microedition.io.Connector;
-import javax.microedition.io.InputConnection;
-import javax.microedition.io.OutputConnection;
 
 import br.com.staroski.obdjrp.io.IO;
 
@@ -28,10 +25,8 @@ public final class Bluetooth {
 
 	public static IO connect(RemoteDevice device, ServiceRecord service) throws IOException {
 		String url = service.getConnectionURL(ServiceRecord.NOAUTHENTICATE_NOENCRYPT, false);
-		Object connection = Connector.open(url);
-		InputStream input = ((InputConnection) connection).openInputStream();
-		OutputStream output = ((OutputConnection) connection).openOutputStream();
-		return new IO(input, output);
+		Connection connection = Connector.open(url);
+		return new IO(connection);
 	}
 
 	public static IO connect(String deviceAddress, String serviceName) throws IOException {

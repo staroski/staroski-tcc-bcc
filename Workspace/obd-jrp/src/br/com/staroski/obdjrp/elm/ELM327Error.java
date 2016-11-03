@@ -23,28 +23,33 @@ public final class ELM327Error extends Error {
 
 	private static final ELM327Error[] ALL_ERRORS;
 
+	private static final String QB = "\\Q"; // Quote Begin
+	private static final String QE = "\\E"; // Quote Begin
+	private static final String HEX = "[0-9A-F]"; // Hexa Digit
+	private static final String ALO = "+"; // At Least One
+
 	static {
 		ALL_ERRORS = new ELM327Error[] { //
-				(ACT_ALERT = new ELM327Error("\\QACT ALERT\\E+")), //
-				(BUFFER_FULL = new ELM327Error("\\QBUFFER FULL\\E+")), //
-				(BUS_BUSY = new ELM327Error("\\QBUS BUSY\\E+")), //
-				(BUS_ERROR = new ELM327Error("\\QBUS ERROR\\E+")), //
-				(CAN_ERROR = new ELM327Error("\\QCAN ERROR\\E+")), //
-				(DATA_ERROR = new ELM327Error("\\QDATA ERROR\\E+")), //
-				(ERR = new ELM327Error("(\\QERR\\E[0-9A-F][0-9A-F])+")), //
-				(FB_ERROR = new ELM327Error("\\QFB ERROR\\E+")), //
-				(LP_ALERT = new ELM327Error("\\QLP ALERT\\E+")), //
-				(LV_RESET = new ELM327Error("\\QLV RESET\\E+")), //
-				(NO_DATA = new ELM327Error("\\QNO DATA\\E+")), //
-				(RX_ERROR = new ELM327Error("\\QRX ERROR\\E+")), //
-				(STOPPED = new ELM327Error("\\QSTOPPED\\E+")), //
-				(UNABLE_TO_CONNECT = new ELM327Error("\\QUNABLE TO CONNECT\\E+")) //
+				(ACT_ALERT = new ELM327Error(QB + "ACT ALERT" + QE + ALO)), //
+				(BUFFER_FULL = new ELM327Error(QB + "BUFFER FULL" + QE + ALO)), //
+				(BUS_BUSY = new ELM327Error(QB + "BUS BUSY" + QE + ALO)), //
+				(BUS_ERROR = new ELM327Error(QB + "BUS ERROR" + QE + ALO)), //
+				(CAN_ERROR = new ELM327Error(QB + "CAN ERROR" + QE + ALO)), //
+				(DATA_ERROR = new ELM327Error(QB + "DATA ERROR" + QE + ALO)), //
+				(ERR = new ELM327Error("(" + QB + "ERR" + QE + HEX + HEX + ")" + ALO)), //
+				(FB_ERROR = new ELM327Error(QB + "FB ERROR" + QE + ALO)), //
+				(LP_ALERT = new ELM327Error(QB + "LP ALERT" + QE + ALO)), //
+				(LV_RESET = new ELM327Error(QB + "LV RESET" + QE + ALO)), //
+				(NO_DATA = new ELM327Error(QB + "NO DATA" + QE + ALO)), //
+				(RX_ERROR = new ELM327Error(QB + "RX ERROR" + QE + ALO)), //
+				(STOPPED = new ELM327Error(QB + "STOPPED" + QE + ALO)), //
+				(UNABLE_TO_CONNECT = new ELM327Error(QB + "UNABLE TO CONNECT" + QE + ALO)) //
 		};
 	}
 
-	public static ELM327Error getError(String response) {
+	public static ELM327Error findError(String response) {
 		for (ELM327Error error : ALL_ERRORS) {
-			if (error.isContainedIn(response)) {
+			if (error.isIn(response)) {
 				return error;
 			}
 		}
@@ -52,8 +57,8 @@ public final class ELM327Error extends Error {
 	}
 
 	private static String getDescription(String regex) {
-		final int begin = regex.indexOf("\\Q") + 2;
-		final int end = regex.indexOf("\\E");
+		final int begin = regex.indexOf(QB) + QB.length();
+		final int end = regex.indexOf(QE);
 		return regex.substring(begin, end);
 	}
 
@@ -64,11 +69,7 @@ public final class ELM327Error extends Error {
 		this.pattern = Pattern.compile(regex);
 	}
 
-	public boolean isContainedIn(String response) {
+	public boolean isIn(String response) {
 		return pattern.matcher(response).find();
-	}
-
-	public void raise() throws ELM327Error {
-		throw this;
 	}
 }

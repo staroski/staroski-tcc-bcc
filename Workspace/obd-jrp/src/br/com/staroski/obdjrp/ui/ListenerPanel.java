@@ -15,9 +15,10 @@ import javax.swing.table.AbstractTableModel;
 import br.com.staroski.obdjrp.ObdJrpListener;
 import br.com.staroski.obdjrp.data.Data;
 import br.com.staroski.obdjrp.data.Package;
-import br.com.staroski.obdjrp.data.Scan;
 import br.com.staroski.obdjrp.data.Parsed;
 import br.com.staroski.obdjrp.data.Parsing;
+import br.com.staroski.obdjrp.data.Scan;
+import br.com.staroski.obdjrp.elm.ELM327Error;
 
 final class ListenerPanel extends JPanel implements ObdJrpListener {
 
@@ -48,7 +49,7 @@ final class ListenerPanel extends JPanel implements ObdJrpListener {
 				case 1:
 					return "Bytes";
 				case 2:
-					return "Translation";
+					return "Description";
 				case 3:
 				default:
 					return "Value";
@@ -70,10 +71,10 @@ final class ListenerPanel extends JPanel implements ObdJrpListener {
 				case 1:
 					return rawData.getValue();
 				case 2:
-					return translated.getDescriptions("  |  ");
+					return translated.getDescriptions(" | ");
 				case 3:
 				default:
-					return translated.getValues("  |  ");
+					return translated.getValues(" | ");
 			}
 		}
 
@@ -84,7 +85,7 @@ final class ListenerPanel extends JPanel implements ObdJrpListener {
 
 	private static final long serialVersionUID = 1;
 
-	private JLabel labelVIN;
+	private JLabel labelVehicle;
 	private JTable table;
 	private List<Data> dataList = new LinkedList<>();
 
@@ -98,8 +99,8 @@ final class ListenerPanel extends JPanel implements ObdJrpListener {
 		setLayout(new BorderLayout(5, 5));
 		setOpaque(false);
 
-		labelVIN = new JLabel("VIN:");
-		add(labelVIN, BorderLayout.NORTH);
+		labelVehicle = new JLabel("Vehicle:");
+		add(labelVehicle, BorderLayout.NORTH);
 
 		table = new JTable(new OBD2DataModel());
 		table.setOpaque(false);
@@ -113,8 +114,11 @@ final class ListenerPanel extends JPanel implements ObdJrpListener {
 	}
 
 	@Override
-	public void onError(Throwable error) {
-		labelVIN.setText("DISCONNECTED!");
+	public void onError(ELM327Error error) {
+		String mesage = String.format("%s: %s", //
+				error.getClass().getSimpleName(), //
+				error.getMessage());
+		labelVehicle.setText(mesage);
 	}
 
 	@Override
@@ -129,6 +133,6 @@ final class ListenerPanel extends JPanel implements ObdJrpListener {
 
 	@Override
 	public void onStartPackage(Package dataPackage) {
-		labelVIN.setText("Vehicle: " + dataPackage.getVehicleId());
+		labelVehicle.setText("Vehicle: " + dataPackage.getVehicleId());
 	}
 }

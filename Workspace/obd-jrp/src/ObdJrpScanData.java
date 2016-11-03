@@ -2,7 +2,6 @@ import static br.com.staroski.obdjrp.ObdJrpUtils.isEmpty;
 
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.io.IOException;
 
 import javax.swing.UIManager;
 
@@ -11,6 +10,7 @@ import br.com.staroski.obdjrp.ObdJrpProperties;
 import br.com.staroski.obdjrp.ObdJrpScanner;
 import br.com.staroski.obdjrp.data.Package;
 import br.com.staroski.obdjrp.data.Scan;
+import br.com.staroski.obdjrp.elm.ELM327Error;
 import br.com.staroski.obdjrp.io.IO;
 import br.com.staroski.obdjrp.io.bluetooth.Bluetooth;
 import br.com.staroski.obdjrp.ui.ListenerFrame;
@@ -18,11 +18,6 @@ import br.com.staroski.obdjrp.ui.ListenerFrame;
 public final class ObdJrpScanData {
 
 	public static void main(String[] args) {
-		try {
-			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-		} catch (Throwable t) {
-			t.printStackTrace();
-		}
 		try {
 			ObdJrpScanData scanner = new ObdJrpScanData();
 			scanner.startScanning();
@@ -38,10 +33,8 @@ public final class ObdJrpScanData {
 	private final ObdJrpListener listener = new ObdJrpListener() {
 
 		@Override
-		public void onError(Throwable error) {
-			scannerWindow.onError(error);
-			stopScanning();
-			startScanning();
+		public void onError(ELM327Error error) {
+			restartAfterError(error);
 		}
 
 		@Override
@@ -69,6 +62,11 @@ public final class ObdJrpScanData {
 	private ObdJrpScanData() {}
 
 	private ListenerFrame createScannerWindow() {
+		try {
+			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+		} catch (Throwable t) {
+			t.printStackTrace();
+		}
 		final ListenerFrame listenerFrame = new ListenerFrame();
 		listenerFrame.setResizable(false);
 		listenerFrame.setLocationRelativeTo(null);
@@ -84,6 +82,18 @@ public final class ObdJrpScanData {
 		return listenerFrame;
 	}
 
+	private void restartAfterError(final ELM327Error error) {
+		new Thread(new Runnable() {
+
+			@Override
+			public void run() {
+				scannerWindow.onError(error);
+				stopScanning();
+				startScanning();
+			}
+		}, getClass().getSimpleName() + "_Restarting").start();
+	}
+
 	private void showScannerWindow() {
 		if (scannerWindow == null) {
 			scannerWindow = createScannerWindow();
@@ -94,41 +104,40 @@ public final class ObdJrpScanData {
 	private void startScanning() {
 		ObdJrpProperties props = new ObdJrpProperties();
 		String deviceAddress = props.getDeviceAddress();
-		String serviceName = props.getServiceName();
-		if (isEmpty(deviceAddress) || isEmpty(serviceName)) {
-			System.out.printf("nao ha um dispositivo e/ou servico configurado!");
+		if (isEmpty(deviceAddress)) {
+			System.out.printf("property \"device_address\" not found!%n");
 			return;
 		}
+		String serviceName = props.getServiceName();
+		if (isEmpty(serviceName)) {
+			System.out.printf("property \"service_name\" not found!%n");
+			return;
+		}
+		showScannerWindow();
 		boolean connected = false;
 		while (!connected) {
-			System.out.printf("tentando conectar com\n\tdispositivo: %s\n\tservico:     %s%n", deviceAddress, serviceName);
+			System.out.printf("trying to connect with\n\tdevice:  %s\n\tservice: %s%n", deviceAddress, serviceName);
 			IO io = null;
 			try {
 				io = Bluetooth.connect(deviceAddress, serviceName);
 				obdScanner = new ObdJrpScanner(io);
 				obdScanner.addListener(listener);
 				obdScanner.startScanning();
-				showScannerWindow();
 				connected = true;
+				System.out.println("started scanning!");
 			} catch (Throwable error) {
-				System.out.printf("nao foi possivel conectar! %s: %s%n", //
+				System.out.printf("%s: %s%n", //
 						error.getClass().getSimpleName(), //
 						error.getMessage());
 				if (io != null) {
-					io.closeIO();
+					io.close();
 				}
 			}
 		}
 	}
 
 	private void stopScanning() {
-		try {
-			obdScanner.stopScanning();
-			System.out.println("stopped scanning!");
-		} catch (IOException error) {
-			System.out.printf("stopped scanning! error: %s: %s%n", //
-					error.getClass().getSimpleName(), //
-					error.getMessage());
-		}
+		obdScanner.stopScanning();
+		System.out.println("stopped scanning!");
 	}
 }

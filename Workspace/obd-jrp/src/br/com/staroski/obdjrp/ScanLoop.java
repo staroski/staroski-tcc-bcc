@@ -1,9 +1,11 @@
 package br.com.staroski.obdjrp;
 
+import java.io.IOException;
 import java.util.List;
 
 import br.com.staroski.obdjrp.data.Package;
 import br.com.staroski.obdjrp.data.Scan;
+import br.com.staroski.obdjrp.elm.ELM327Error;
 
 final class ScanLoop {
 
@@ -11,6 +13,7 @@ final class ScanLoop {
 
 	private final ObdJrpScanner obdSscanner;
 
+	private boolean stopped;
 	private boolean scanning;
 
 	private Thread loop_thread;
@@ -22,23 +25,32 @@ final class ScanLoop {
 	}
 
 	public void start() {
-		if (!scanning) {
-			scanning = true;
-			loop_thread = new Thread(new Runnable() {
-
-				@Override
-				public void run() {
-					execute();
-				}
-			});
-			loop_thread.start();
+		if (scanning) {
+			return;
 		}
+		stopped = false;
+		scanning = true;
+		loop_thread = new Thread(new Runnable() {
+
+			@Override
+			public void run() {
+				try {
+					execute();
+				} catch (Throwable t) {
+					scanning = false;
+					stopped = true;
+					t.printStackTrace();
+				}
+			}
+		});
+		loop_thread.start();
 	}
 
 	public void stop() {
-		if (!scanning) {
+		if (stopped) {
 			return;
 		}
+		stopped = true;
 		scanning = false;
 		if (loop_thread != null && loop_thread.isAlive()) {
 			try {
@@ -67,7 +79,7 @@ final class ScanLoop {
 		}
 	}
 
-	private void execute() {
+	private void execute() throws IOException {
 		while (scanning) {
 			Package obd2Package = null;
 			try {
@@ -91,12 +103,12 @@ final class ScanLoop {
 					}
 				}
 				save(obd2Package);
-			} catch (Throwable e) {
-				scanning = false;
-				System.out.printf("%s: %s%n", e.getClass().getSimpleName(), e.getMessage());
+			} catch (ELM327Error error) {
+				System.out.printf("%s: %s%n", //
+						error.getClass().getSimpleName(), //
+						error.getMessage());
 				save(obd2Package);
-				obdSscanner.notifyError(e);
-				return;
+				obdSscanner.notifyError(error);
 			}
 		}
 	}

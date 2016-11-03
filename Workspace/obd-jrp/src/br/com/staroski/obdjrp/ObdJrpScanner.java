@@ -68,21 +68,17 @@ public final class ObdJrpScanner {
 		eventMulticaster.removeListener(listener);
 	}
 
-	public void startScanning() throws IOException {
+	public void startScanning() {
 		scanLoop.start();
 	}
 
-	public void stopScanning() throws IOException {
+	public void stopScanning() {
 		scanLoop.stop();
 		elm327.disconnect();
 	}
 
 	private String execute(String mode, String pid) throws IOException {
 		String response = elm327.execute(mode + pid).trim();
-		ELM327Error error = ELM327Error.getError(response);
-		if (error != null) {
-			error.raise();
-		}
 		return formatResponse(mode, pid, response);
 	}
 
@@ -135,7 +131,7 @@ public final class ObdJrpScanner {
 		return result;
 	}
 
-	void notifyError(Throwable error) {
+	void notifyError(ELM327Error error) {
 		eventMulticaster.onError(error);
 	}
 
@@ -151,7 +147,7 @@ public final class ObdJrpScanner {
 		eventMulticaster.onStartPackage(dataPackage);
 	}
 
-	Scan scan() throws IOException {
+	Scan scan() throws IOException, ELM327Error {
 		Scan scan = new Scan(System.currentTimeMillis());
 		List<Data> dataList = scan.getData();
 		List<ELM327Error> errors = new ArrayList<>();
@@ -171,8 +167,7 @@ public final class ObdJrpScanner {
 			}
 		}
 		if (!errors.isEmpty() && errors.size() == supportedPIDs.size()) {
-			stopScanning();
-			notifyError(errors.get(0));
+			throw errors.get(0);
 		}
 		return scan;
 	}

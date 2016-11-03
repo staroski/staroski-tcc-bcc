@@ -5,6 +5,7 @@ import java.util.List;
 
 import br.com.staroski.obdjrp.data.Package;
 import br.com.staroski.obdjrp.data.Scan;
+import br.com.staroski.obdjrp.elm.ELM327Error;
 
 final class EventMulticaster implements ObdJrpListener {
 
@@ -15,7 +16,7 @@ final class EventMulticaster implements ObdJrpListener {
 	}
 
 	@Override
-	public void onError(Throwable error) {
+	public void onError(ELM327Error error) {
 		for (ObdJrpListener listener : listeners) {
 			listener.onError(error);
 		}
