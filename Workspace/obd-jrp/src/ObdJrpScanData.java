@@ -101,10 +101,11 @@ public final class ObdJrpScanData {
 		}
 		boolean connected = false;
 		while (!connected) {
+			System.out.printf("tentando conectar com\n\tdispositivo: %s\n\tservico:     %s%n", deviceAddress, serviceName);
+			IO io = null;
 			try {
-				System.out.printf("tentando conectar com\n\tdispositivo: %s\n\tservico:     %s%n", deviceAddress, serviceName);
-				IO connection = Bluetooth.connect(deviceAddress, serviceName);
-				obdScanner = new ObdJrpScanner(connection);
+				io = Bluetooth.connect(deviceAddress, serviceName);
+				obdScanner = new ObdJrpScanner(io);
 				obdScanner.addListener(listener);
 				obdScanner.startScanning();
 				showScannerWindow();
@@ -113,6 +114,9 @@ public final class ObdJrpScanData {
 				System.out.printf("nao foi possivel conectar! %s: %s%n", //
 						error.getClass().getSimpleName(), //
 						error.getMessage());
+				if (io != null) {
+					io.closeIO();
+				}
 			}
 		}
 	}

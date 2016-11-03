@@ -5,7 +5,7 @@ public final class Parsed {
 	private static final int DESCRIPTION_INDEX = 0;
 	private static final int VALUE_INDEX = 1;
 
-	public static final Parsed UNKNOWN = new Parsed("", "");
+	public static final Parsed EMPTY = new Parsed("", "");
 
 	private final String[][] array;
 
@@ -52,6 +52,6 @@ public final class Parsed {
 	}
 
 	public boolean isUnknown() {
-		return this == UNKNOWN;
+		return this == EMPTY;
 	}
 }

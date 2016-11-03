@@ -1,5 +1,7 @@
 package br.com.staroski.obdjrp.data;
 
+import br.com.staroski.obdjrp.ObdJrpUtils;
+
 public final class Data {
 
 	private final String pid;
@@ -16,5 +18,9 @@ public final class Data {
 
 	public String getValue() {
 		return result;
+	}
+
+	public boolean isEmpty() {
+		return ObdJrpUtils.isEmpty(getValue());
 	}
 }

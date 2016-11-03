@@ -11,7 +11,7 @@ import java.util.Queue;
 
 import br.com.staroski.obdjrp.io.HttpPost;
 
-public final class FolderMonitor {
+public final class ObdJrpFolderMonitor {
 
 	private static final int ONE_MINUTE = 60000;
 
@@ -49,14 +49,14 @@ public final class FolderMonitor {
 
 	private final Object LOCK = new Object();
 
-	public FolderMonitor() {
+	public ObdJrpFolderMonitor() {
 		Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
 
 			@Override
 			public void run() {
 				stop();
 			}
-		}, FolderMonitor.class.getSimpleName() + "_ShutdownHook"));
+		}, ObdJrpFolderMonitor.class.getSimpleName() + "_ShutdownHook"));
 	}
 
 	public void start() {
@@ -68,7 +68,7 @@ public final class FolderMonitor {
 				public void run() {
 					execute();
 				}
-			}, FolderMonitor.class.getSimpleName() + "_ScanThread");
+			}, ObdJrpFolderMonitor.class.getSimpleName() + "_ScanThread");
 			scanThread.start();
 		}
 	}

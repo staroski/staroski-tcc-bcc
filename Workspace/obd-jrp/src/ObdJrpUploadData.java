@@ -1,4 +1,4 @@
-import br.com.staroski.obdjrp.FolderMonitor;
+import br.com.staroski.obdjrp.ObdJrpFolderMonitor;
 
 public final class ObdJrpUploadData {
 
@@ -15,10 +15,10 @@ public final class ObdJrpUploadData {
 
 	private void execute() {
 		try {
-			new FolderMonitor().start();
+			new ObdJrpFolderMonitor().start();
 		} catch (Exception error) {
 			System.out.printf("%s aborted!%n%s:%s%n", //
-					FolderMonitor.class.getSimpleName(), //
+					ObdJrpFolderMonitor.class.getSimpleName(), //
 					error.getClass().getSimpleName(), //
 					error.getMessage());
 		}

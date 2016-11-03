@@ -2,14 +2,37 @@ package br.com.staroski.obdjrp.io;
 
 import java.io.Closeable;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 
-public interface IO extends Closeable {
+public final class IO implements Closeable {
 
-	public int available() throws IOException;
+	private static <T> T checkParam(String name, T param) {
+		if (param == null) {
+			throw new IllegalArgumentException(name + " = null");
+		}
+		return param;
+	}
 
-	public void flush() throws IOException;
+	public final InputStream in;
+	public final OutputStream out;
 
-	public int read(byte[] buffer, int offset, int length) throws IOException;
+	public IO(InputStream in, OutputStream out) {
+		this.in = checkParam("in", in);
+		this.out = checkParam("out", out);
+	}
 
-	public void write(byte[] buffer, int offset, int length) throws IOException;
+	@Override
+	public void close() throws IOException {
+		in.close();
+		out.close();
+	}
+
+	public void closeIO() {
+		try {
+			close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
 }

@@ -10,17 +10,20 @@ import java.util.List;
 import br.com.staroski.obdjrp.data.Data;
 import br.com.staroski.obdjrp.data.Package;
 import br.com.staroski.obdjrp.data.Scan;
+import br.com.staroski.obdjrp.elm.ELM327;
+import br.com.staroski.obdjrp.elm.ELM327Error;
 import br.com.staroski.obdjrp.io.IO;
 
 public final class ObdJrpScanner {
 
 	private static final String SHOW_CURRENT_DATA = "01";
+
 	private static final String PROMPT_CHARACTER = ">";
 
-	private static String formatResult(String mode, String pid, String result) {
-		String text = result;
-		String responseHeader = responseHeader(mode, pid);
-		int offset = text.indexOf(responseHeader);
+	private static String formatResponse(String mode, String pid, String response) {
+		String text = response;
+		String header = responseHeader(mode, pid);
+		int offset = text.indexOf(header);
 		if (offset != -1) {
 			text = text.substring(offset).trim();
 		}
@@ -40,11 +43,18 @@ public final class ObdJrpScanner {
 	private final ELM327 elm327;
 	private final ScanLoop scanLoop;
 
-	private List<String> supportedPIDs;
+	private final List<String> supportedPIDs;
 
-	public ObdJrpScanner(IO connection) throws IOException {
+	public ObdJrpScanner(IO connection) throws IOException, ELM327Error {
 		ObdJrpProperties properties = new ObdJrpProperties();
-		this.elm327 = new ELM327(connection, properties.isLogEML327());
+		elm327 = new ELM327(connection, properties.isLogEML327());
+		elm327.execute("ATZ"); // reset
+		elm327.execute("ATE0"); // desligando echo
+		elm327.execute("ATH0"); // desligando envio dos cabeçalhos
+		elm327.execute("ATS0"); // desligando espaços em branco
+		elm327.execute("ATSP0"); // definindo detecção automática de protocolo
+		supportedPIDs = loadSupportedPIDs();
+
 		this.eventMulticaster = new EventMulticaster();
 		this.scanLoop = new ScanLoop(this);
 		addListener(new FileHandler());
@@ -59,43 +69,46 @@ public final class ObdJrpScanner {
 	}
 
 	public void startScanning() throws IOException {
-		elm327.exec("ATZ"); // reset
-		elm327.exec("ATE0"); // desligando echo
-		elm327.exec("ATH0"); // desligando envio dos cabeçalhos
-		elm327.exec("ATS0"); // desligando espaços em branco
-		elm327.exec("ATSP0"); // definindo detecção automática de protocolo
-		loadSupportedPIDs();
 		scanLoop.start();
 	}
 
 	public void stopScanning() throws IOException {
 		scanLoop.stop();
-		elm327.exec("ATPC"); // encerra o protocolo atual
+		elm327.disconnect();
 	}
 
 	private String execute(String mode, String pid) throws IOException {
-		String result = elm327.exec(mode + pid);
-		return formatResult(mode, pid, result);
+		String response = elm327.execute(mode + pid).trim();
+		ELM327Error error = ELM327Error.getError(response);
+		if (error != null) {
+			error.raise();
+		}
+		return formatResponse(mode, pid, response);
 	}
 
-	private void loadSupportedPIDs() {
-		try {
-			supportedPIDs = new ArrayList<>();
-			List<String> reservedPIDs = Arrays.asList(new String[] { "00", "20", "40", "60", "80", "A0", "C0", "E0" });
-			List<String> validPIDs = Arrays.asList(reservedPIDs.get(0));
-			for (String pid : reservedPIDs) {
-				if (!validPIDs.contains(pid)) {
-					break;
-				}
-				String bitmask = execute(SHOW_CURRENT_DATA, pid);
-				validPIDs = processBitmask(pid, bitmask);
-				supportedPIDs.addAll(validPIDs);
+	private List<String> loadSupportedPIDs() throws IOException, ELM327Error {
+		final List<String> reservedPIDs = Arrays.asList(new String[] { //
+				"00", // return range 01-20
+				"20", // return range 21-40
+				"40", // return range 41-60
+				"60", // return range 61-80
+				"80", // return range 81-A0
+				"A0", // return range A1-C0
+				"C0", // return range C1-E0
+				"E0", // return range E1-FF
+		});
+		List<String> supportedPIDs = new ArrayList<>();
+		List<String> validPIDs = Arrays.asList(reservedPIDs.get(0));
+		for (String pid : reservedPIDs) {
+			if (!validPIDs.contains(pid)) {
+				break;
 			}
-			supportedPIDs.removeAll(reservedPIDs);
-		} catch (Throwable t) {
-			t.printStackTrace();
-			supportedPIDs = new ArrayList<>();
+			String bitmask = execute(SHOW_CURRENT_DATA, pid);
+			validPIDs = processBitmask(pid, bitmask);
+			supportedPIDs.addAll(validPIDs);
 		}
+		supportedPIDs.removeAll(reservedPIDs);
+		return supportedPIDs;
 	}
 
 	private List<String> processBitmask(String pid, String bytes) throws IOException {
@@ -141,13 +154,25 @@ public final class ObdJrpScanner {
 	Scan scan() throws IOException {
 		Scan scan = new Scan(System.currentTimeMillis());
 		List<Data> dataList = scan.getData();
+		List<ELM327Error> errors = new ArrayList<>();
 		for (String pid : supportedPIDs) {
-			String result = execute(SHOW_CURRENT_DATA, pid);
-			if (!isEmpty(result)) {
-				String header = responseHeader(SHOW_CURRENT_DATA, pid);
-				result = removeHeader(result, header);
-				dataList.add(new Data(pid, result));
+			try {
+				String response = execute(SHOW_CURRENT_DATA, pid);
+				if (!isEmpty(response)) {
+					String header = responseHeader(SHOW_CURRENT_DATA, pid);
+					response = removeHeader(response, header);
+					dataList.add(new Data(pid, response));
+				}
+			} catch (ELM327Error error) {
+				System.out.printf("%s: %s%n", //
+						error.getClass().getSimpleName(), //
+						error.getMessage());
+				errors.add(error);
 			}
+		}
+		if (!errors.isEmpty() && errors.size() == supportedPIDs.size()) {
+			stopScanning();
+			notifyError(errors.get(0));
 		}
 		return scan;
 	}

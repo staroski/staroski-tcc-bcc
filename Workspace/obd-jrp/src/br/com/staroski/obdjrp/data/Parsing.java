@@ -11,24 +11,27 @@ public final class Parsing {
 	private static final Map<String, Parser> PARSERS = new HashMap<>();
 
 	public static Parsed parse(Data data) {
+		if (data == null || data.isEmpty()) {
+			return Parsed.EMPTY;
+		}
 		String pid = data.getPID();
-		Parser translator = PARSERS.get(pid);
-		if (translator == null) {
+		Parser parser = PARSERS.get(pid);
+		if (parser == null) {
 			ObdJrpProperties properties = new ObdJrpProperties();
 			String className = properties.getTranslatorClassForPID(pid);
 			if (className == null) {
-				return Parsed.UNKNOWN;
+				return Parsed.EMPTY;
 			}
 			try {
 				Class<Parser> clazz = (Class<Parser>) Class.forName(className);
-				translator = clazz.newInstance();
+				parser = clazz.newInstance();
 			} catch (Exception e) {
 				e.printStackTrace();
-				return Parsed.UNKNOWN;
+				return Parsed.EMPTY;
 			}
-			PARSERS.put(pid, translator);
+			PARSERS.put(pid, parser);
 		}
-		return translator.parse(data);
+		return parser.parse(data);
 	}
 
 	private Parsing() {}

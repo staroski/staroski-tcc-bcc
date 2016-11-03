@@ -9,7 +9,7 @@ final class ScanLoop {
 
 	private static final int ONE_SECOND = 1000;
 
-	private final ObdJrpScanner obd2Monitor;
+	private final ObdJrpScanner obdSscanner;
 
 	private boolean scanning;
 
@@ -18,7 +18,7 @@ final class ScanLoop {
 	private long begin_scan;
 
 	public ScanLoop(ObdJrpScanner obd2Monitor) {
-		this.obd2Monitor = obd2Monitor;
+		this.obdSscanner = obd2Monitor;
 	}
 
 	public void start() {
@@ -77,16 +77,14 @@ final class ScanLoop {
 				obd2Package = new Package(vin, System.currentTimeMillis());
 				final List<Scan> scans = obd2Package.getScans();
 				System.out.printf("creating new data package...%n");
-				obd2Monitor.notifyStartPackage(obd2Package);
+				obdSscanner.notifyStartPackage(obd2Package);
 				for (int i = 0; scanning && i < packageMaxSize; i++) {
 					begin_scan();
-					{
-						System.out.printf("scanning data %d of %d...", (i + 1), packageMaxSize);
-						Scan scan = obd2Monitor.scan();
-						scans.add(scan);
-						obd2Monitor.notifyScanned(scan);
-						System.out.printf("    DONE! %d PIDs scanned!%n", scan.getData().size());
-					}
+					System.out.printf("scanning data %d of %d...", (i + 1), packageMaxSize);
+					Scan scan = obdSscanner.scan();
+					scans.add(scan);
+					obdSscanner.notifyScanned(scan);
+					System.out.printf("    DONE! %d PIDs scanned!%n", scan.getData().size());
 					end_scan();
 					if (!scanning) {
 						break;
@@ -95,10 +93,9 @@ final class ScanLoop {
 				save(obd2Package);
 			} catch (Throwable e) {
 				scanning = false;
-				System.out.println("a error happened!");
-				e.printStackTrace();
-				obd2Monitor.notifyError(e);
+				System.out.printf("%s: %s%n", e.getClass().getSimpleName(), e.getMessage());
 				save(obd2Package);
+				obdSscanner.notifyError(e);
 				return;
 			}
 		}
@@ -110,7 +107,7 @@ final class ScanLoop {
 				System.out.println("empty package ignored!");
 			} else {
 				System.out.println("trying to save data package...");
-				obd2Monitor.notifyFinishPackage(obd2Package);
+				obdSscanner.notifyFinishPackage(obd2Package);
 				System.out.println("data package saved!");
 			}
 		}
