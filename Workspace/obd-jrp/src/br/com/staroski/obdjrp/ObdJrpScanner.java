@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import br.com.staroski.obdjrp.data.Data;
 import br.com.staroski.obdjrp.data.Package;
@@ -16,9 +17,13 @@ import br.com.staroski.obdjrp.io.IO;
 
 public final class ObdJrpScanner {
 
-	private static final String SHOW_CURRENT_DATA = "01";
+	private static final int MAX_READ_TRIES = 10;
 
-	private static final String PROMPT_CHARACTER = ">";
+	private static final String MODE_1 = "01"; // SHOW CURRENT DATA
+
+	private static final String PROMPT = ">";
+
+	private static final Pattern SUPPORTED_PIDS = Pattern.compile("[0-9A-F]{12}");
 
 	private static String formatResponse(String mode, String pid, String response) {
 		String text = response;
@@ -27,7 +32,7 @@ public final class ObdJrpScanner {
 		if (offset != -1) {
 			text = text.substring(offset).trim();
 		}
-		offset = text.indexOf(PROMPT_CHARACTER);
+		offset = text.indexOf(PROMPT);
 		if (offset != -1) {
 			text = text.substring(0, offset).trim();
 		}
@@ -38,9 +43,9 @@ public final class ObdJrpScanner {
 		String response = "4" + mode.charAt(mode.length() - 1);
 		return response + pid;
 	}
-
 	private final EventMulticaster eventMulticaster;
 	private final ELM327 elm327;
+
 	private final ScanLoop scanLoop;
 
 	private final List<String> supportedPIDs;
@@ -99,7 +104,7 @@ public final class ObdJrpScanner {
 			if (!validPIDs.contains(pid)) {
 				break;
 			}
-			String bitmask = execute(SHOW_CURRENT_DATA, pid);
+			String bitmask = readPIDsBitmask(pid);
 			validPIDs = processBitmask(pid, bitmask);
 			supportedPIDs.addAll(validPIDs);
 		}
@@ -123,12 +128,28 @@ public final class ObdJrpScanner {
 		}
 	}
 
-	private String removeHeader(String result, String header) {
-		int offset = result.indexOf(header);
-		if (offset != -1) {
-			result = result.substring(offset + header.length());
+	private String readPIDsBitmask(String pid) throws IOException, ELM327Error {
+		final String header = responseHeader(MODE_1, pid);
+		String bitmask = null;
+		for (int i = 0; i < MAX_READ_TRIES; i++) {
+			bitmask = execute(MODE_1, pid);
+			if (!SUPPORTED_PIDS.matcher(bitmask).find()) {
+				continue;
+			}
+			if (!bitmask.startsWith(header)) {
+				continue;
+			}
+			return bitmask;
 		}
-		return result;
+		throw ELM327Error.DATA_ERROR;
+	}
+
+	private String removeHeader(String response, String header) {
+		int offset = response.indexOf(header);
+		if (offset != -1) {
+			response = response.substring(offset + header.length());
+		}
+		return response;
 	}
 
 	void notifyError(ELM327Error error) {
@@ -153,9 +174,9 @@ public final class ObdJrpScanner {
 		List<ELM327Error> errors = new ArrayList<>();
 		for (String pid : supportedPIDs) {
 			try {
-				String response = execute(SHOW_CURRENT_DATA, pid);
+				String response = execute(MODE_1, pid);
 				if (!isEmpty(response)) {
-					String header = responseHeader(SHOW_CURRENT_DATA, pid);
+					String header = responseHeader(MODE_1, pid);
 					response = removeHeader(response, header);
 					dataList.add(new Data(pid, response));
 				}

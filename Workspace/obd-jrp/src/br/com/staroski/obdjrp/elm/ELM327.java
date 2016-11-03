@@ -73,7 +73,7 @@ public final class ELM327 {
 	}
 
 	private void printLog(String format, String value) {
-		log.printf(format, value.replaceAll("\r", "\\r"));
+		log.printf(format, value.replaceAll("\r", "\\\\r"));
 	}
 
 	private byte[] send(byte[] buffer) throws IOException {
