@@ -35,10 +35,12 @@ public final class ELM327 {
 	public ELM327(IO io, boolean createLofFile) throws IOException {
 		this.io = io;
 		log = createLogStream(createLofFile);
+		Disconnector.add(this);
 	}
 
 	public void disconnect() {
 		io.closeIO();
+		Disconnector.remove(this);
 	}
 
 	public String execute(String command) throws ELM327Error, IOException {
@@ -70,16 +72,14 @@ public final class ELM327 {
 	}
 
 	private byte[] send(byte[] buffer) throws IOException {
-		io.out.write(buffer, 0, buffer.length);
+		io.out.write(buffer);
 		io.out.flush();
-		Thread.yield();
 		ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-		buffer = new byte[512];
 		int read = -1;
-		while ((read = io.in.read(buffer, 0, buffer.length)) != -1) {
+		while ((read = io.in.read()) != -1) {
 			if (read > 0) {
-				bytes.write(buffer, 0, read);
-				if (buffer[read - 1] == PROMPT) {
+				bytes.write(read);
+				if (read == PROMPT) {
 					break;
 				}
 			}
