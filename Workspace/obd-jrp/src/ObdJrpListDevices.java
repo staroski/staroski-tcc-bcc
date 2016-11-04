@@ -20,17 +20,17 @@ public final class ObdJrpListDevices {
 	private ObdJrpListDevices() {}
 
 	private void execute() throws IOException {
-		List<RemoteDevice> remoteDevices = Bluetooth.getRemoteDevices();
+		List<RemoteDevice> remoteDevices = Bluetooth.listDevices();
 		for (RemoteDevice remoteDevice : remoteDevices) {
 			System.out.printf("device \"%s\" - \"%s\" {", remoteDevice.getBluetoothAddress(), remoteDevice.getFriendlyName(false));
-			printServices(Bluetooth.getServices(remoteDevice));
+			printServices(Bluetooth.listServices(remoteDevice));
 			System.out.printf("}%n%n");
 		}
 	}
 
 	private void printServices(List<ServiceRecord> services) {
 		for (ServiceRecord service : services) {
-			System.out.printf("%n\t\"%s\"%n", Bluetooth.getName(service));
+			System.out.printf("%n\t\"%s\"%n", Bluetooth.getServiceName(service));
 		}
 	}
 }

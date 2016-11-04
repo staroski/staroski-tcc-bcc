@@ -11,11 +11,11 @@ abstract class DiscoveryAdapter implements DiscoveryListener {
 	public void deviceDiscovered(RemoteDevice btDevice, DeviceClass cod) {}
 
 	@Override
+	public void inquiryCompleted(int discType) {}
+
+	@Override
 	public void servicesDiscovered(int transID, ServiceRecord[] servRecord) {}
 
 	@Override
 	public void serviceSearchCompleted(int transID, int respCode) {}
-
-	@Override
-	public void inquiryCompleted(int discType) {}
 }
