@@ -18,7 +18,7 @@ import javax.servlet.http.Part;
 
 import br.com.staroski.obdjrp.data.Package;
 import br.com.staroski.obdjrp.io.ByteHelper;
-import br.com.staroski.obdjrp.io.CsvHelper;
+import br.com.staroski.obdjrp.io.CSVHelper;
 
 @WebServlet(name = "SendDataServlet", urlPatterns = { "/send-data" })
 @MultipartConfig( //
@@ -53,7 +53,7 @@ public final class ObdJrpSendDataServlet extends ObdJrpServlet {
 			File csvFile = getFile(dataPackage, ".csv");
 			System.out.printf("Gravando \"%s\"...", csvFile.getAbsolutePath());
 			FileOutputStream csvOutput = new FileOutputStream(csvFile);
-			CsvHelper.writeTo(csvOutput, dataPackage);
+			CSVHelper.writeTo(csvOutput, dataPackage);
 			csvOutput.close();
 			csvFile.setLastModified(dataPackage.getTime());
 			System.out.println("  OK!");

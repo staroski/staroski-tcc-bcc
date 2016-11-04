@@ -16,12 +16,12 @@ public final class Bluetooth {
 	/**
 	 * Atributo correspondente ao nome do serviço (<code>0x0100</code>)
 	 */
-	public static final short ATTRIBUTE_SERVICE_NAME = 0x0100;
+	static final short ATTRIBUTE_SERVICE_NAME = 0x0100;
 
 	/**
 	 * UUID correspondente ao SPP (<code>0000</code><B><code>1101</code></B><code>00001000800000805F9B34FB</code>)
 	 */
-	public static final UUID UUID_SERIAL_PORT_PROFILE = BaseUUID.merge16bits((short) 0x1101);
+	static final UUID UUID_SERIAL_PORT_PROFILE = BaseUUID.merge16bits((short) 0x1101);
 
 	public static IO connect(RemoteDevice device, ServiceRecord service) throws IOException {
 		String url = service.getConnectionURL(ServiceRecord.NOAUTHENTICATE_NOENCRYPT, false);

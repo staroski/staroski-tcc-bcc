@@ -2,9 +2,13 @@ package br.com.staroski.obdjrp;
 
 import static br.com.staroski.obdjrp.ObdJrpUtils.isEmpty;
 
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.PrintStream;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -25,6 +29,18 @@ public final class ObdJrpScanner {
 
 	private static final Pattern SUPPORTED_PIDS = Pattern.compile("[0-9A-F]{12}");
 
+	private static PrintStream createLogStream() throws IOException {
+		ObdJrpProperties properties = new ObdJrpProperties();
+		if (properties.isLogELM327()) {
+			SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss");
+			String instant = dateFormat.format(new Date());
+			String name = ELM327.class.getSimpleName();
+			FileOutputStream output = new FileOutputStream(name + "_" + instant + ".log");
+			return new PrintStream(output);
+		}
+		return System.out;
+	}
+
 	private static String formatResponse(String mode, String pid, String response) {
 		String text = response;
 		String header = responseHeader(mode, pid);
@@ -43,7 +59,20 @@ public final class ObdJrpScanner {
 		String response = "4" + mode.charAt(mode.length() - 1);
 		return response + pid;
 	}
+
+	private static ELM327 startupELM327(IO connection) throws IOException, ELM327Error {
+		PrintStream log = createLogStream();
+		ELM327 elm327 = new ELM327(connection, log);
+		elm327.execute("ATZ"); // reset
+		elm327.execute("ATE0"); // desligando echo
+		elm327.execute("ATH0"); // desligando envio dos cabeçalhos
+		elm327.execute("ATS0"); // desligando espaços em branco
+		elm327.execute("ATSP0"); // definindo detecção automática de protocolo
+		return elm327;
+	}
+
 	private final EventMulticaster eventMulticaster;
+
 	private final ELM327 elm327;
 
 	private final ScanLoop scanLoop;
@@ -51,13 +80,7 @@ public final class ObdJrpScanner {
 	private final List<String> supportedPIDs;
 
 	public ObdJrpScanner(IO connection) throws IOException, ELM327Error {
-		ObdJrpProperties properties = new ObdJrpProperties();
-		elm327 = new ELM327(connection, properties.isLogEML327());
-		elm327.execute("ATZ"); // reset
-		elm327.execute("ATE0"); // desligando echo
-		elm327.execute("ATH0"); // desligando envio dos cabeçalhos
-		elm327.execute("ATS0"); // desligando espaços em branco
-		elm327.execute("ATSP0"); // definindo detecção automática de protocolo
+		elm327 = startupELM327(connection);
 		supportedPIDs = loadSupportedPIDs();
 
 		this.eventMulticaster = new EventMulticaster();

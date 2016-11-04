@@ -6,26 +6,24 @@ import java.util.List;
 
 import javax.bluetooth.DeviceClass;
 import javax.bluetooth.DiscoveryAgent;
-import javax.bluetooth.DiscoveryListener;
 import javax.bluetooth.LocalDevice;
 import javax.bluetooth.RemoteDevice;
-import javax.bluetooth.ServiceRecord;
 
-final class DeviceScanner implements DiscoveryListener {
+final class DeviceScanner extends DiscoveryAdapter {
 
 	private static final DeviceScanner SCANNER = new DeviceScanner();
 
 	public static RemoteDevice find(String deviceAddress) throws IOException {
 		List<RemoteDevice> devices = list();
 		if (devices.isEmpty()) {
-			throw new IllegalStateException(String.format("No paired devices found!"));
+			throw new IllegalStateException(String.format("No devices found!"));
 		}
 		for (RemoteDevice device : devices) {
 			if (deviceAddress.equals(device.getBluetoothAddress())) {
 				return device;
 			}
 		}
-		throw new IllegalStateException(String.format("Device %s not paired!", deviceAddress));
+		throw new IllegalStateException(String.format("Device %s not found!", deviceAddress));
 	}
 
 	public static List<RemoteDevice> list() throws IOException {
@@ -38,22 +36,16 @@ final class DeviceScanner implements DiscoveryListener {
 
 	private DeviceScanner() {}
 
+	@Override
 	public void deviceDiscovered(RemoteDevice btDevice, DeviceClass cod) {
 		devices.add(btDevice);
 	}
 
+	@Override
 	public void inquiryCompleted(int discType) {
 		synchronized (LOCK) {
 			LOCK.notifyAll();
 		}
-	}
-
-	public void servicesDiscovered(int transID, ServiceRecord[] servRecord) {
-		// ignorar, este listener só descobre dispositivos
-	}
-
-	public void serviceSearchCompleted(int transID, int respCode) {
-		// ignorar, este listener só descobre dispositivos
 	}
 
 	private List<RemoteDevice> listDevices() throws IOException {

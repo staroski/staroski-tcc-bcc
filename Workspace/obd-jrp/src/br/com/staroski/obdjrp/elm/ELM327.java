@@ -1,11 +1,8 @@
 package br.com.staroski.obdjrp.elm;
 
 import java.io.ByteArrayOutputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 
 import br.com.staroski.obdjrp.io.IO;
 
@@ -14,14 +11,19 @@ public final class ELM327 {
 	public static final char PROMPT = '>';
 	public static final char RETURN = '\r';
 
-	private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss");
-
 	private static String checkError(String response) throws ELM327Error {
 		ELM327Error error = ELM327Error.findError(response);
 		if (error != null) {
 			throw error;
 		}
 		return response;
+	}
+
+	private static <T> T checkParam(Class<T> type, T instance) {
+		if (instance == null) {
+			throw new IllegalArgumentException(type.getSimpleName() + " is null");
+		}
+		return instance;
 	}
 
 	private static String prepareCommand(String command) {
@@ -42,9 +44,13 @@ public final class ELM327 {
 
 	private final PrintStream log;
 
-	public ELM327(IO io, boolean createLofFile) throws IOException {
-		this.io = io;
-		log = createLogStream(createLofFile);
+	public ELM327(IO io) throws IOException {
+		this(io, System.out);
+	}
+
+	public ELM327(IO io, PrintStream log) throws IOException {
+		this.io = checkParam(IO.class, io);
+		this.log = checkParam(PrintStream.class, log);
 		Disconnector.add(this);
 	}
 
@@ -60,16 +66,6 @@ public final class ELM327 {
 		String response = prepareResponse(bytes);
 		printLog("response:%n\"%s\"%n%n", response);
 		return checkError(response);
-	}
-
-	private PrintStream createLogStream(boolean create) throws IOException {
-		if (create) {
-			String instant = DATE_FORMAT.format(new Date());
-			String name = getClass().getSimpleName();
-			FileOutputStream output = new FileOutputStream(name + "_" + instant + ".log");
-			return new PrintStream(output);
-		}
-		return System.out;
 	}
 
 	private void printLog(String format, String value) {

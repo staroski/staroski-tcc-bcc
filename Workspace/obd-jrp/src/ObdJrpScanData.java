@@ -5,17 +5,15 @@ import java.awt.event.WindowEvent;
 
 import javax.swing.UIManager;
 
-import br.com.staroski.obdjrp.ObdJrpListener;
+import br.com.staroski.obdjrp.ObdJrpAdapter;
 import br.com.staroski.obdjrp.ObdJrpProperties;
 import br.com.staroski.obdjrp.ObdJrpScanner;
-import br.com.staroski.obdjrp.data.Package;
-import br.com.staroski.obdjrp.data.Scan;
 import br.com.staroski.obdjrp.elm.ELM327Error;
 import br.com.staroski.obdjrp.io.IO;
 import br.com.staroski.obdjrp.io.bluetooth.Bluetooth;
-import br.com.staroski.obdjrp.ui.ListenerFrame;
+import br.com.staroski.obdjrp.ui.ScannerWindow;
 
-public final class ObdJrpScanData {
+public final class ObdJrpScanData extends ObdJrpAdapter {
 
 	public static void main(String[] args) {
 		try {
@@ -28,50 +26,29 @@ public final class ObdJrpScanData {
 
 	private ObdJrpScanner obdScanner;
 
-	private ListenerFrame scannerWindow;
-
-	private final ObdJrpListener listener = new ObdJrpListener() {
-
-		@Override
-		public void onError(ELM327Error error) {
-			restartAfterError(error);
-		}
-
-		@Override
-		public void onFinishPackage(Package dataPackage) {
-			if (scannerWindow != null) {
-				scannerWindow.onFinishPackage(dataPackage);
-			}
-		}
-
-		@Override
-		public void onScanned(Scan scannedData) {
-			if (scannerWindow != null) {
-				scannerWindow.onScanned(scannedData);
-			}
-		}
-
-		@Override
-		public void onStartPackage(Package dataPackage) {
-			if (scannerWindow != null) {
-				scannerWindow.onStartPackage(dataPackage);
-			}
-		}
-	};
+	private ScannerWindow scannerWindow;
 
 	private ObdJrpScanData() {}
 
-	private ListenerFrame createScannerWindow() {
+	@Override
+	public void onError(ELM327Error error) {
+		restartAfterError(error);
+	}
+
+	private ScannerWindow getScannerWindow() {
+		if (scannerWindow != null) {
+			return scannerWindow;
+		}
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 		} catch (Throwable t) {
 			t.printStackTrace();
 		}
-		final ListenerFrame listenerFrame = new ListenerFrame();
-		listenerFrame.setResizable(false);
-		listenerFrame.setLocationRelativeTo(null);
+		scannerWindow = new ScannerWindow();
+		scannerWindow.setResizable(false);
+		scannerWindow.setLocationRelativeTo(null);
 
-		listenerFrame.addWindowListener(new WindowAdapter() {
+		scannerWindow.addWindowListener(new WindowAdapter() {
 			@Override
 			public void windowClosing(WindowEvent we) {
 				stopScanning();
@@ -79,7 +56,7 @@ public final class ObdJrpScanData {
 				System.exit(0);
 			}
 		});
-		return listenerFrame;
+		return scannerWindow;
 	}
 
 	private void restartAfterError(final ELM327Error error) {
@@ -94,13 +71,6 @@ public final class ObdJrpScanData {
 		}, getClass().getSimpleName() + "_Restarting").start();
 	}
 
-	private void showScannerWindow() {
-		if (scannerWindow == null) {
-			scannerWindow = createScannerWindow();
-			scannerWindow.setVisible(true);
-		}
-	}
-
 	private void startScanning() {
 		ObdJrpProperties props = new ObdJrpProperties();
 		String deviceAddress = props.getDeviceAddress();
@@ -113,7 +83,8 @@ public final class ObdJrpScanData {
 			System.out.printf("property \"service_name\" not found!%n");
 			return;
 		}
-		showScannerWindow();
+		final ScannerWindow window = getScannerWindow();
+		window.setVisible(true);
 		boolean connected = false;
 		while (!connected) {
 			System.out.printf("trying to connect with\n\tdevice:  %s\n\tservice: %s%n", deviceAddress, serviceName);
@@ -121,7 +92,8 @@ public final class ObdJrpScanData {
 			try {
 				io = Bluetooth.connect(deviceAddress, serviceName);
 				obdScanner = new ObdJrpScanner(io);
-				obdScanner.addListener(listener);
+				obdScanner.addListener(window);
+				obdScanner.addListener(this);
 				obdScanner.startScanning();
 				connected = true;
 				System.out.println("started scanning!");

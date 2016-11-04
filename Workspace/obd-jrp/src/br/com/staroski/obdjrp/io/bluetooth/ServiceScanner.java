@@ -5,14 +5,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.bluetooth.BluetoothStateException;
-import javax.bluetooth.DeviceClass;
-import javax.bluetooth.DiscoveryListener;
 import javax.bluetooth.LocalDevice;
 import javax.bluetooth.RemoteDevice;
 import javax.bluetooth.ServiceRecord;
 import javax.bluetooth.UUID;
 
-final class ServiceScanner implements DiscoveryListener {
+final class ServiceScanner extends DiscoveryAdapter {
 
 	private static final ServiceScanner SCANNER = new ServiceScanner();
 
@@ -46,17 +44,13 @@ final class ServiceScanner implements DiscoveryListener {
 	private ServiceScanner() {}
 
 	@Override
-	public void deviceDiscovered(RemoteDevice btDevice, DeviceClass cod) {}
-
-	@Override
-	public void inquiryCompleted(int discType) {}
-
 	public void servicesDiscovered(int transID, ServiceRecord[] servRecord) {
 		for (ServiceRecord service : servRecord) {
 			services.add(service);
 		}
 	}
 
+	@Override
 	public void serviceSearchCompleted(int transID, int respCode) {
 		synchronized (LOCK) {
 			LOCK.notifyAll();

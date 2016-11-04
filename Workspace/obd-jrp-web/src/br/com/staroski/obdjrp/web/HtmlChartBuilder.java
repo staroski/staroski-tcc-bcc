@@ -6,7 +6,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import br.com.staroski.obdjrp.io.CSV;
-import br.com.staroski.obdjrp.io.CsvHelper;
+import br.com.staroski.obdjrp.io.CSVHelper;
 
 public class HtmlChartBuilder {
 
@@ -18,7 +18,7 @@ public class HtmlChartBuilder {
 
 	public static String createPage(String vim) {
 		File dir = new File(ObdJrpServlet.getDataDir(), vim);
-		CSV csv = CsvHelper.createSingleCsv(dir);
+		CSV csv = CSVHelper.createSingleCSV(dir);
 		if (csv.isEmpty()) {
 			return "There is no data for VIM " + vim;
 		}

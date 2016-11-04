@@ -20,7 +20,7 @@ import br.com.staroski.obdjrp.data.Scan;
 import br.com.staroski.obdjrp.data.Parsed;
 import br.com.staroski.obdjrp.data.Parsing;
 
-public final class CsvHelper {
+public final class CSVHelper {
 
 	public static final FileFilter CSV_FILE_FILTER = new FileFilter() {
 
@@ -43,7 +43,7 @@ public final class CsvHelper {
 
 	public static final SimpleDateFormat CSV_DATE_FORMAT = new SimpleDateFormat("yyyyMMddHHmmss");
 
-	public static CSV createSingleCsv(File dir) {
+	public static CSV createSingleCSV(File dir) {
 		List<String> csvLines = new ArrayList<>();
 		try {
 			File[] csvFiles = dir.listFiles(CSV_FILE_FILTER);
@@ -67,7 +67,7 @@ public final class CsvHelper {
 		return new CSV(csvLines);
 	}
 
-	public static List<String> packageToCsv(Package dataPackage) throws IOException {
+	public static List<String> packageToCSV(Package dataPackage) throws IOException {
 		List<String> csv = new ArrayList<>();
 		List<Scan> scannedData = dataPackage.getScans();
 		if (scannedData.isEmpty()) {
@@ -102,12 +102,12 @@ public final class CsvHelper {
 
 	public static void writeTo(OutputStream output, Package dataPackage) throws IOException {
 		PrintWriter writer = new PrintWriter(output);
-		List<String> csv = packageToCsv(dataPackage);
+		List<String> csv = packageToCSV(dataPackage);
 		for (String line : csv) {
 			writer.println(line);
 		}
 		writer.flush();
 	}
 
-	private CsvHelper() {}
+	private CSVHelper() {}
 }

@@ -14,13 +14,13 @@ import br.com.staroski.obdjrp.data.Package;
 import br.com.staroski.obdjrp.data.Scan;
 import br.com.staroski.obdjrp.elm.ELM327Error;
 
-public final class ListenerFrame extends JFrame implements ObdJrpListener {
+public final class ScannerWindow extends JFrame implements ObdJrpListener {
 
 	private static final long serialVersionUID = 1;
 
 	private final ListenerPanel listenerPanel;
 
-	public ListenerFrame() {
+	public ScannerWindow() {
 		super("OBD-JRP");
 		setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
 		setIconImages(loadIcons());
