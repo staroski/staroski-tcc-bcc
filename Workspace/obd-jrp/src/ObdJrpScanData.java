@@ -97,7 +97,9 @@ public final class ObdJrpScanData extends ObdJrpAdapter {
 	}
 
 	private void stopScanning() {
-		scanner.stopScanning();
-		System.out.println("stopped scanning!");
+		if (scanner != null) {
+			scanner.stopScanning();
+			System.out.println("stopped scanning!");
+		}
 	}
 }
