@@ -10,44 +10,25 @@ import javax.imageio.ImageIO;
 import javax.swing.JFrame;
 
 import br.com.staroski.obdjrp.ObdJrpListener;
-import br.com.staroski.obdjrp.data.Package;
-import br.com.staroski.obdjrp.data.Scan;
-import br.com.staroski.obdjrp.elm.ELM327Error;
 
-public final class ScannerWindow extends JFrame implements ObdJrpListener {
+public final class ScannerWindow extends JFrame {
 
 	private static final long serialVersionUID = 1;
 
-	private final ListenerPanel listenerPanel;
+	private final DataPanel dataPanel;
 
 	public ScannerWindow() {
 		super("OBD-JRP");
 		setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
 		setIconImages(loadIcons());
 		Container container = getContentPane();
-		listenerPanel = new ListenerPanel();
-		container.add(listenerPanel, BorderLayout.CENTER);
+		dataPanel = new DataPanel();
+		container.add(dataPanel, BorderLayout.CENTER);
 		pack();
 	}
 
-	@Override
-	public void onError(ELM327Error error) {
-		listenerPanel.onError(error);
-	}
-
-	@Override
-	public void onFinishPackage(Package dataPackage) {
-		listenerPanel.onFinishPackage(dataPackage);
-	}
-
-	@Override
-	public void onScanned(Scan scannedData) {
-		listenerPanel.onScanned(scannedData);
-	}
-
-	@Override
-	public void onStartPackage(Package dataPackage) {
-		listenerPanel.onStartPackage(dataPackage);
+	public ObdJrpListener getObdJrpListener() {
+		return dataPanel;
 	}
 
 	private List<Image> loadIcons() {

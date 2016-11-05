@@ -1,6 +1,6 @@
 package br.com.staroski.obdjrp.data;
 
-import br.com.staroski.obdjrp.ObdJrpUtils;
+import br.com.staroski.obdjrp.utils.Conversions;
 
 public final class Data {
 
@@ -21,6 +21,6 @@ public final class Data {
 	}
 
 	public boolean isEmpty() {
-		return ObdJrpUtils.isEmpty(getValue());
+		return Conversions.isEmpty(getValue());
 	}
 }

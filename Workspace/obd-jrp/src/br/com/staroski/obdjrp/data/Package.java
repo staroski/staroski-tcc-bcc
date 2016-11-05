@@ -59,7 +59,7 @@ public final class Package {
 		return time;
 	}
 
-	public String getVehicleId() {
+	public String getVehicle() {
 		return vehicleId;
 	}
 

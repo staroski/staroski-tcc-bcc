@@ -6,6 +6,7 @@ import java.io.InputStream;
 import java.util.Properties;
 
 import br.com.staroski.obdjrp.data.Package;
+import br.com.staroski.obdjrp.utils.Conversions;
 
 public final class ObdJrpProperties {
 
@@ -47,7 +48,7 @@ public final class ObdJrpProperties {
 	}
 
 	private static boolean isTrue(String value) {
-		return ObdJrpUtils.isEmpty(value) ? false : "yes".equalsIgnoreCase(value) || "true".equalsIgnoreCase(value);
+		return Conversions.isEmpty(value) ? false : "yes".equalsIgnoreCase(value) || "true".equalsIgnoreCase(value);
 	}
 
 	private final ObdJrpConnection connection;
@@ -83,7 +84,7 @@ public final class ObdJrpProperties {
 
 	public File getPackageDir() {
 		String value = getProperty(PACKAGE_DIR);
-		File dir = ObdJrpUtils.isEmpty(value) ? Package.DEFAULT_DIR : new File(value);
+		File dir = Conversions.isEmpty(value) ? Package.DEFAULT_DIR : new File(value);
 		if (!dir.exists()) {
 			dir.mkdirs();
 		}
@@ -92,7 +93,7 @@ public final class ObdJrpProperties {
 
 	public int getPackageMaxSize() {
 		String value = getProperty(PACKAGE_MAX_SIZE);
-		return ObdJrpUtils.isEmpty(value) ? Package.DEFAULT_MAX_SIZE : Integer.parseInt(value);
+		return Conversions.isEmpty(value) ? Package.DEFAULT_MAX_SIZE : Integer.parseInt(value);
 	}
 
 	public String getParser(String pid) {
@@ -109,7 +110,7 @@ public final class ObdJrpProperties {
 
 	public String getVehicle() {
 		String value = getProperty(VEHICLE);
-		return ObdJrpUtils.isEmpty(value) ? Package.UNKNOWN_VEHICLE : value;
+		return Conversions.isEmpty(value) ? Package.UNKNOWN_VEHICLE : value;
 	}
 
 	public String getWebServer() {
@@ -130,7 +131,7 @@ public final class ObdJrpProperties {
 
 	String checkProperty(String name) {
 		String value = getProperty(name);
-		if (ObdJrpUtils.isEmpty(value)) {
+		if (Conversions.isEmpty(value)) {
 			throw new IllegalStateException("property \"" + name + "\" not found in " + FILE_NAME);
 		}
 		return value;

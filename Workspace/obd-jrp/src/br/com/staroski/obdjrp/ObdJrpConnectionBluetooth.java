@@ -8,7 +8,7 @@ import javax.microedition.io.Connection;
 import javax.microedition.io.InputConnection;
 import javax.microedition.io.OutputConnection;
 
-import br.com.staroski.obdjrp.io.bluetooth.Bluetooth;
+import br.com.staroski.obdjrp.bluetooth.Bluetooth;
 
 final class ObdJrpConnectionBluetooth implements ObdJrpConnection {
 

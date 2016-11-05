@@ -4,7 +4,7 @@ import java.util.List;
 import javax.bluetooth.RemoteDevice;
 import javax.bluetooth.ServiceRecord;
 
-import br.com.staroski.obdjrp.io.bluetooth.Bluetooth;
+import br.com.staroski.obdjrp.bluetooth.Bluetooth;
 
 public final class ObdJrpListDevices {
 

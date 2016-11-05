@@ -8,8 +8,8 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import br.com.staroski.obdjrp.data.Package;
-import br.com.staroski.obdjrp.io.ByteHelper;
-import br.com.staroski.obdjrp.io.XmlHelper;
+import br.com.staroski.obdjrp.utils.ByteHelper;
+import br.com.staroski.obdjrp.utils.XmlHelper;
 
 final class FileHandler extends ObdJrpAdapter {
 
@@ -31,7 +31,7 @@ final class FileHandler extends ObdJrpAdapter {
 	private File getDataDir(Package dataPackage) {
 		ObdJrpProperties props = ObdJrpProperties.get();
 		File folder = props.getPackageDir();
-		File file = new File(folder, dataPackage.getVehicleId());
+		File file = new File(folder, dataPackage.getVehicle());
 		if (!file.exists()) {
 			file.mkdirs();
 		}

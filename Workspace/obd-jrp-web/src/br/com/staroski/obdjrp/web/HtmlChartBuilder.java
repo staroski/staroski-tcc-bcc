@@ -5,10 +5,9 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import br.com.staroski.obdjrp.io.CSV;
-import br.com.staroski.obdjrp.io.CSVHelper;
+import br.com.staroski.obdjrp.utils.CSV;
 
-public class HtmlChartBuilder {
+public final class HtmlChartBuilder {
 
 	private static final String DIV_ID_PREFIX = "chart_";
 	private static final String DRAW_CHART_PREFIX = "drawChart_";
@@ -18,7 +17,7 @@ public class HtmlChartBuilder {
 
 	public static String createPage(String vim) {
 		File dir = new File(ObdJrpServlet.getDataDir(), vim);
-		CSV csv = CSVHelper.createSingleCSV(dir);
+		CSV csv = CSV.createSingleCSV(dir);
 		if (csv.isEmpty()) {
 			return "There is no data for VIM " + vim;
 		}

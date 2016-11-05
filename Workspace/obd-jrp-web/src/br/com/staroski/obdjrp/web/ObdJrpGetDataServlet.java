@@ -11,10 +11,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 @WebServlet(name = "GetDataServlet", urlPatterns = { "/get-data" })
-public class ObdJrpGetDataServlet extends ObdJrpServlet {
+public final class ObdJrpGetDataServlet extends ObdJrpServlet {
 
 	private static final long serialVersionUID = 1;
 
+	@Override
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		PrintWriter out = response.getWriter();
 		String vin = request.getParameter("vehicle");

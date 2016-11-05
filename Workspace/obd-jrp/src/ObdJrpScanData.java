@@ -6,6 +6,7 @@ import javax.swing.UIManager;
 
 import br.com.staroski.obdjrp.ObdJrpAdapter;
 import br.com.staroski.obdjrp.ObdJrpConnection;
+import br.com.staroski.obdjrp.ObdJrpListener;
 import br.com.staroski.obdjrp.ObdJrpProperties;
 import br.com.staroski.obdjrp.ObdJrpScanner;
 import br.com.staroski.obdjrp.elm.ELM327Error;
@@ -72,12 +73,13 @@ public final class ObdJrpScanData extends ObdJrpAdapter {
 		final ObdJrpProperties props = ObdJrpProperties.get();
 		final ObdJrpConnection connection = props.getConnection();
 		final ScannerWindow window = getScannerWindow();
+		final ObdJrpListener listener = window.getObdJrpListener();
 		window.setVisible(true);
 		while (!connection.isOpen()) {
 			System.out.println("trying to connect with " + connection);
 			try {
 				scanner = new ObdJrpScanner(connection.open());
-				scanner.addListener(window);
+				scanner.addListener(listener);
 				scanner.addListener(this);
 				scanner.startScanning();
 				System.out.println("successfull connected!");
@@ -86,7 +88,7 @@ public final class ObdJrpScanData extends ObdJrpAdapter {
 						error.getClass().getSimpleName(), //
 						error.getMessage());
 				if (scanner != null) {
-					scanner.removeListener(window);
+					scanner.removeListener(listener);
 					scanner.removeListener(this);
 				}
 				connection.close();

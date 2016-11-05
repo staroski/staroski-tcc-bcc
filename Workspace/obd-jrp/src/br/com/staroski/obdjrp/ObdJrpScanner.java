@@ -1,6 +1,6 @@
 package br.com.staroski.obdjrp;
 
-import static br.com.staroski.obdjrp.ObdJrpUtils.isEmpty;
+import static br.com.staroski.obdjrp.utils.Conversions.isEmpty;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -17,6 +17,7 @@ import br.com.staroski.obdjrp.data.Package;
 import br.com.staroski.obdjrp.data.Scan;
 import br.com.staroski.obdjrp.elm.ELM327;
 import br.com.staroski.obdjrp.elm.ELM327Error;
+import br.com.staroski.obdjrp.utils.Conversions;
 
 public final class ObdJrpScanner {
 
@@ -138,10 +139,10 @@ public final class ObdJrpScanner {
 		List<String> pids = new ArrayList<>();
 		try {
 			int offset = Integer.parseInt(pid, 16) + 1;
-			char[] bitmask = ObdJrpUtils.hexaToBinary(bytes, 32).toCharArray();
+			char[] bitmask = Conversions.hexaToBinary(bytes, 32).toCharArray();
 			for (int i = 0, value = offset; i < bitmask.length; i++, value++) {
 				if (bitmask[i] == '1') {
-					pids.add(ObdJrpUtils.decimalToHexa(value, 8));
+					pids.add(Conversions.decimalToHexa(value, 8));
 				}
 			}
 			return pids;
