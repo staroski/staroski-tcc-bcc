@@ -12,5 +12,7 @@ public interface ObdJrpConnection {
 
 	public OutputStream getOutput();
 
+	public boolean isOpen();
+
 	public ObdJrpConnection open() throws IOException;
 }

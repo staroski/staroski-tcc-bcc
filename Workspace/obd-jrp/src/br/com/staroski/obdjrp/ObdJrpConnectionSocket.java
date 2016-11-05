@@ -46,6 +46,11 @@ final class ObdJrpConnectionSocket implements ObdJrpConnection {
 	}
 
 	@Override
+	public boolean isOpen() {
+		return open;
+	}
+
+	@Override
 	public ObdJrpConnection open() throws IOException {
 		if (!open) {
 			socket = new Socket(address, port);

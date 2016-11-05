@@ -51,6 +51,11 @@ final class ObdJrpConnectionBluetooth implements ObdJrpConnection {
 	}
 
 	@Override
+	public boolean isOpen() {
+		return open;
+	}
+
+	@Override
 	public ObdJrpConnection open() throws IOException {
 		if (!open) {
 			connection = Bluetooth.connect(device, service);

@@ -62,7 +62,6 @@ public final class ObdJrpScanData extends ObdJrpAdapter {
 
 			@Override
 			public void run() {
-				scannerWindow.onError(error);
 				stopScanning();
 				startScanning();
 			}
@@ -74,20 +73,22 @@ public final class ObdJrpScanData extends ObdJrpAdapter {
 		final ObdJrpConnection connection = props.getConnection();
 		final ScannerWindow window = getScannerWindow();
 		window.setVisible(true);
-		boolean connected = false;
-		while (!connected) {
-			System.out.printf("trying to connect with %s%n", connection.toString());
+		while (!connection.isOpen()) {
+			System.out.println("trying to connect with " + connection);
 			try {
 				scanner = new ObdJrpScanner(connection.open());
 				scanner.addListener(window);
 				scanner.addListener(this);
 				scanner.startScanning();
-				connected = true;
 				System.out.println("successfull connected!");
 			} catch (IOException | ELM327Error error) {
 				System.out.printf("%s: %s%n", //
 						error.getClass().getSimpleName(), //
 						error.getMessage());
+				if (scanner != null) {
+					scanner.removeListener(window);
+					scanner.removeListener(this);
+				}
 				connection.close();
 			}
 		}

@@ -10,7 +10,31 @@ import br.com.staroski.obdjrp.ObdJrpConnection;
 
 public final class ELM327 {
 
+	private final class InputReader implements Runnable {
+
+		@Override
+		public void run() {
+			final InputStream in = connection.getInput();
+			try {
+				int read = -1;
+				while (connection.isOpen()) {
+					if ((read = in.read()) != -1) {
+						buffer.write(read);
+						if (read == PROMPT) {
+							synchronized (LOCK) {
+								LOCK.notify();
+							}
+						}
+					}
+				}
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+
 	public static final char PROMPT = '>';
+
 	public static final char RETURN = '\r';
 
 	private static String checkError(String response) throws ELM327Error {
@@ -42,8 +66,11 @@ public final class ELM327 {
 		return text;
 	}
 
-	private final ObdJrpConnection connection;
+	private final Object LOCK = new Object();
+	private final ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+
 	private final PrintStream logger;
+	private final ObdJrpConnection connection;
 
 	public ELM327(ObdJrpConnection connection) throws IOException {
 		this(connection, System.out);
@@ -53,6 +80,8 @@ public final class ELM327 {
 		this.connection = checkParam(ObdJrpConnection.class, connection);
 		this.logger = checkParam(PrintStream.class, logger);
 		Disconnector.add(this);
+
+		new Thread(new InputReader(), getClass().getSimpleName() + "_Reader").start();
 	}
 
 	public void disconnect() {
@@ -63,7 +92,7 @@ public final class ELM327 {
 	public String execute(String command) throws ELM327Error, IOException {
 		command = prepareCommand(command);
 		printLog("command:%n\"%s\"%n", command);
-		byte[] bytes = send(command.getBytes());
+		byte[] bytes = sendMessage(command.getBytes());
 		String response = prepareResponse(bytes);
 		printLog("response:%n\"%s\"%n%n", response);
 		return checkError(response);
@@ -73,23 +102,18 @@ public final class ELM327 {
 		logger.printf(format, value.replaceAll("\r", "\\\\r"));
 	}
 
-	private byte[] send(byte[] command) throws IOException {
-		final ByteArrayOutputStream response = new ByteArrayOutputStream();
+	private byte[] sendMessage(byte[] command) throws IOException {
+		buffer.reset();
 		final OutputStream out = connection.getOutput();
-		final InputStream in = connection.getInput();
-		synchronized (out) {
-			synchronized (in) {
-				out.write(command);
-				out.flush();
-				int read = -1;
-				while ((read = in.read()) != -1) {
-					response.write(read);
-					if (read == PROMPT) {
-						break;
-					}
-				}
+		out.write(command);
+		out.flush();
+		try {
+			synchronized (LOCK) {
+				LOCK.wait();
 			}
+		} catch (InterruptedException e) {
+			e.printStackTrace();
 		}
-		return response.toByteArray();
+		return buffer.toByteArray();
 	}
 }

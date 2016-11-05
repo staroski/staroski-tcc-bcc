@@ -74,8 +74,6 @@ final class ScanLoop {
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
-		} else {
-			Thread.yield();
 		}
 	}
 
@@ -104,6 +102,8 @@ final class ScanLoop {
 				}
 				save(obd2Package);
 			} catch (ELM327Error error) {
+				scanning = false;
+				stopped = true;
 				System.out.printf("%s: %s%n", //
 						error.getClass().getSimpleName(), //
 						error.getMessage());
