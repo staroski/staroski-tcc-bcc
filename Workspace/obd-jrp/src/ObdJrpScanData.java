@@ -1,16 +1,14 @@
-import static br.com.staroski.obdjrp.ObdJrpUtils.isEmpty;
-
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.IOException;
 
 import javax.swing.UIManager;
 
 import br.com.staroski.obdjrp.ObdJrpAdapter;
+import br.com.staroski.obdjrp.ObdJrpConnection;
 import br.com.staroski.obdjrp.ObdJrpProperties;
 import br.com.staroski.obdjrp.ObdJrpScanner;
 import br.com.staroski.obdjrp.elm.ELM327Error;
-import br.com.staroski.obdjrp.io.IO;
-import br.com.staroski.obdjrp.io.bluetooth.Bluetooth;
 import br.com.staroski.obdjrp.ui.ScannerWindow;
 
 public final class ObdJrpScanData extends ObdJrpAdapter {
@@ -21,11 +19,11 @@ public final class ObdJrpScanData extends ObdJrpAdapter {
 			scanner.startScanning();
 		} catch (Throwable t) {
 			t.printStackTrace();
+			System.exit(-1);
 		}
 	}
 
-	private ObdJrpScanner obdScanner;
-
+	private ObdJrpScanner scanner;
 	private ScannerWindow scannerWindow;
 
 	private ObdJrpScanData() {}
@@ -72,44 +70,31 @@ public final class ObdJrpScanData extends ObdJrpAdapter {
 	}
 
 	private void startScanning() {
-		ObdJrpProperties props = new ObdJrpProperties();
-		String deviceAddress = props.getDeviceAddress();
-		if (isEmpty(deviceAddress)) {
-			System.out.printf("property \"device_address\" not found!%n");
-			return;
-		}
-		String serviceName = props.getServiceName();
-		if (isEmpty(serviceName)) {
-			System.out.printf("property \"service_name\" not found!%n");
-			return;
-		}
+		final ObdJrpProperties props = ObdJrpProperties.get();
+		final ObdJrpConnection connection = props.getConnection();
 		final ScannerWindow window = getScannerWindow();
 		window.setVisible(true);
 		boolean connected = false;
 		while (!connected) {
-			System.out.printf("trying to connect with\n\tdevice:  %s\n\tservice: %s%n", deviceAddress, serviceName);
-			IO io = null;
+			System.out.printf("trying to connect with %s%n", connection.toString());
 			try {
-				io = Bluetooth.connect(deviceAddress, serviceName);
-				obdScanner = new ObdJrpScanner(io);
-				obdScanner.addListener(window);
-				obdScanner.addListener(this);
-				obdScanner.startScanning();
+				scanner = new ObdJrpScanner(connection.open());
+				scanner.addListener(window);
+				scanner.addListener(this);
+				scanner.startScanning();
 				connected = true;
-				System.out.println("started scanning!");
-			} catch (Throwable error) {
+				System.out.println("successfull connected!");
+			} catch (IOException | ELM327Error error) {
 				System.out.printf("%s: %s%n", //
 						error.getClass().getSimpleName(), //
 						error.getMessage());
-				if (io != null) {
-					io.close();
-				}
+				connection.close();
 			}
 		}
 	}
 
 	private void stopScanning() {
-		obdScanner.stopScanning();
+		scanner.stopScanning();
 		System.out.println("stopped scanning!");
 	}
 }

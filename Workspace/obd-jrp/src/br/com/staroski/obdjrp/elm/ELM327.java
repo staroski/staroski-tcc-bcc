@@ -2,9 +2,11 @@ package br.com.staroski.obdjrp.elm;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.PrintStream;
 
-import br.com.staroski.obdjrp.io.IO;
+import br.com.staroski.obdjrp.ObdJrpConnection;
 
 public final class ELM327 {
 
@@ -40,22 +42,21 @@ public final class ELM327 {
 		return text;
 	}
 
-	private final IO io;
+	private final ObdJrpConnection connection;
+	private final PrintStream logger;
 
-	private final PrintStream log;
-
-	public ELM327(IO io) throws IOException {
-		this(io, System.out);
+	public ELM327(ObdJrpConnection connection) throws IOException {
+		this(connection, System.out);
 	}
 
-	public ELM327(IO io, PrintStream log) throws IOException {
-		this.io = checkParam(IO.class, io);
-		this.log = checkParam(PrintStream.class, log);
+	public ELM327(ObdJrpConnection connection, PrintStream logger) throws IOException {
+		this.connection = checkParam(ObdJrpConnection.class, connection);
+		this.logger = checkParam(PrintStream.class, logger);
 		Disconnector.add(this);
 	}
 
 	public void disconnect() {
-		io.close();
+		connection.close();
 		Disconnector.remove(this);
 	}
 
@@ -69,24 +70,26 @@ public final class ELM327 {
 	}
 
 	private void printLog(String format, String value) {
-		log.printf(format, value.replaceAll("\r", "\\\\r"));
+		logger.printf(format, value.replaceAll("\r", "\\\\r"));
 	}
 
-	private byte[] send(byte[] buffer) throws IOException {
-		synchronized (io.out) {
-			io.out.write(buffer);
-			io.out.flush();
-		}
-		ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-		synchronized (io.in) {
-			int read = -1;
-			while ((read = io.in.read()) != -1) {
-				bytes.write(read);
-				if (read == PROMPT) {
-					break;
+	private byte[] send(byte[] command) throws IOException {
+		final ByteArrayOutputStream response = new ByteArrayOutputStream();
+		final OutputStream out = connection.getOutput();
+		final InputStream in = connection.getInput();
+		synchronized (out) {
+			synchronized (in) {
+				out.write(command);
+				out.flush();
+				int read = -1;
+				while ((read = in.read()) != -1) {
+					response.write(read);
+					if (read == PROMPT) {
+						break;
+					}
 				}
 			}
 		}
-		return bytes.toByteArray();
+		return response.toByteArray();
 	}
 }

@@ -17,7 +17,6 @@ import br.com.staroski.obdjrp.data.Package;
 import br.com.staroski.obdjrp.data.Scan;
 import br.com.staroski.obdjrp.elm.ELM327;
 import br.com.staroski.obdjrp.elm.ELM327Error;
-import br.com.staroski.obdjrp.io.IO;
 
 public final class ObdJrpScanner {
 
@@ -30,7 +29,7 @@ public final class ObdJrpScanner {
 	private static final Pattern SUPPORTED_PIDS = Pattern.compile("[0-9A-F]{12}");
 
 	private static PrintStream createLogStream() throws IOException {
-		ObdJrpProperties properties = new ObdJrpProperties();
+		ObdJrpProperties properties = ObdJrpProperties.get();
 		if (properties.isLogELM327()) {
 			SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss");
 			String instant = dateFormat.format(new Date());
@@ -60,7 +59,7 @@ public final class ObdJrpScanner {
 		return response + pid;
 	}
 
-	private static ELM327 startupELM327(IO connection) throws IOException, ELM327Error {
+	private static ELM327 startupELM327(ObdJrpConnection connection) throws IOException, ELM327Error {
 		PrintStream log = createLogStream();
 		ELM327 elm327 = new ELM327(connection, log);
 		elm327.execute("ATZ"); // reset
@@ -79,7 +78,7 @@ public final class ObdJrpScanner {
 
 	private final List<String> supportedPIDs;
 
-	public ObdJrpScanner(IO connection) throws IOException, ELM327Error {
+	public ObdJrpScanner(ObdJrpConnection connection) throws IOException, ELM327Error {
 		elm327 = startupELM327(connection);
 		supportedPIDs = loadSupportedPIDs();
 

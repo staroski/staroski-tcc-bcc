@@ -13,23 +13,23 @@ import br.com.staroski.obdjrp.io.XmlHelper;
 
 final class FileHandler extends ObdJrpAdapter {
 
-	private ObdJrpProperties props = new ObdJrpProperties();
-
 	@Override
 	public void onFinishPackage(Package dataPackage) {
-		this.props = new ObdJrpProperties();
+		ObdJrpProperties props = ObdJrpProperties.get();
 		try {
 			if (props.isSavePackageAsXml()) {
 				saveAsXml(dataPackage);
 			}
 			saveAsObd(dataPackage);
 		} catch (IOException e) {
-			System.out.println("  ERRO!");
-			e.printStackTrace();
+			System.out.printf("%s: %s%n", //
+					e.getClass().getSimpleName(), //
+					e.getMessage());
 		}
 	}
 
 	private File getDataDir(Package dataPackage) {
+		ObdJrpProperties props = ObdJrpProperties.get();
 		File folder = props.getPackageDir();
 		File file = new File(folder, dataPackage.getVehicleId());
 		if (!file.exists()) {

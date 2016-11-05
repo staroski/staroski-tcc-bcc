@@ -8,6 +8,7 @@ public final class ObdJrpUploadData {
 			uploader.execute();
 		} catch (Throwable t) {
 			t.printStackTrace();
+			System.exit(-1);
 		}
 	}
 

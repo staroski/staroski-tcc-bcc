@@ -14,6 +14,7 @@ public final class ObdJrpListDevices {
 			deviceSearch.execute();
 		} catch (Throwable t) {
 			t.printStackTrace();
+			System.exit(-1);
 		}
 	}
 

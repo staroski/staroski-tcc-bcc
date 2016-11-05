@@ -107,7 +107,7 @@ public final class ObdJrpFolderMonitor {
 	private void execute() {
 		while (scanning) {
 			try {
-				properties = new ObdJrpProperties();
+				properties = ObdJrpProperties.get();
 				begin_scan();
 				{
 					Queue<File> files = getFiles();
@@ -139,7 +139,7 @@ public final class ObdJrpFolderMonitor {
 
 	private boolean upload(File file) {
 		System.out.printf("uploading file \"%s\"...", file.getAbsolutePath());
-		String requestURL = properties.getObdJrpWebServer() + "/send-data";
+		String requestURL = properties.getWebServer() + "/send-data";
 		try {
 			HttpPost multipart = new HttpPost(requestURL);
 			multipart.addFilePart("fileUpload", file);

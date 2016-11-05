@@ -83,9 +83,9 @@ final class ScanLoop {
 		while (scanning) {
 			Package obd2Package = null;
 			try {
-				ObdJrpProperties properties = new ObdJrpProperties();
+				ObdJrpProperties properties = ObdJrpProperties.get();
 				final int packageMaxSize = properties.getPackageMaxSize();
-				final String vin = properties.getVehicleId();
+				final String vin = properties.getVehicle();
 				obd2Package = new Package(vin, System.currentTimeMillis());
 				final List<Scan> scans = obd2Package.getScans();
 				System.out.printf("creating new data package...%n");

@@ -14,8 +14,6 @@ import javax.bluetooth.UUID;
 import javax.microedition.io.Connection;
 import javax.microedition.io.Connector;
 
-import br.com.staroski.obdjrp.io.IO;
-
 public final class Bluetooth {
 
 	// listener para descoberta de dispositivos
@@ -73,13 +71,12 @@ public final class Bluetooth {
 	// objeto utilizado para sincronizacao
 	private static final Object LOCK = new Object();
 
-	public static IO connect(RemoteDevice device, ServiceRecord service) throws IOException {
+	public static Connection connect(RemoteDevice device, ServiceRecord service) throws IOException {
 		String url = service.getConnectionURL(ServiceRecord.NOAUTHENTICATE_NOENCRYPT, false);
-		Connection connection = Connector.open(url);
-		return new IO(connection);
+		return Connector.open(url);
 	}
 
-	public static IO connect(String deviceAddress, String serviceName) throws IOException {
+	public static Connection connect(String deviceAddress, String serviceName) throws IOException {
 		RemoteDevice device = findDevice(deviceAddress);
 		ServiceRecord service = findService(device, serviceName);
 		return connect(device, service);
@@ -88,20 +85,23 @@ public final class Bluetooth {
 	public static RemoteDevice findDevice(String deviceAddress) throws IOException {
 		List<RemoteDevice> devices = listDevices();
 		if (devices.isEmpty()) {
-			throw new IllegalStateException(String.format("No devices found!"));
+			String message = String.format("No devices found!");
+			throw new IOException(message);
 		}
 		for (RemoteDevice device : devices) {
 			if (deviceAddress.equals(device.getBluetoothAddress())) {
 				return device;
 			}
 		}
-		throw new IllegalStateException(String.format("Device %s not found!", deviceAddress));
+		String message = String.format("Device %s not found!", deviceAddress);
+		throw new IOException(message);
 	}
 
 	public static ServiceRecord findService(final RemoteDevice device, String serviceName) throws IOException {
 		List<ServiceRecord> services = listServices(device);
 		if (services.isEmpty()) {
-			throw new IllegalStateException(String.format("There is no service called \"%s\" running on device %s", serviceName, device.getBluetoothAddress()));
+			String message = String.format("There is no service called \"%s\" running on device %s", serviceName, device.getBluetoothAddress());
+			throw new IOException(message);
 		}
 		for (ServiceRecord service : services) {
 			String name = getServiceName(service);
@@ -109,7 +109,8 @@ public final class Bluetooth {
 				return service;
 			}
 		}
-		throw new IllegalStateException(String.format("Service \"%s\" not found on device %s", serviceName, device.getBluetoothAddress()));
+		String message = String.format("Service \"%s\" not found on device %s", serviceName, device.getBluetoothAddress());
+		throw new IOException(message);
 	}
 
 	public static String getServiceName(ServiceRecord service) {

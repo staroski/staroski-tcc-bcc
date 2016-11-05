@@ -17,8 +17,8 @@ public final class Parsing {
 		String pid = data.getPID();
 		Parser parser = PARSERS.get(pid);
 		if (parser == null) {
-			ObdJrpProperties properties = new ObdJrpProperties();
-			String className = properties.getTranslatorClassForPID(pid);
+			ObdJrpProperties properties = ObdJrpProperties.get();
+			String className = properties.getParser(pid);
 			if (className == null) {
 				return Parsed.EMPTY;
 			}

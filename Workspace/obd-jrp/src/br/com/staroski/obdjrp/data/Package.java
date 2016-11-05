@@ -9,7 +9,7 @@ public final class Package {
 
 	public static final File DEFAULT_DIR = new File(System.getProperty("user.dir"), "obd-jrp-data");
 	public static final int DEFAULT_MAX_SIZE = 100;
-	public static final String UNKNOWN_VEHICLE_ID = "unknown_vehicle";
+	public static final String UNKNOWN_VEHICLE = "unknown_vehicle";
 
 	private static List<String> getPIDs(Package dataPackage, boolean onlyWithTranslation) {
 		List<String> pids = new ArrayList<>();
@@ -38,7 +38,7 @@ public final class Package {
 	private final long time;
 
 	public Package(String vehicleId, long time) {
-		this.vehicleId = vehicleId == null ? UNKNOWN_VEHICLE_ID : vehicleId;
+		this.vehicleId = vehicleId == null ? UNKNOWN_VEHICLE : vehicleId;
 		this.time = time;
 		this.scans = new LinkedList<>();
 	}
