@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Queue;
 
 import br.com.staroski.obdjrp.utils.HttpPost;
+import br.com.staroski.obdjrp.utils.Lock;
 
 public final class ObdJrpFolderMonitor {
 
@@ -47,7 +48,7 @@ public final class ObdJrpFolderMonitor {
 
 	private long begin_scan;
 
-	private final Object LOCK = new Object();
+	private final Lock LOCK = new Lock();
 
 	public ObdJrpFolderMonitor() {
 		Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
@@ -75,9 +76,7 @@ public final class ObdJrpFolderMonitor {
 
 	public void stop() {
 		scanning = false;
-		synchronized (LOCK) {
-			LOCK.notify();
-		}
+		LOCK.unlock();
 		if (scanThread != null && scanThread.isAlive()) {
 			try {
 				scanThread.join();
@@ -94,13 +93,7 @@ public final class ObdJrpFolderMonitor {
 	private void end_scan() {
 		long elapsed = System.currentTimeMillis() - begin_scan;
 		if (elapsed < ONE_MINUTE) {
-			synchronized (LOCK) {
-				try {
-					LOCK.wait(ONE_MINUTE - elapsed);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-			}
+			LOCK.lock(ONE_MINUTE - elapsed);
 		}
 	}
 

@@ -37,22 +37,21 @@ final class Disconnector implements Runnable {
 	@Override
 	public void run() {
 		String adapter = ELM327.class.getSimpleName();
-		System.out.printf("closing %s pending connections...  ", adapter);
+		System.out.printf("disconnecting %s pending connections...  ", adapter);
 		int count = 0;
-		while (!elm327list.isEmpty()) {
-			try {
-				final ELM327 elm327;
-				synchronized (this) {
-					elm327 = elm327list.poll();
+		synchronized (this) {
+			while (!elm327list.isEmpty()) {
+				try {
+					final ELM327 elm327 = elm327list.poll();
+					elm327.disconnect();
+					count++;
+				} catch (Exception e) {
+					e.printStackTrace();
 				}
-				elm327.disconnect();
-				count++;
-			} catch (Exception e) {
-				e.printStackTrace();
 			}
 		}
 		if (count > 0) {
-			System.out.printf("disconnected %d %s!%n", count, adapter);
+			System.out.printf("%d %s disconnected!%n", count, adapter);
 		} else {
 			System.out.printf("no %s connected!%n", adapter);
 		}

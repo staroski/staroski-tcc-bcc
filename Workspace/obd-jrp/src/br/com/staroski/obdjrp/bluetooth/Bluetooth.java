@@ -14,6 +14,8 @@ import javax.bluetooth.UUID;
 import javax.microedition.io.Connection;
 import javax.microedition.io.Connector;
 
+import br.com.staroski.obdjrp.utils.Lock;
+
 public final class Bluetooth {
 
 	// listener para descoberta de dispositivos
@@ -32,9 +34,7 @@ public final class Bluetooth {
 
 		@Override
 		public void inquiryCompleted(int discType) {
-			synchronized (LOCK) {
-				LOCK.notifyAll();
-			}
+			LOCK.unlock();
 		}
 
 		public void reset() {
@@ -70,9 +70,7 @@ public final class Bluetooth {
 
 		@Override
 		public void serviceSearchCompleted(int transID, int respCode) {
-			synchronized (LOCK) {
-				LOCK.notifyAll();
-			}
+			LOCK.unlock();
 		}
 
 		public void setTransactionID(int transactionID) {
@@ -90,7 +88,7 @@ public final class Bluetooth {
 	private static final UUID SPP = BaseUUID.merge16bits((short) 0x1101);
 
 	// objeto utilizado para sincronizacao
-	private static final Object LOCK = new Object();
+	private static final Lock LOCK = new Lock();
 
 	public static Connection connect(RemoteDevice device, ServiceRecord service) throws IOException {
 		String url = service.getConnectionURL(ServiceRecord.NOAUTHENTICATE_NOENCRYPT, false);
@@ -147,11 +145,7 @@ public final class Bluetooth {
 			DEVICE_LISTENER.reset();
 			boolean started = discoveryAgent.startInquiry(DiscoveryAgent.GIAC, DEVICE_LISTENER);
 			if (started) {
-				try {
-					LOCK.wait();
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
+				LOCK.lock();
 			}
 		}
 		return DEVICE_LISTENER.getDevices();
@@ -167,11 +161,7 @@ public final class Bluetooth {
 			int transactionID = discoveryAgent.searchServices(attributes, uuids, device, SERVICE_LISTENER);
 			SERVICE_LISTENER.setTransactionID(transactionID);
 			if (transactionID > 0) {
-				try {
-					LOCK.wait();
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
+				LOCK.lock();
 			}
 		}
 		return SERVICE_LISTENER.getServices();

@@ -7,7 +7,6 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -16,6 +15,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import br.com.staroski.obdjrp.ObdJrpProperties;
 import br.com.staroski.obdjrp.data.Data;
 import br.com.staroski.obdjrp.data.Package;
 import br.com.staroski.obdjrp.data.Parsed;
@@ -44,7 +44,6 @@ public final class CSV {
 			return (int) (o1.lastModified() - o2.lastModified());
 		}
 	};
-	public static final SimpleDateFormat CSV_DATE_FORMAT = new SimpleDateFormat("yyyyMMddHHmmss");
 
 	public static CSV createSingleCSV(File dir) {
 		List<String> csvLines = new ArrayList<>();
@@ -91,7 +90,7 @@ public final class CSV {
 				line = new StringBuilder();
 				header = false;
 			}
-			line.append(CSV_DATE_FORMAT.format(new Date(scan.getTime())));
+			line.append(ObdJrpProperties.DATE_FORMAT.format(new Date(scan.getTime())));
 			for (Data data : scan.getData()) {
 				Parsed translation = Parsing.parse(data);
 				if (!translation.isUnknown()) {

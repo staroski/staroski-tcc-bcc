@@ -5,7 +5,6 @@ import static br.com.staroski.obdjrp.utils.Conversions.isEmpty;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -32,8 +31,7 @@ public final class ObdJrpScanner {
 	private static PrintStream createLogStream() throws IOException {
 		ObdJrpProperties properties = ObdJrpProperties.get();
 		if (properties.isLogELM327()) {
-			SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss");
-			String instant = dateFormat.format(new Date());
+			String instant = ObdJrpProperties.DATE_FORMAT.format(new Date());
 			String name = ELM327.class.getSimpleName();
 			FileOutputStream output = new FileOutputStream(name + "_" + instant + ".log");
 			return new PrintStream(output);

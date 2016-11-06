@@ -3,6 +3,7 @@ package br.com.staroski.obdjrp;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.SimpleDateFormat;
 import java.util.Properties;
 
 import br.com.staroski.obdjrp.data.Package;
@@ -22,6 +23,13 @@ public final class ObdJrpProperties {
 			}
 		}
 	}
+
+	/**
+	 * <pre>
+	 * DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss-SSS");
+	 * </pre>
+	 */
+	public static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss-SSS");
 
 	private static final String FILE_NAME = "obd-jrp.properties";
 	private static final String SAVE_PACKAGE_AS_XML = "save_package_as_xml";

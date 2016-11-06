@@ -2,6 +2,7 @@ package br.com.staroski.obdjrp.utils;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Date;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -16,6 +17,7 @@ import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+import br.com.staroski.obdjrp.ObdJrpProperties;
 import br.com.staroski.obdjrp.data.Data;
 import br.com.staroski.obdjrp.data.Package;
 import br.com.staroski.obdjrp.data.Scan;
@@ -28,21 +30,21 @@ public final class XmlHelper {
 			DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
 
 			Document document = docBuilder.newDocument();
-			Element obd2Element = document.createElement("obd-jrp");
+			Element obd2Element = document.createElement("package");
 
 			Attr vinAttr = document.createAttribute("vehicle");
 			vinAttr.setValue(dataPackage.getVehicle());
 			obd2Element.setAttributeNode(vinAttr);
 
 			Attr timeAttr = document.createAttribute("time");
-			timeAttr.setValue(String.valueOf(dataPackage.getTime()));
+			timeAttr.setValue(ObdJrpProperties.DATE_FORMAT.format(new Date(dataPackage.getTime())));
 			obd2Element.setAttributeNode(timeAttr);
 
 			for (Scan scanned : dataPackage.getScans()) {
 				Element scanElement = document.createElement("scan");
 
 				Attr scanTimeAttr = document.createAttribute("time");
-				scanTimeAttr.setValue(String.valueOf(scanned.getTime()));
+				scanTimeAttr.setValue(ObdJrpProperties.DATE_FORMAT.format(new Date(scanned.getTime())));
 				scanElement.setAttributeNode(scanTimeAttr);
 
 				for (Data data : scanned.getData()) {

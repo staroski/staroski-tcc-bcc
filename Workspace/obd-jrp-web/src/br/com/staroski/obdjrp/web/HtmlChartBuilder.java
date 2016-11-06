@@ -5,6 +5,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import br.com.staroski.obdjrp.ObdJrpProperties;
 import br.com.staroski.obdjrp.utils.CSV;
 
 public final class HtmlChartBuilder {
@@ -12,14 +13,14 @@ public final class HtmlChartBuilder {
 	private static final String DIV_ID_PREFIX = "chart_";
 	private static final String DRAW_CHART_PREFIX = "drawChart_";
 
-	private static final SimpleDateFormat dateReader = new SimpleDateFormat("yyyyMMddHHmmss");
-	private static final SimpleDateFormat dateWriter = new SimpleDateFormat("'new Date('yyyy', 'MM', 'dd', 'HH', 'mm', 'ss')'");
+	private static final SimpleDateFormat dateReader = ObdJrpProperties.DATE_FORMAT;
+	private static final SimpleDateFormat dateWriter = new SimpleDateFormat("'new Date('yyyy', 'MM', 'dd', 'HH', 'mm', 'ss', 'SSS')'");
 
-	public static String createPage(String vim) {
-		File dir = new File(ObdJrpServlet.getDataDir(), vim);
+	public static String createPage(String vehicle) {
+		File dir = new File(ObdJrpServlet.getDataDir(), vehicle);
 		CSV csv = CSV.createSingleCSV(dir);
 		if (csv.isEmpty()) {
-			return "There is no data for VIM " + vim;
+			return "There is no data for vehicle " + vehicle;
 		}
 		return new HtmlChartBuilder(csv).getChartPage();
 	}

@@ -7,6 +7,7 @@ import java.io.OutputStream;
 import java.io.PrintStream;
 
 import br.com.staroski.obdjrp.ObdJrpConnection;
+import br.com.staroski.obdjrp.utils.Lock;
 
 public final class ELM327 {
 
@@ -21,9 +22,7 @@ public final class ELM327 {
 					if ((read = in.read()) != -1) {
 						buffer.write(read);
 						if (read == PROMPT) {
-							synchronized (LOCK) {
-								LOCK.notify();
-							}
+							LOCK.unlock();
 						}
 					}
 				}
@@ -66,8 +65,8 @@ public final class ELM327 {
 		return text;
 	}
 
-	private final Object LOCK = new Object();
-	private final ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+	private final Lock LOCK = new Lock();
+	private final ByteArrayOutputStream buffer = new ByteArrayOutputStream(1024);
 
 	private final PrintStream logger;
 	private final ObdJrpConnection connection;
@@ -91,29 +90,30 @@ public final class ELM327 {
 
 	public String execute(String command) throws ELM327Error, IOException {
 		command = prepareCommand(command);
-		printLog("command:%n\"%s\"%n", command);
-		byte[] bytes = sendMessage(command.getBytes());
+		log("command:%n\"%s\"%n", command);
+
+		byte[] bytes = command.getBytes();
+		messageWrite(bytes);
+		bytes = messageRead();
+
 		String response = prepareResponse(bytes);
-		printLog("response:%n\"%s\"%n%n", response);
+		log("response:%n\"%s\"%n%n", response);
 		return checkError(response);
 	}
 
-	private void printLog(String format, String value) {
+	private void log(String format, String value) {
 		logger.printf(format, value.replaceAll("\r", "\\\\r"));
 	}
 
-	private byte[] sendMessage(byte[] command) throws IOException {
+	private byte[] messageRead() throws IOException {
+		LOCK.lock();
+		return buffer.toByteArray();
+	}
+
+	private void messageWrite(byte[] command) throws IOException {
 		buffer.reset();
 		final OutputStream out = connection.getOutput();
 		out.write(command);
 		out.flush();
-		try {
-			synchronized (LOCK) {
-				LOCK.wait();
-			}
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-		return buffer.toByteArray();
 	}
 }
