@@ -27,7 +27,10 @@ public final class ELM327 {
 					}
 				}
 			} catch (IOException e) {
-				e.printStackTrace();
+				System.out.printf("%s read error! %s: %s%n", //
+						ELM327.class.getSimpleName(), //
+						e.getClass().getSimpleName(), //
+						e.getMessage());
 			}
 		}
 	}
@@ -111,9 +114,11 @@ public final class ELM327 {
 	}
 
 	private void messageWrite(byte[] command) throws IOException {
-		buffer.reset();
-		final OutputStream out = connection.getOutput();
-		out.write(command);
-		out.flush();
+		synchronized (connection) {
+			buffer.reset();
+			final OutputStream out = connection.getOutput();
+			out.write(command);
+			out.flush();
+		}
 	}
 }
