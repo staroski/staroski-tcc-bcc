@@ -1,6 +1,9 @@
 package br.com.staroski.obdjrp.data;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -65,5 +68,13 @@ public final class Package {
 
 	public boolean isEmpty() {
 		return scans.isEmpty();
+	}
+
+	public static Package readFrom(InputStream input) throws IOException {
+		return ByteSerializer.readPackage(input);
+	}
+
+	public void writeTo(OutputStream output) throws IOException {
+		ByteSerializer.writePackage(output, this);
 	}
 }

@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.util.Date;
 
 import br.com.staroski.obdjrp.data.Package;
-import br.com.staroski.obdjrp.utils.ByteHelper;
 import br.com.staroski.obdjrp.utils.XmlHelper;
 
 final class FileHandler extends ObdJrpAdapter {
@@ -49,7 +48,7 @@ final class FileHandler extends ObdJrpAdapter {
 		File obdFile = getFile(dataPackage, ".obd");
 		System.out.printf("Gravando \"%s\"...", obdFile.getAbsolutePath());
 		FileOutputStream obdOutput = new FileOutputStream(obdFile);
-		ByteHelper.writeTo(obdOutput, dataPackage);
+		dataPackage.writeTo(obdOutput);
 		obdOutput.close();
 		obdFile.setLastModified(dataPackage.getTime());
 		System.out.println("  OK!");

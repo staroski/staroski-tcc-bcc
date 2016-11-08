@@ -1,4 +1,4 @@
-package br.com.staroski.obdjrp.utils;
+package br.com.staroski.obdjrp.http;
 
 import java.io.BufferedReader;
 import java.io.File;

@@ -17,7 +17,6 @@ import javax.servlet.http.Part;
 
 import br.com.staroski.obdjrp.ObdJrpProperties;
 import br.com.staroski.obdjrp.data.Package;
-import br.com.staroski.obdjrp.utils.ByteHelper;
 import br.com.staroski.obdjrp.utils.CSV;
 
 @WebServlet(name = "SendDataServlet", urlPatterns = { "/send-data" })
@@ -44,7 +43,7 @@ public final class ObdJrpSendDataServlet extends ObdJrpServlet {
 			File obdFile = getFile(dataPackage, ".obd");
 			System.out.printf("Gravando \"%s\"...", obdFile.getAbsolutePath());
 			FileOutputStream obdOutput = new FileOutputStream(obdFile);
-			ByteHelper.writeTo(obdOutput, dataPackage);
+			dataPackage.writeTo(obdOutput);
 			obdOutput.close();
 			obdFile.setLastModified(dataPackage.getTime());
 			System.out.println("  OK!");
@@ -68,7 +67,7 @@ public final class ObdJrpSendDataServlet extends ObdJrpServlet {
 	private boolean savePart(Part part) {
 		try {
 			InputStream input = part.getInputStream();
-			Package dataPackage = ByteHelper.readFrom(input);
+			Package dataPackage = Package.readFrom(input);
 			return saveDataPackage(dataPackage);
 		} catch (Exception e) {
 			e.printStackTrace();

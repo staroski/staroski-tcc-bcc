@@ -1,4 +1,4 @@
-package br.com.staroski.obdjrp.utils;
+package br.com.staroski.obdjrp.data;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -9,11 +9,9 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
 
-import br.com.staroski.obdjrp.data.Data;
-import br.com.staroski.obdjrp.data.Package;
-import br.com.staroski.obdjrp.data.Scan;
+import br.com.staroski.obdjrp.utils.Conversions;
 
-public final class ByteHelper {
+final class ByteSerializer {
 
 	public static Package bytesToPackage(byte[] bytes) throws IOException {
 		DataInputStream in = new DataInputStream(new ByteArrayInputStream(bytes));
@@ -64,18 +62,18 @@ public final class ByteHelper {
 		return bytes.toByteArray();
 	}
 
-	public static Package readFrom(InputStream input) throws IOException {
+	public static Package readPackage(InputStream input) throws IOException {
 		ByteArrayOutputStream bytes = new ByteArrayOutputStream();
 		byte[] buffer = new byte[8192];
 		for (int read = -1; ((read = input.read(buffer)) != -1); bytes.write(buffer, 0, read)) {}
 		return bytesToPackage(bytes.toByteArray());
 	}
 
-	public static void writeTo(OutputStream output, Package dataPackage) throws IOException {
+	public static void writePackage(OutputStream output, Package dataPackage) throws IOException {
 		byte[] bytes = packageToBytes(dataPackage);
 		output.write(bytes);
 		output.flush();
 	}
 
-	private ByteHelper() {}
+	private ByteSerializer() {}
 }

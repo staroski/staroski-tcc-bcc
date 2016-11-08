@@ -9,7 +9,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 
-import br.com.staroski.obdjrp.utils.HttpPost;
+import br.com.staroski.obdjrp.http.HttpPost;
 import br.com.staroski.obdjrp.utils.Lock;
 
 public final class ObdJrpFolderMonitor {
