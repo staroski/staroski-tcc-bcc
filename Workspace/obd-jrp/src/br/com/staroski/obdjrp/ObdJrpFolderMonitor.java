@@ -14,7 +14,7 @@ import br.com.staroski.obdjrp.utils.Lock;
 
 public final class ObdJrpFolderMonitor {
 
-	private static final int ONE_MINUTE = 60000;
+	private static final int FIVE_MINUTES = 300000;
 
 	private static final FileFilter OBD_ONLY = new FileFilter() {
 
@@ -40,15 +40,11 @@ public final class ObdJrpFolderMonitor {
 		}
 	};
 
-	private boolean scanning;
-
-	private Thread scanThread;
-
-	private ObdJrpProperties properties;
-
-	private long begin_scan;
-
 	private final Lock LOCK = new Lock();
+
+	private long begin;
+	private boolean scanning;
+	private Thread scanThread;
 
 	public ObdJrpFolderMonitor() {
 		Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
@@ -86,32 +82,33 @@ public final class ObdJrpFolderMonitor {
 		}
 	}
 
-	private void begin_scan() {
-		begin_scan = System.currentTimeMillis();
+	private void begin() {
+		begin = System.currentTimeMillis();
 	}
 
-	private void end_scan() {
-		long elapsed = System.currentTimeMillis() - begin_scan;
-		if (elapsed < ONE_MINUTE) {
-			LOCK.lock(ONE_MINUTE - elapsed);
+	private void end() {
+		long elapsed = System.currentTimeMillis() - begin;
+		if (elapsed < FIVE_MINUTES) {
+			LOCK.lock(FIVE_MINUTES - elapsed);
 		}
 	}
 
 	private void execute() {
 		while (scanning) {
 			try {
-				properties = ObdJrpProperties.get();
-				begin_scan();
-				{
-					Queue<File> files = getFiles();
-					while (scanning && !files.isEmpty()) {
-						File file = files.poll();
-						if (upload(file)) {
-							file.delete();
-						}
+				ObdJrpProperties props = ObdJrpProperties.get();
+				String server = props.getWebServer();
+				String folder = props.getPackageDir().getAbsolutePath();
+				System.out.printf("checking data for upload%nserver: %s%nfolder: \"%s\"", server, folder);
+				begin();
+				Queue<File> files = getFiles();
+				while (scanning && !files.isEmpty()) {
+					File file = files.poll();
+					if (upload(file)) {
+						file.delete();
 					}
 				}
-				end_scan();
+				end();
 			} catch (Throwable t) {
 				t.printStackTrace();
 			}
@@ -120,7 +117,8 @@ public final class ObdJrpFolderMonitor {
 
 	private Queue<File> getFiles() {
 		Queue<File> files = new LinkedList<>();
-		File rootFolder = properties.getPackageDir();
+		ObdJrpProperties props = ObdJrpProperties.get();
+		File rootFolder = props.getPackageDir();
 		File[] subFolders = rootFolder.listFiles(DIRS_ONLY);
 		for (File folder : subFolders) {
 			File[] fileArray = folder.listFiles(OBD_ONLY);
@@ -132,7 +130,8 @@ public final class ObdJrpFolderMonitor {
 
 	private boolean upload(File file) {
 		System.out.printf("uploading file \"%s\"...", file.getAbsolutePath());
-		String requestURL = properties.getWebServer() + "/send-data";
+		ObdJrpProperties props = ObdJrpProperties.get();
+		String requestURL = props.getWebServer() + "/send-data";
 		try {
 			HttpPost multipart = new HttpPost(requestURL);
 			multipart.addFilePart("fileUpload", file);
@@ -141,7 +140,9 @@ public final class ObdJrpFolderMonitor {
 			System.out.println(ok ? " OK" : " ERROR");
 			return ok;
 		} catch (IOException e) {
-			System.out.println(" ERROR: " + e.getMessage());
+			System.out.printf("%s: %s", //
+					e.getClass().getSimpleName(), //
+					e.getMessage());
 			return false;
 		}
 	}
