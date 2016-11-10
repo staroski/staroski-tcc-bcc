@@ -78,13 +78,11 @@ public final class ObdJrpSendDataServlet extends ObdJrpServlet {
 	@Override
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		PrintWriter out = response.getWriter();
-		Part part = request.getPart("fileUpload");
-		if (part != null) {
-			if (savePart(part)) {
-				out.write("OK");
-			} else {
-				out.write("ERROR");
-			}
+		Part uploadedFile = request.getPart("fileUpload");
+		if (uploadedFile != null && savePart(uploadedFile)) {
+			out.write("OK");
+		} else {
+			out.write("ERROR");
 		}
 		response.setStatus(HttpURLConnection.HTTP_OK);
 	}
