@@ -14,6 +14,10 @@ public final class Package {
 	public static final int DEFAULT_MAX_SIZE = 100;
 	public static final String UNKNOWN_VEHICLE = "unknown_vehicle";
 
+	public static Package readFrom(InputStream input) throws IOException {
+		return ByteSerializer.readPackage(input);
+	}
+
 	private static List<String> getPIDs(Package dataPackage, boolean onlyWithTranslation) {
 		List<String> pids = new ArrayList<>();
 		List<Scan> scannedData = dataPackage.getScans();
@@ -34,8 +38,8 @@ public final class Package {
 		}
 		return pids;
 	}
-
 	private final List<Scan> scans;
+
 	private final String vehicleId;
 
 	private final long time;
@@ -68,10 +72,6 @@ public final class Package {
 
 	public boolean isEmpty() {
 		return scans.isEmpty();
-	}
-
-	public static Package readFrom(InputStream input) throws IOException {
-		return ByteSerializer.readPackage(input);
 	}
 
 	public void writeTo(OutputStream output) throws IOException {

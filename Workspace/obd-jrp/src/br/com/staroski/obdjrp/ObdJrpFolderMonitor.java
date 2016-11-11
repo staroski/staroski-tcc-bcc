@@ -83,34 +83,43 @@ public final class ObdJrpFolderMonitor {
 	}
 
 	private void begin() {
+		ObdJrpProperties props = ObdJrpProperties.get();
+		String server = props.getWebServer();
+		String folder = props.getPackageDir().getAbsolutePath();
+		System.out.printf("trying to upload data%n  from: \"%s\"%n    to: %s%n", folder, server);
 		begin = System.currentTimeMillis();
 	}
 
 	private void end() {
 		long elapsed = System.currentTimeMillis() - begin;
 		if (elapsed < FIVE_MINUTES) {
-			LOCK.lock(FIVE_MINUTES - elapsed);
+			long timeToWait = FIVE_MINUTES - elapsed;
+			System.out.printf("retrying in %d seconds%n", (timeToWait / 1000));
+			LOCK.lock(timeToWait);
 		}
 	}
 
 	private void execute() {
 		while (scanning) {
 			try {
-				ObdJrpProperties props = ObdJrpProperties.get();
-				String server = props.getWebServer();
-				String folder = props.getPackageDir().getAbsolutePath();
-				System.out.printf("checking data for upload%nserver: %s%nfolder: \"%s\"", server, folder);
 				begin();
 				Queue<File> files = getFiles();
-				while (scanning && !files.isEmpty()) {
+				while (scanning) {
+					if (files.isEmpty()) {
+						System.out.println("no data to upload!");
+						break;
+					}
 					File file = files.poll();
 					if (upload(file)) {
 						file.delete();
 					}
 				}
 				end();
-			} catch (Throwable t) {
-				t.printStackTrace();
+			} catch (Throwable error) {
+				System.out.printf("%s:%s%n", //
+						ObdJrpFolderMonitor.class.getSimpleName(), //
+						error.getClass().getSimpleName(), //
+						error.getMessage());
 			}
 		}
 	}
