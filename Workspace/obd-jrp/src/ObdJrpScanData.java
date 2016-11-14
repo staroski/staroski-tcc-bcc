@@ -12,7 +12,7 @@ import br.com.staroski.obdjrp.ObdJrpScanner;
 import br.com.staroski.obdjrp.elm.ELM327Error;
 import br.com.staroski.obdjrp.ui.ScannerWindow;
 
-public final class ObdJrpScanData extends ObdJrpAdapter {
+public final class ObdJrpScanData extends ObdJrpApp {
 
 	public static void main(String[] args) {
 		try {
@@ -27,11 +27,16 @@ public final class ObdJrpScanData extends ObdJrpAdapter {
 	private ObdJrpScanner scanner;
 	private ScannerWindow scannerWindow;
 
-	private ObdJrpScanData() {}
+	private final ObdJrpListener errorListener = new ObdJrpAdapter() {
 
-	@Override
-	public void onError(ELM327Error error) {
-		restartAfterError(error);
+		@Override
+		public void onError(ELM327Error error) {
+			restartAfterError(error);
+		}
+	};
+
+	private ObdJrpScanData() throws IOException {
+		super("scan-data");
 	}
 
 	private ScannerWindow getScannerWindow() {
@@ -71,16 +76,16 @@ public final class ObdJrpScanData extends ObdJrpAdapter {
 
 	private void startScanning() {
 		final ObdJrpProperties props = ObdJrpProperties.get();
-		final ObdJrpConnection connection = props.getConnection();
+		final ObdJrpConnection connection = props.connection();
 		final ScannerWindow window = getScannerWindow();
-		final ObdJrpListener listener = window.getObdJrpListener();
+		final ObdJrpListener windowListener = window.getObdJrpListener();
 		window.setVisible(true);
 		while (!connection.isOpen()) {
 			System.out.println("trying to connect with " + connection);
 			try {
 				scanner = new ObdJrpScanner(connection.open());
-				scanner.addListener(listener);
-				scanner.addListener(this);
+				scanner.addListener(errorListener);
+				scanner.addListener(windowListener);
 				scanner.startScanning();
 				System.out.println("successfull connected!");
 			} catch (IOException | ELM327Error error) {
@@ -88,8 +93,8 @@ public final class ObdJrpScanData extends ObdJrpAdapter {
 						error.getClass().getSimpleName(), //
 						error.getMessage());
 				if (scanner != null) {
-					scanner.removeListener(listener);
-					scanner.removeListener(this);
+					scanner.removeListener(errorListener);
+					scanner.removeListener(windowListener);
 				}
 				connection.close();
 			}

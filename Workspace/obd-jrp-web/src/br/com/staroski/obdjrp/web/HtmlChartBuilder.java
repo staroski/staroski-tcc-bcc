@@ -8,9 +8,10 @@ import java.util.Date;
 import br.com.staroski.obdjrp.ObdJrpProperties;
 import br.com.staroski.obdjrp.utils.CSV;
 
-public final class HtmlChartBuilder {
+final class HtmlChartBuilder {
 
-	private static final String DIV_ID_PREFIX = "chart_";
+	private static final String DIV_DATA_ID = "data";
+	private static final String DIV_CHART_ID_PREFIX = "chart_";
 	private static final String DRAW_CHART_PREFIX = "drawChart_";
 
 	private static final SimpleDateFormat dateReader = ObdJrpProperties.DATE_FORMAT;
@@ -95,7 +96,7 @@ public final class HtmlChartBuilder {
 		options.append(String.format("}\n"));
 		options.append(String.format("};\n"));
 		options.append(String.format("var chart = new google.visualization.LineChart(\n"));
-		options.append(String.format("document.getElementById('%s%03d'));\n", DIV_ID_PREFIX, number));
+		options.append(String.format("document.getElementById('%s%03d'));\n", DIV_CHART_ID_PREFIX, number));
 		options.append(String.format("chart.draw(data, options);\n"));
 
 		return options.toString();
@@ -104,23 +105,32 @@ public final class HtmlChartBuilder {
 	private String createTagBody() {
 		StringBuilder body = new StringBuilder();
 		body.append("<body>\n");
-		body.append(createTagDiv());
+		body.append(createTagDiv_data());
+		body.append(createTagDiv_chart());
 		body.append("</body>\n");
 		return body.toString();
 	}
 
-	private String createTagDiv() {
+	private String createTagDiv_chart() {
 		StringBuilder div = new StringBuilder();
 		for (int number = 1, size = csv.getHeaders(); number < size; number++) {
-			div.append(String.format("<div id=\"%s%03d\"></div>\n", DIV_ID_PREFIX, number));
+			div.append(String.format("<div id=\"%s%03d\"></div>\n", DIV_CHART_ID_PREFIX, number));
 		}
+		return div.toString();
+	}
+
+	private Object createTagDiv_data() {
+		StringBuilder div = new StringBuilder();
+		String value = "${sessionScope.teste}";
+		div.append(String.format("<div id=%s>%s</div>\n", DIV_DATA_ID, value));
 		return div.toString();
 	}
 
 	private String createTagHead() {
 		StringBuilder head = new StringBuilder();
 		head.append("<head>\n");
-		head.append(createTagScript());
+		head.append(createTagScriptGoogle());
+		head.append(createTagScriptTimer());
 		head.append("</head>\n");
 		return head.toString();
 	}
@@ -134,7 +144,7 @@ public final class HtmlChartBuilder {
 		return html.toString();
 	}
 
-	private String createTagScript() {
+	private String createTagScriptGoogle() {
 		StringBuilder script = new StringBuilder();
 		script.append("<script type=\"text/javascript\" src=\"loader.js\"></script>\n");
 		script.append("<script type=\"text/javascript\">\n");
@@ -142,6 +152,33 @@ public final class HtmlChartBuilder {
 		script.append(createChartFunctionCalls());
 		script.append(createChartFunctionDeclarations());
 		script.append("</script>\n");
+		return script.toString();
+	}
+
+	private String createTagScriptTimer() {
+		StringBuilder script = new StringBuilder();
+		script.append("<script type=\"text/javascript\">\n");
+		script.append("		    var timer = {\n");
+		script.append("			    interval: null,\n");
+		script.append("			    seconds: 5,\n");
+		script.append("			    start: function () {\n");
+		script.append("			        var self = this,\n");
+		script.append("			            el = document.getElementById('" + DIV_DATA_ID + "');\n");
+		script.append("			        el.innerText = this.seconds; // Output initial value\n");
+		script.append("			        this.interval = setInterval(function () {\n");
+		script.append("			            self.seconds--;\n");
+		script.append("			            if (self.seconds == 0) {\n");
+		script.append("			                window.location.reload();\n");
+		script.append("                     }\n");
+		script.append("			            el.innerText = self.seconds;\n");
+		script.append("			        }, 1000);\n");
+		script.append("			    },");
+		script.append("			    stop: function () {");
+		script.append("			        window.clearInterval(this.interval)");
+		script.append("			    }");
+		script.append("			}");
+		script.append("			timer.start();");
+		script.append("</script>");
 		return script.toString();
 	}
 

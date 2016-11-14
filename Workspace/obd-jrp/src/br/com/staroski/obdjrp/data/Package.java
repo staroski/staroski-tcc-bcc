@@ -1,5 +1,7 @@
 package br.com.staroski.obdjrp.data;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -15,7 +17,15 @@ public final class Package {
 	public static final String UNKNOWN_VEHICLE = "unknown_vehicle";
 
 	public static Package readFrom(InputStream input) throws IOException {
-		return ByteSerializer.readPackage(input);
+		DataInputStream in = new DataInputStream(input);
+		Package dataPackage = new Package(in.readUTF(), in.readLong());
+		List<Scan> scannedData = dataPackage.getScans();
+		final int size = in.readInt();
+		for (int i = 0; i < size; i++) {
+			Scan dataScan = Scan.readFrom(input);
+			scannedData.add(dataScan);
+		}
+		return dataPackage;
 	}
 
 	private static List<String> getPIDs(Package dataPackage, boolean onlyWithTranslation) {
@@ -38,6 +48,7 @@ public final class Package {
 		}
 		return pids;
 	}
+
 	private final List<Scan> scans;
 
 	private final String vehicleId;
@@ -74,7 +85,17 @@ public final class Package {
 		return scans.isEmpty();
 	}
 
-	public void writeTo(OutputStream output) throws IOException {
-		ByteSerializer.writePackage(output, this);
+	public <T extends OutputStream> T writeTo(T output) throws IOException {
+		Package dataPackage = this;
+		DataOutputStream out = new DataOutputStream(output);
+		out.writeUTF(dataPackage.getVehicle());
+		out.writeLong(dataPackage.getTime());
+		List<Scan> scannedData = dataPackage.getScans();
+		out.writeInt(scannedData.size());
+		for (Scan dataScan : scannedData) {
+			dataScan.writeTo(output);
+		}
+		out.flush();
+		return output;
 	}
 }

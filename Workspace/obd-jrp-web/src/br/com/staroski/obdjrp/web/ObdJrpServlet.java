@@ -5,6 +5,7 @@ import java.io.File;
 import javax.servlet.http.HttpServlet;
 
 import br.com.staroski.obdjrp.data.Package;
+import br.com.staroski.obdjrp.utils.Conversions;
 
 abstract class ObdJrpServlet extends HttpServlet {
 
@@ -19,7 +20,9 @@ abstract class ObdJrpServlet extends HttpServlet {
 	}
 
 	public static File getDataDir(Package dataPackage) {
-		File file = new File(getDataDir(), dataPackage.getVehicle());
+		String vehicle = dataPackage.getVehicle();
+		String hexa = Conversions.bytesToHexas(vehicle.getBytes());
+		File file = new File(getDataDir(), hexa);
 		if (!file.exists()) {
 			file.mkdirs();
 		}

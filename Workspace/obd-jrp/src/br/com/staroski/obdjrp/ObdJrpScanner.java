@@ -2,7 +2,7 @@ package br.com.staroski.obdjrp;
 
 import static br.com.staroski.obdjrp.utils.Conversions.isEmpty;
 
-import java.io.FileOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
@@ -29,12 +29,10 @@ public final class ObdJrpScanner {
 	private static final Pattern SUPPORTED_PIDS = Pattern.compile("[0-9A-F]{12}");
 
 	private static PrintStream createLogStream() throws IOException {
-		ObdJrpProperties properties = ObdJrpProperties.get();
-		if (properties.isLogELM327()) {
-			String instant = ObdJrpProperties.DATE_FORMAT.format(new Date());
-			String name = ELM327.class.getSimpleName();
-			FileOutputStream output = new FileOutputStream(name + "_" + instant + ".log");
-			return new PrintStream(output);
+		if (ObdJrpProperties.get().loggingELM327()) {
+			String instant = ObdJrpProperties.get().formatted(new Date());
+			File file = new File(ObdJrpProperties.get().dataDir(), "ELM327_" + instant + ".log");
+			return new PrintStream(file);
 		}
 		return System.out;
 	}

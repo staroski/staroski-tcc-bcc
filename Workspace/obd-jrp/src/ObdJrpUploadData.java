@@ -1,6 +1,8 @@
+import java.io.IOException;
+
 import br.com.staroski.obdjrp.ObdJrpFolderMonitor;
 
-public final class ObdJrpUploadData {
+public final class ObdJrpUploadData extends ObdJrpApp {
 
 	public static void main(String[] args) {
 		try {
@@ -12,7 +14,9 @@ public final class ObdJrpUploadData {
 		}
 	}
 
-	private ObdJrpUploadData() {}
+	private ObdJrpUploadData() throws IOException {
+		super("upload-data");
+	}
 
 	private void execute() {
 		try {

@@ -37,14 +37,14 @@ public final class XmlHelper {
 			obd2Element.setAttributeNode(vinAttr);
 
 			Attr timeAttr = document.createAttribute("time");
-			timeAttr.setValue(ObdJrpProperties.DATE_FORMAT.format(new Date(dataPackage.getTime())));
+			timeAttr.setValue(ObdJrpProperties.get().formatted(new Date(dataPackage.getTime())));
 			obd2Element.setAttributeNode(timeAttr);
 
 			for (Scan scanned : dataPackage.getScans()) {
 				Element scanElement = document.createElement("scan");
 
 				Attr scanTimeAttr = document.createAttribute("time");
-				scanTimeAttr.setValue(ObdJrpProperties.DATE_FORMAT.format(new Date(scanned.getTime())));
+				scanTimeAttr.setValue(ObdJrpProperties.get().formatted(new Date(scanned.getTime())));
 				scanElement.setAttributeNode(scanTimeAttr);
 
 				for (Data data : scanned.getData()) {

@@ -6,7 +6,7 @@ import javax.bluetooth.ServiceRecord;
 
 import br.com.staroski.obdjrp.bluetooth.Bluetooth;
 
-public final class ObdJrpListDevices {
+public final class ObdJrpListDevices extends ObdJrpApp {
 
 	public static void main(String[] args) {
 		try {
@@ -18,7 +18,9 @@ public final class ObdJrpListDevices {
 		}
 	}
 
-	private ObdJrpListDevices() {}
+	private ObdJrpListDevices() throws IOException {
+		super("list-devices");
+	}
 
 	private void execute() throws IOException {
 		List<RemoteDevice> remoteDevices = Bluetooth.listDevices();

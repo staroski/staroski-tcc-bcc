@@ -1,35 +1,27 @@
 package br.com.staroski.obdjrp.http;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.ArrayList;
 import java.util.List;
 
-public final class HttpPost {
+final class PostRequest {
 
+	private static final String charset = "UTF-8";
 	private static final String LINE_FEED = "\r\n";
+
 	private final String boundary;
 	private HttpURLConnection httpConn;
-	private String charset;
 	private OutputStream outputStream;
 	private PrintWriter writer;
 
-	public HttpPost(String requestURL) throws IOException {
-		this(requestURL, "UTF-8");
-	}
-
-	public HttpPost(String requestURL, String charset) throws IOException {
-		this.charset = charset;
-
+	PostRequest(String requestURL) throws IOException {
 		boundary = "===" + System.currentTimeMillis() + "===";
 
 		URL url = new URL(requestURL);
@@ -81,24 +73,11 @@ public final class HttpPost {
 	}
 
 	public List<String> finish() throws IOException {
-		List<String> response = new ArrayList<String>();
-
 		writer.append(LINE_FEED).flush();
 		writer.append("--" + boundary + "--").append(LINE_FEED);
 		writer.close();
 
-		int status = httpConn.getResponseCode();
-		if (status == HttpURLConnection.HTTP_OK) {
-			BufferedReader reader = new BufferedReader(new InputStreamReader(httpConn.getInputStream()));
-			String line = null;
-			while ((line = reader.readLine()) != null) {
-				response.add(line);
-			}
-			reader.close();
-			httpConn.disconnect();
-		} else {
-			throw new IOException("Server returned non-OK status: " + status);
-		}
+		List<String> response = Http.readResponse(httpConn);
 		return response;
 	}
 }

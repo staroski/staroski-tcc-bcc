@@ -18,7 +18,7 @@ public final class Parsing {
 		Parser parser = PARSERS.get(pid);
 		if (parser == null) {
 			ObdJrpProperties properties = ObdJrpProperties.get();
-			String className = properties.getParser(pid);
+			String className = properties.parser(pid);
 			if (className == null) {
 				return Parsed.EMPTY;
 			}

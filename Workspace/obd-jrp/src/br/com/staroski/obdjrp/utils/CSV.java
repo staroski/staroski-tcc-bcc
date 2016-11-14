@@ -90,7 +90,7 @@ public final class CSV {
 				line = new StringBuilder();
 				header = false;
 			}
-			line.append(ObdJrpProperties.DATE_FORMAT.format(new Date(scan.getTime())));
+			line.append(ObdJrpProperties.get().formatted(new Date(scan.getTime())));
 			for (Data data : scan.getData()) {
 				Parsed translation = Parsing.parse(data);
 				if (!translation.isUnknown()) {

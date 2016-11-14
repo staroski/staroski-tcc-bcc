@@ -32,7 +32,7 @@ public final class ObdJrpSendDataServlet extends ObdJrpServlet {
 
 	private File getFile(Package dataPackage, String extension) throws IOException {
 		File file = getDataDir(dataPackage);
-		String name = ObdJrpProperties.DATE_FORMAT.format(new Date(dataPackage.getTime()));
+		String name = ObdJrpProperties.get().formatted(new Date(dataPackage.getTime()));
 		file = new File(file, name + extension);
 		file.createNewFile();
 		return file;

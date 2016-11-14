@@ -1,7 +1,6 @@
 package br.com.staroski.obdjrp;
 
 import java.io.IOException;
-import java.util.List;
 
 import br.com.staroski.obdjrp.data.Package;
 import br.com.staroski.obdjrp.data.Scan;
@@ -11,20 +10,19 @@ import br.com.staroski.obdjrp.utils.Timer;
 final class ScanLoop {
 
 	private final ObdJrpScanner scanner;
-	private boolean stopped;
-	private boolean scanning;
 
+	private boolean scanning;
 	private Thread loop;
 
-	public ScanLoop(ObdJrpScanner obd2Monitor) {
-		this.scanner = obd2Monitor;
+	public ScanLoop(ObdJrpScanner scanner) {
+		this.scanner = scanner;
+		scanner.addListener(new ScanUploader());
 	}
 
 	public void start() {
 		if (scanning) {
 			return;
 		}
-		stopped = false;
 		scanning = true;
 		loop = new Thread(new Runnable() {
 
@@ -32,10 +30,11 @@ final class ScanLoop {
 			public void run() {
 				try {
 					execute();
-				} catch (Throwable t) {
+				} catch (Throwable error) {
 					scanning = false;
-					stopped = true;
-					t.printStackTrace();
+					System.out.printf("%s: %s%n", //
+							error.getClass().getSimpleName(), //
+							error.getMessage());
 				}
 			}
 		}, getClass().getSimpleName());
@@ -43,10 +42,9 @@ final class ScanLoop {
 	}
 
 	public void stop() {
-		if (stopped) {
+		if (!scanning) {
 			return;
 		}
-		stopped = true;
 		scanning = false;
 		if (loop != null && loop.isAlive()) {
 			try {
@@ -57,37 +55,31 @@ final class ScanLoop {
 		}
 	}
 
+	private Package createDataPackage() {
+		ObdJrpProperties properties = ObdJrpProperties.get();
+		final String vehicle = properties.vehicle();
+		Package dataPackage = new Package(vehicle, System.currentTimeMillis());
+		System.out.printf("creating new data package...%n");
+		scanner.notifyStartPackage(dataPackage);
+		return dataPackage;
+	}
+
 	private void execute() throws IOException {
-		final Timer timer = new Timer();
+		final int count = ObdJrpProperties.get().dataMaxScans();
 		while (scanning) {
-			Package obd2Package = null;
+			Package dataPackage = null;
 			try {
-				ObdJrpProperties properties = ObdJrpProperties.get();
-				final int packageMaxSize = properties.getPackageMaxSize();
-				final String vin = properties.getVehicle();
-				obd2Package = new Package(vin, System.currentTimeMillis());
-				final List<Scan> scans = obd2Package.getScans();
-				System.out.printf("creating new data package...%n");
-				scanner.notifyStartPackage(obd2Package);
-				for (int i = 0; scanning && i < packageMaxSize; i++) {
-					System.out.printf("scanning data %d of %d...%n", (i + 1), packageMaxSize);
-					timer.reset();
-					Scan scan = scanner.scan();
-					System.out.printf("%d PIDs read%ndata scanned in %dms%n", scan.getData().size(), timer.elapsed());
-					scans.add(scan);
-					scanner.notifyScanned(scan);
-					if (!scanning) {
-						break;
-					}
+				dataPackage = createDataPackage();
+				for (int index = 1; scanning && index <= count; index++) {
+					scanData(dataPackage, index, count);
 				}
-				save(obd2Package);
+				save(dataPackage);
 			} catch (ELM327Error error) {
 				scanning = false;
-				stopped = true;
 				System.out.printf("%s: %s%n", //
 						error.getClass().getSimpleName(), //
 						error.getMessage());
-				save(obd2Package);
+				save(dataPackage);
 				scanner.notifyError(error);
 			}
 		}
@@ -103,5 +95,15 @@ final class ScanLoop {
 				System.out.println("data package saved!");
 			}
 		}
+	}
+
+	private Scan scanData(Package dataPackage, int index, int limit) throws IOException, ELM327Error {
+		System.out.printf("scanning data %d of %d...%n", index, limit);
+		Timer timer = new Timer();
+		Scan scan = scanner.scan();
+		System.out.printf("%d PIDs read%ndata scanned in %dms%n", scan.getData().size(), timer.elapsed());
+		dataPackage.getScans().add(scan);
+		scanner.notifyScanned(scan);
+		return scan;
 	}
 }

@@ -15,7 +15,7 @@ final class FileHandler extends ObdJrpAdapter {
 	public void onFinishPackage(Package dataPackage) {
 		ObdJrpProperties props = ObdJrpProperties.get();
 		try {
-			if (props.isSavePackageAsXml()) {
+			if (props.savingPackageAsXml()) {
 				saveAsXml(dataPackage);
 			}
 			saveAsObd(dataPackage);
@@ -28,7 +28,7 @@ final class FileHandler extends ObdJrpAdapter {
 
 	private File getDataDir(Package dataPackage) {
 		ObdJrpProperties props = ObdJrpProperties.get();
-		File folder = props.getPackageDir();
+		File folder = props.dataDir();
 		File file = new File(folder, dataPackage.getVehicle());
 		if (!file.exists()) {
 			file.mkdirs();
@@ -38,7 +38,7 @@ final class FileHandler extends ObdJrpAdapter {
 
 	private File getFile(Package dataPackage, String extension) throws IOException {
 		File file = getDataDir(dataPackage);
-		String name = ObdJrpProperties.DATE_FORMAT.format(new Date(dataPackage.getTime()));
+		String name = ObdJrpProperties.get().formatted(new Date(dataPackage.getTime()));
 		file = new File(file, name + extension);
 		file.createNewFile();
 		return file;

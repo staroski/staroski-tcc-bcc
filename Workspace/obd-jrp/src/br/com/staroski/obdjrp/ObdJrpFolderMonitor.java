@@ -2,14 +2,12 @@ package br.com.staroski.obdjrp;
 
 import java.io.File;
 import java.io.FileFilter;
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Queue;
 
-import br.com.staroski.obdjrp.http.HttpPost;
+import br.com.staroski.obdjrp.http.Http;
 import br.com.staroski.obdjrp.utils.Lock;
 
 public final class ObdJrpFolderMonitor {
@@ -84,8 +82,8 @@ public final class ObdJrpFolderMonitor {
 
 	private void begin() {
 		ObdJrpProperties props = ObdJrpProperties.get();
-		String server = props.getWebServer();
-		String folder = props.getPackageDir().getAbsolutePath();
+		String server = props.webServer();
+		String folder = props.dataDir().getAbsolutePath();
 		System.out.printf("trying to upload data%n  from: \"%s\"%n    to: %s%n", folder, server);
 		begin = System.currentTimeMillis();
 	}
@@ -100,7 +98,7 @@ public final class ObdJrpFolderMonitor {
 	}
 
 	private void execute() {
-		while (scanning) {
+		do {
 			try {
 				begin();
 				Queue<File> files = getFiles();
@@ -121,13 +119,13 @@ public final class ObdJrpFolderMonitor {
 						error.getClass().getSimpleName(), //
 						error.getMessage());
 			}
-		}
+		} while (scanning);
 	}
 
 	private Queue<File> getFiles() {
 		Queue<File> files = new LinkedList<>();
 		ObdJrpProperties props = ObdJrpProperties.get();
-		File rootFolder = props.getPackageDir();
+		File rootFolder = props.dataDir();
 		File[] subFolders = rootFolder.listFiles(DIRS_ONLY);
 		for (File folder : subFolders) {
 			File[] fileArray = folder.listFiles(OBD_ONLY);
@@ -138,20 +136,16 @@ public final class ObdJrpFolderMonitor {
 	}
 
 	private boolean upload(File file) {
-		System.out.printf("uploading file \"%s\"...", file.getAbsolutePath());
-		ObdJrpProperties props = ObdJrpProperties.get();
-		String requestURL = props.getWebServer() + "/send-data";
+		System.out.printf("uploading file \"%s\"%n", file.getAbsolutePath());
 		try {
-			HttpPost multipart = new HttpPost(requestURL);
-			multipart.addFilePart("fileUpload", file);
-			List<String> response = multipart.finish();
-			boolean ok = response.size() == 1 && "OK".equals(response.get(0));
-			System.out.println(ok ? " OK" : " ERROR");
-			return ok;
-		} catch (IOException e) {
-			System.out.printf("%s: %s", //
-					e.getClass().getSimpleName(), //
-					e.getMessage());
+			String url = ObdJrpProperties.get().webServer() + "/send-data";
+			boolean accepted = Http.sendPostRequest(url, file);
+			System.out.printf("file %s by server%n", accepted ? "accepted" : "rejected");
+			return accepted;
+		} catch (Exception error) {
+			System.out.printf("%s: %s%n", //
+					error.getClass().getSimpleName(), //
+					error.getMessage());
 			return false;
 		}
 	}
