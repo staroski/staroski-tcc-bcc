@@ -13,8 +13,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import br.com.staroski.obdjrp.utils.Conversions;
 
-@WebServlet(name = "ListVehiclesServlet", urlPatterns = { "/index.jsp" })
-public final class ListVehiclesServlet extends ObdJrpServlet {
+@WebServlet(name = "VehicleListServlet", urlPatterns = { "/index.jsp" })
+public final class VehicleListServlet extends ObdJrpServlet {
 	private static final long serialVersionUID = 1L;
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -26,7 +26,7 @@ public final class ListVehiclesServlet extends ObdJrpServlet {
 			vehicles.add(new String[] { hexa, vehicle });
 		}
 		request.setAttribute("vehicles", vehicles);
-		RequestDispatcher view = request.getRequestDispatcher("list-vehicles.jsp");
+		RequestDispatcher view = request.getRequestDispatcher("vehicle-list.jsp");
 		view.forward(request, response);
 	}
 }

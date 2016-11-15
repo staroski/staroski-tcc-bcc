@@ -79,6 +79,21 @@ public final class CSV {
 		return new CSV(csv);
 	}
 
+	public static CSV createSingleCSV(List<Scan> scannedData, String pid) {
+		List<String> csv = new ArrayList<>();
+		if (!scannedData.isEmpty()) {
+			boolean header = true;
+			for (Scan scan : scannedData) {
+				if (header) {
+					csv.add(scan.createCsvHeader(pid));
+					header = false;
+				}
+				csv.add(scan.createCsvLine(pid));
+			}
+		}
+		return new CSV(csv);
+	}
+
 	public static List<String> packageToCSV(Package dataPackage) throws IOException {
 		return scansToCSV(dataPackage.getScans());
 	}

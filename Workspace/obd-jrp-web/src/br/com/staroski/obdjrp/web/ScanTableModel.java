@@ -7,12 +7,15 @@ import br.com.staroski.obdjrp.data.Parsed;
 import br.com.staroski.obdjrp.data.Parsing;
 import br.com.staroski.obdjrp.data.Scan;
 
-public final class ScanDataTableModel {
+public final class ScanTableModel {
 
 	private final List<Data> dataList;
 
-	ScanDataTableModel(Scan scan) {
+	private final long time;
+
+	ScanTableModel(Scan scan) {
 		this.dataList = scan.getData();
+		time = scan.getTime();
 	}
 
 	public int getColumnCount() {
@@ -37,6 +40,10 @@ public final class ScanDataTableModel {
 		return dataList.size();
 	}
 
+	public long getTime() {
+		return time;
+	}
+
 	public Object getValueAt(int row, int col) {
 		Data rawData = dataList.get(row);
 		Parsed parsed = Parsing.parse(rawData);
@@ -51,5 +58,11 @@ public final class ScanDataTableModel {
 			default:
 				return parsed.getValues(" | ");
 		}
+	}
+
+	public boolean hasParser(int row) {
+		Data rawData = dataList.get(row);
+		Parsed parsed = Parsing.parse(rawData);
+		return !Parsed.EMPTY.equals(parsed);
 	}
 }

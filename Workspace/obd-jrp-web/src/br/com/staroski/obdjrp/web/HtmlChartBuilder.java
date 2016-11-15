@@ -98,7 +98,7 @@ public final class HtmlChartBuilder {
 	private String createChartOptions(int number) {
 		StringBuilder options = new StringBuilder();
 		options.append(String.format("var options = {\n"));
-		options.append(String.format("title: 'Sensor %d - %s',\n", number, csv.getHeader(number)));
+		options.append(String.format("title: '%s',\n", csv.getHeader(number)));
 		options.append(String.format("curveType: 'function',\n"));
 		options.append(String.format("legend: {position: 'none'},\n"));
 		options.append(String.format("enableInteractivity: true,\n"));

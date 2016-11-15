@@ -18,7 +18,7 @@ final class ScanUploader extends ObdJrpAdapter {
 	private boolean upload(Scan dataScan) {
 		System.out.printf("sending scan to server%n");
 		try {
-			String url = ObdJrpProperties.get().webServer() + "/send-scan";
+			String url = ObdJrpProperties.get().webServer() + "/write-data";
 			byte[] bytes = ObdJrpProperties.get().vehicle().getBytes();
 			String vehicle = Conversions.bytesToHexas(bytes);
 			bytes = dataScan.writeTo(new ByteArrayOutputStream()).toByteArray();

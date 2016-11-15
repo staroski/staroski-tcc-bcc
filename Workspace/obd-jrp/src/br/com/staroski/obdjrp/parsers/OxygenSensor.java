@@ -15,8 +15,8 @@ abstract class OxygenSensor implements Parser {
 		double fuelTrim = (b / 1.28) - 100;
 		int number = getNumber();
 		return parse(new String[][] { //
-				new String[] { String.format("Oxygen sensor %d voltage", number), String.format("%.2f", voltage) }, //
-				new String[] { String.format("Oxygen sensor %d fuel trim", number), String.format("%.2f", fuelTrim) }, //
+				new String[] { String.format("O2 sensor %d voltage", number), String.format("%.2f", voltage) }, //
+				new String[] { String.format("O2 sensor %d fuel trim", number), String.format("%.2f", fuelTrim) }, //
 		});
 	}
 

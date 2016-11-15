@@ -20,8 +20,8 @@ import br.com.staroski.obdjrp.ObdJrpProperties;
 import br.com.staroski.obdjrp.data.Scan;
 import br.com.staroski.obdjrp.utils.Conversions;
 
-@WebServlet(name = "SendScanServlet", urlPatterns = { "/send-scan" })
-public final class SendScanServlet extends ObdJrpServlet {
+@WebServlet(name = "WriteDataServlet", urlPatterns = { "/write-data" })
+public final class WriteDataServlet extends ObdJrpServlet {
 
 	private static final long serialVersionUID = 1;
 

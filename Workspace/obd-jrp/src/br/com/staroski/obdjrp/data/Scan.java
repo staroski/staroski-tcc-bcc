@@ -46,10 +46,40 @@ public final class Scan {
 		return line.toString();
 	}
 
+	public String createCsvHeader(String pid) {
+		StringBuilder line = new StringBuilder();
+		line.append("Time");
+		for (Data data : getData()) {
+			if (!pid.equalsIgnoreCase(data.getPID())) {
+				continue;
+			}
+			Parsed parsed = Parsing.parse(data);
+			if (!parsed.isUnknown()) {
+				line.append(CSV.SEPARATOR).append(parsed.getDescriptions(CSV.SEPARATOR));
+			}
+		}
+		return line.toString();
+	}
+
 	public String createCsvLine() {
 		StringBuilder line = new StringBuilder();
 		line.append(ObdJrpProperties.get().formatted(new Date(getTime())));
 		for (Data data : getData()) {
+			Parsed parsed = Parsing.parse(data);
+			if (!parsed.isUnknown()) {
+				line.append(CSV.SEPARATOR).append(parsed.getValues(CSV.SEPARATOR));
+			}
+		}
+		return line.toString();
+	}
+
+	public String createCsvLine(String pid) {
+		StringBuilder line = new StringBuilder();
+		line.append(ObdJrpProperties.get().formatted(new Date(getTime())));
+		for (Data data : getData()) {
+			if (!pid.equalsIgnoreCase(data.getPID())) {
+				continue;
+			}
 			Parsed parsed = Parsing.parse(data);
 			if (!parsed.isUnknown()) {
 				line.append(CSV.SEPARATOR).append(parsed.getValues(CSV.SEPARATOR));

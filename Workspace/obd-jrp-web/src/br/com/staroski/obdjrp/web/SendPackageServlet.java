@@ -20,9 +20,9 @@ import br.com.staroski.obdjrp.data.Package;
 import br.com.staroski.obdjrp.utils.CSV;
 import br.com.staroski.obdjrp.utils.Conversions;
 
-@WebServlet(name = "SendDataServlet", urlPatterns = { "/send-data" })
+@WebServlet(name = "SendPackageServlet", urlPatterns = { "/send-package" })
 @MultipartConfig( //
-		location = "T:\\obd-jrp-web\\tmp", //
+		location = "obd-jrp-web\\tmp", //
 		fileSizeThreshold = 1024 * 1024, // 1MB
 		maxFileSize = 1024 * 1024 * 5, // 5MB
 		maxRequestSize = 1024 * 1024 * 5 * 5 // 25MB
