@@ -5,8 +5,12 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
+
+import br.com.staroski.obdjrp.ObdJrpProperties;
+import br.com.staroski.obdjrp.utils.CSV;
 
 public final class Scan {
 
@@ -28,6 +32,30 @@ public final class Scan {
 
 	public Scan(long time) {
 		this.time = time;
+	}
+
+	public String createCsvHeader() {
+		StringBuilder line = new StringBuilder();
+		line.append("Time");
+		for (Data data : getData()) {
+			Parsed parsed = Parsing.parse(data);
+			if (!parsed.isUnknown()) {
+				line.append(CSV.SEPARATOR).append(parsed.getDescriptions(CSV.SEPARATOR));
+			}
+		}
+		return line.toString();
+	}
+
+	public String createCsvLine() {
+		StringBuilder line = new StringBuilder();
+		line.append(ObdJrpProperties.get().formatted(new Date(getTime())));
+		for (Data data : getData()) {
+			Parsed parsed = Parsing.parse(data);
+			if (!parsed.isUnknown()) {
+				line.append(CSV.SEPARATOR).append(parsed.getValues(CSV.SEPARATOR));
+			}
+		}
+		return line.toString();
 	}
 
 	public List<Data> getData() {

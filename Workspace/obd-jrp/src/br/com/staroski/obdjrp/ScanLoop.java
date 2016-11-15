@@ -35,6 +35,7 @@ final class ScanLoop {
 					System.out.printf("%s: %s%n", //
 							error.getClass().getSimpleName(), //
 							error.getMessage());
+					scanner.notifyError(ELM327Error.wrap(error));
 				}
 			}
 		}, getClass().getSimpleName());

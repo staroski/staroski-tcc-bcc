@@ -8,7 +8,7 @@ import java.util.Date;
 import br.com.staroski.obdjrp.ObdJrpProperties;
 import br.com.staroski.obdjrp.utils.CSV;
 
-final class HtmlChartBuilder {
+public final class HtmlChartBuilder {
 
 	private static final String DIV_DATA_ID = "data";
 	private static final String DIV_CHART_ID_PREFIX = "chart_";
@@ -23,13 +23,38 @@ final class HtmlChartBuilder {
 		if (csv.isEmpty()) {
 			return "There is no data for vehicle " + vehicle;
 		}
-		return new HtmlChartBuilder(csv).getChartPage();
+		return new HtmlChartBuilder(csv).createChartPage();
 	}
 
 	private final CSV csv;
 
-	private HtmlChartBuilder(CSV csv) {
+	public HtmlChartBuilder(CSV csv) {
 		this.csv = csv;
+	}
+
+	public String createChartPage() {
+		StringBuilder page = new StringBuilder();
+		page.append(createTagHtml());
+		return page.toString();
+	}
+
+	public String createTagDiv_chart() {
+		StringBuilder div = new StringBuilder();
+		for (int number = 1, size = csv.getHeaders(); number < size; number++) {
+			div.append(String.format("<div id=\"%s%03d\"></div>\n", DIV_CHART_ID_PREFIX, number));
+		}
+		return div.toString();
+	}
+
+	public String createTagScriptGoogle() {
+		StringBuilder script = new StringBuilder();
+		script.append("<script type=\"text/javascript\" src=\"loader.js\"></script>\n");
+		script.append("<script type=\"text/javascript\">\n");
+		script.append("google.charts.load('current', {'packages':['corechart']});\n");
+		script.append(createChartFunctionCalls());
+		script.append(createChartFunctionDeclarations());
+		script.append("</script>\n");
+		return script.toString();
 	}
 
 	private String createChartData(int number) {
@@ -111,14 +136,6 @@ final class HtmlChartBuilder {
 		return body.toString();
 	}
 
-	private String createTagDiv_chart() {
-		StringBuilder div = new StringBuilder();
-		for (int number = 1, size = csv.getHeaders(); number < size; number++) {
-			div.append(String.format("<div id=\"%s%03d\"></div>\n", DIV_CHART_ID_PREFIX, number));
-		}
-		return div.toString();
-	}
-
 	private Object createTagDiv_data() {
 		StringBuilder div = new StringBuilder();
 		String value = "${sessionScope.teste}";
@@ -142,17 +159,6 @@ final class HtmlChartBuilder {
 		html.append(createTagBody());
 		html.append("</html>\n");
 		return html.toString();
-	}
-
-	private String createTagScriptGoogle() {
-		StringBuilder script = new StringBuilder();
-		script.append("<script type=\"text/javascript\" src=\"loader.js\"></script>\n");
-		script.append("<script type=\"text/javascript\">\n");
-		script.append("google.charts.load('current', {'packages':['corechart']});\n");
-		script.append(createChartFunctionCalls());
-		script.append(createChartFunctionDeclarations());
-		script.append("</script>\n");
-		return script.toString();
 	}
 
 	private String createTagScriptTimer() {
@@ -180,11 +186,5 @@ final class HtmlChartBuilder {
 		script.append("			timer.start();");
 		script.append("</script>");
 		return script.toString();
-	}
-
-	private String getChartPage() {
-		StringBuilder page = new StringBuilder();
-		page.append(createTagHtml());
-		return page.toString();
 	}
 }

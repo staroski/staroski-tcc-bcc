@@ -56,6 +56,13 @@ public final class ELM327Error extends Error {
 		return null;
 	}
 
+	public static ELM327Error wrap(Throwable error) {
+		String message = String.format("%s: %s%n", //
+				error.getClass().getSimpleName(), //
+				error.getMessage());
+		return new ELM327Error(QB + message + QE + ALO);
+	}
+
 	private static String getDescription(String regex) {
 		final int begin = regex.indexOf(QB) + QB.length();
 		final int end = regex.indexOf(QE);
@@ -65,7 +72,11 @@ public final class ELM327Error extends Error {
 	private final Pattern pattern;
 
 	private ELM327Error(String regex) {
-		super(getDescription(regex));
+		this(regex, null);
+	}
+
+	private ELM327Error(String regex, Throwable cause) {
+		super(getDescription(regex), cause);
 		this.pattern = Pattern.compile(regex);
 	}
 

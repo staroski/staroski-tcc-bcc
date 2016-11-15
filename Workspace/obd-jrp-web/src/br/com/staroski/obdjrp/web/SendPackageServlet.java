@@ -18,20 +18,23 @@ import javax.servlet.http.Part;
 import br.com.staroski.obdjrp.ObdJrpProperties;
 import br.com.staroski.obdjrp.data.Package;
 import br.com.staroski.obdjrp.utils.CSV;
+import br.com.staroski.obdjrp.utils.Conversions;
 
 @WebServlet(name = "SendDataServlet", urlPatterns = { "/send-data" })
 @MultipartConfig( //
 		location = "T:\\obd-jrp-web\\tmp", //
-		fileSizeThreshold = 1024 * 1024, //
-		maxFileSize = 1024 * 1024 * 5, //
-		maxRequestSize = 1024 * 1024 * 5 * 5 //
+		fileSizeThreshold = 1024 * 1024, // 1MB
+		maxFileSize = 1024 * 1024 * 5, // 5MB
+		maxRequestSize = 1024 * 1024 * 5 * 5 // 25MB
 )
-public final class ObdJrpSendDataServlet extends ObdJrpServlet {
+public final class SendPackageServlet extends ObdJrpServlet {
 
 	private static final long serialVersionUID = 1L;
 
 	private File getFile(Package dataPackage, String extension) throws IOException {
-		File file = getDataDir(dataPackage);
+		String vehicle = dataPackage.getVehicle();
+		String vehicle_id = Conversions.bytesToHexas(vehicle.getBytes());
+		File file = getVehicleDir(vehicle_id);
 		String name = ObdJrpProperties.get().formatted(new Date(dataPackage.getTime()));
 		file = new File(file, name + extension);
 		file.createNewFile();
@@ -80,9 +83,9 @@ public final class ObdJrpSendDataServlet extends ObdJrpServlet {
 		PrintWriter out = response.getWriter();
 		Part uploadedFile = request.getPart("fileUpload");
 		if (uploadedFile != null && savePart(uploadedFile)) {
-			out.write("OK");
+			out.println("OK");
 		} else {
-			out.write("ERROR");
+			out.println("ERROR");
 		}
 		response.setStatus(HttpURLConnection.HTTP_OK);
 	}

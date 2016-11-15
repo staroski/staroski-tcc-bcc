@@ -26,11 +26,9 @@ public final class ELM327 {
 						}
 					}
 				}
-			} catch (IOException e) {
-				System.out.printf("%s read error! %s: %s%n", //
-						ELM327.class.getSimpleName(), //
-						e.getClass().getSimpleName(), //
-						e.getMessage());
+			} catch (Throwable error) {
+				readError = error;
+				LOCK.unlock();
 			}
 		}
 	}
@@ -68,6 +66,8 @@ public final class ELM327 {
 		return text;
 	}
 
+	private Throwable readError;
+
 	private final Lock LOCK = new Lock();
 	private final ByteArrayOutputStream buffer = new ByteArrayOutputStream(1024);
 
@@ -91,7 +91,7 @@ public final class ELM327 {
 		Disconnector.remove(this);
 	}
 
-	public String execute(String command) throws ELM327Error, IOException {
+	public String execute(String command) throws ELM327Error {
 		command = prepareCommand(command);
 		log("command:%n\"%s\"%n", command);
 
@@ -108,17 +108,28 @@ public final class ELM327 {
 		logger.printf(format, value.replaceAll("\r", "\\\\r"));
 	}
 
-	private byte[] messageRead() throws IOException {
-		LOCK.lock();
+	private byte[] messageRead() throws ELM327Error {
+		LOCK.lock(1000);
+		if (readError != null) {
+			try {
+				throw ELM327Error.wrap(readError);
+			} finally {
+				readError = null;
+			}
+		}
 		return buffer.toByteArray();
 	}
 
-	private void messageWrite(byte[] command) throws IOException {
-		synchronized (connection) {
-			buffer.reset();
-			final OutputStream out = connection.getOutput();
-			out.write(command);
-			out.flush();
+	private void messageWrite(byte[] command) throws ELM327Error {
+		try {
+			synchronized (connection) {
+				buffer.reset();
+				final OutputStream out = connection.getOutput();
+				out.write(command);
+				out.flush();
+			}
+		} catch (Throwable error) {
+			throw ELM327Error.wrap(error);
 		}
 	}
 }

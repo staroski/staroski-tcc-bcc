@@ -10,16 +10,11 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import br.com.staroski.obdjrp.ObdJrpProperties;
-import br.com.staroski.obdjrp.data.Data;
 import br.com.staroski.obdjrp.data.Package;
-import br.com.staroski.obdjrp.data.Parsed;
-import br.com.staroski.obdjrp.data.Parsing;
 import br.com.staroski.obdjrp.data.Scan;
 
 public final class CSV {
@@ -69,35 +64,37 @@ public final class CSV {
 		return new CSV(csvLines);
 	}
 
-	public static List<String> packageToCSV(Package dataPackage) throws IOException {
+	public static CSV createSingleCSV(List<Scan> scannedData) {
 		List<String> csv = new ArrayList<>();
-		List<Scan> scannedData = dataPackage.getScans();
+		if (!scannedData.isEmpty()) {
+			boolean header = true;
+			for (Scan scan : scannedData) {
+				if (header) {
+					csv.add(scan.createCsvHeader());
+					header = false;
+				}
+				csv.add(scan.createCsvLine());
+			}
+		}
+		return new CSV(csv);
+	}
+
+	public static List<String> packageToCSV(Package dataPackage) throws IOException {
+		return scansToCSV(dataPackage.getScans());
+	}
+
+	public static List<String> scansToCSV(List<Scan> scannedData) throws IOException {
+		List<String> csv = new ArrayList<>();
 		if (scannedData.isEmpty()) {
 			return csv;
 		}
 		boolean header = true;
 		for (Scan scan : scannedData) {
-			StringBuilder line = new StringBuilder();
 			if (header) {
-				line.append("Date time");
-				for (Data data : scan.getData()) {
-					Parsed translation = Parsing.parse(data);
-					if (!translation.isUnknown()) {
-						line.append(CSV.SEPARATOR).append(translation.getDescriptions(CSV.SEPARATOR));
-					}
-				}
-				csv.add(line.toString());
-				line = new StringBuilder();
+				csv.add(scan.createCsvHeader());
 				header = false;
 			}
-			line.append(ObdJrpProperties.get().formatted(new Date(scan.getTime())));
-			for (Data data : scan.getData()) {
-				Parsed translation = Parsing.parse(data);
-				if (!translation.isUnknown()) {
-					line.append(CSV.SEPARATOR).append(translation.getValues(CSV.SEPARATOR));
-				}
-			}
-			csv.add(line.toString());
+			csv.add(scan.createCsvLine());
 		}
 		return csv;
 	}
@@ -117,7 +114,7 @@ public final class CSV {
 
 	private final Map<String, List<String>> headerValues = new HashMap<>();
 
-	private CSV(List<String> csvLines) {
+	public CSV(List<String> csvLines) {
 		lines = load(csvLines);
 	}
 
