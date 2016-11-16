@@ -58,6 +58,7 @@ public final class ChartServlet extends ObdJrpServlet {
 		request.setAttribute("scan_time", lastScan.getTime());
 		request.setAttribute("chart_builder", new HtmlChartBuilder(createCSV(vehicleId, pid)));
 		RequestDispatcher view = request.getRequestDispatcher("vehicle-chart.jsp");
+		response.setHeader("Cache-Control", "no-cache");
 		view.forward(request, response);
 	}
 }

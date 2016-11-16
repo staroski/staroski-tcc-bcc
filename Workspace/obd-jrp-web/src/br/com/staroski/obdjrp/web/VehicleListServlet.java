@@ -27,6 +27,7 @@ public final class VehicleListServlet extends ObdJrpServlet {
 		}
 		request.setAttribute("vehicles", vehicles);
 		RequestDispatcher view = request.getRequestDispatcher("vehicle-list.jsp");
+		response.setHeader("Cache-Control", "no-cache");
 		view.forward(request, response);
 	}
 }

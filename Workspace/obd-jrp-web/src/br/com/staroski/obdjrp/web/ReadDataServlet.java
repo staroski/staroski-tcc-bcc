@@ -28,6 +28,7 @@ public final class ReadDataServlet extends ObdJrpServlet {
 		request.setAttribute("scan_time", lastScan.getTime());
 		request.setAttribute("scan_table_model", new ScanTableModel(lastScan));
 		RequestDispatcher view = request.getRequestDispatcher("vehicle-detail.jsp");
+		response.setHeader("Cache-Control", "no-cache");
 		view.forward(request, response);
 	}
 }
