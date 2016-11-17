@@ -1,99 +1,56 @@
 package br.com.staroski.obdjrp.web;
 
-import java.io.File;
-import java.io.FileFilter;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
+import javax.servlet.ServletException;
+import javax.servlet.annotation.MultipartConfig;
+import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
-import br.com.staroski.obdjrp.data.Scan;
-
-abstract class ObdJrpServlet extends HttpServlet {
+@WebServlet(name = "ObdJrpServlet", urlPatterns = { "/exec" })
+@MultipartConfig( //
+		location = "tmp", //
+		fileSizeThreshold = 1024 * 1024, // 1MB
+		maxFileSize = 1024 * 1024 * 5, // 5MB
+		maxRequestSize = 1024 * 1024 * 5 * 5 // 25MB
+)
+public final class ObdJrpServlet extends HttpServlet {
 
 	private static final long serialVersionUID = 1;
 
-	public static final int SCANS_SIZE = 60;
+	private static final Map<String, Command> COMMANDS = new HashMap<>();
 
-	public static final Comparator<File> NEWEST_FILE = new Comparator<File>() {
-
-		@Override
-		public int compare(File a, File b) {
-			return (int) (b.lastModified() - a.lastModified());
-		}
-	};
-
-	public static final Comparator<File> OLDEST_FILE = new Comparator<File>() {
-
-		@Override
-		public int compare(File a, File b) {
-			return (int) (a.lastModified() - b.lastModified());
-		}
-	};
-
-	public static final FileFilter SCAN_FILES = new FileFilter() {
-
-		@Override
-		public boolean accept(File file) {
-			return file.isFile() && file.getName().toLowerCase().endsWith(".scan");
-		}
-	};
-
-	public static File getDataDir() {
-		File file = new File("T:\\obd-jrp-web\\obd-jrp-data");
-		if (!file.exists()) {
-			file.mkdirs();
-		}
-		return file;
+	static {
+		COMMANDS.put("ListVehicles", new ListVehicles());
+		COMMANDS.put("ReadData", new ReadData());
+		COMMANDS.put("SendData", new SendData());
+		COMMANDS.put("UploadData", new UploadData());
+		COMMANDS.put("ViewChart", new ViewChart());
 	}
 
-	public static File getVehicleDir(String vehicleId) {
-		File dir = new File(getDataDir(), vehicleId);
-		if (!dir.exists()) {
-			dir.mkdirs();
-		}
-		return dir;
+	private Command getCommand(HttpServletRequest request) {
+		Command command = COMMANDS.get(request.getParameter("cmd"));
+		return command == null ? Command.NULL : command;
 	}
 
-	public File getPackagesDir(String vehicleId) {
-		File dir = new File(getVehicleDir(vehicleId), "package");
-		if (!dir.exists()) {
-			dir.mkdirs();
+	private void process(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		String forward = getCommand(request).execute(request, response);
+		if (forward != null) {
+			response.setHeader("Cache-Control", "no-cache");
+			request.getRequestDispatcher(forward).forward(request, response);
 		}
-		return dir;
 	}
 
-	public File getScanDir(String vehicleId) {
-		File dir = new File(getVehicleDir(vehicleId), "scans");
-		if (!dir.exists()) {
-			dir.mkdirs();
-		}
-		return dir;
+	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		process(request, response);
 	}
 
-	public Scan getLastScan(String vehicleId) throws IOException {
-		File dir = getScanDir(vehicleId);
-		List<File> files = new ArrayList<>();
-		files.addAll(Arrays.asList(dir.listFiles(SCAN_FILES)));
-		final Scan emptScan = new Scan(System.currentTimeMillis());
-		if (files.isEmpty()) {
-			return emptScan;
-		}
-		Collections.sort(files, NEWEST_FILE);
-		Scan scan;
-		try {
-			FileInputStream input = new FileInputStream(files.get(0));
-			scan = Scan.readFrom(input);
-			input.close();
-		} catch (FileNotFoundException e) {
-			return emptScan;
-		}
-		return scan;
+	@Override
+	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		process(request, response);
 	}
 }

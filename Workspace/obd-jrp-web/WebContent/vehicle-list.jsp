@@ -15,7 +15,7 @@
 	<div id="vehicle-list" align="center">
 		<%
 			for (String[] vehicle : vehicles) {
-				out.println(String.format("<p><a href=\"read-data?vehicle=%s\">%s</a></p>", vehicle[0], vehicle[1]));
+				out.println(String.format("<p><a href=\"exec?cmd=ReadData&vehicle=%s\">%s</a></p>", vehicle[0], vehicle[1]));
 			}
 		%>
 	</div>

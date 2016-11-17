@@ -51,7 +51,7 @@
 								String alignment = j == lastColumn ? "right" : "left";
 								String value = (String) model.getValueAt(i, j);
 								if (j == 2 && model.hasParser(i)) {
-									value = "<a href=\"view-chart?vehicle=" + vehicle_id + "&pid=" + pid + "\">" + value + "</a>";
+									value = "<a href=\"exec?cmd=ViewChart&vehicle=" + vehicle_id + "&pid=" + pid + "\">" + value + "</a>";
 								}
 					%>
 					<div class="divTableCell" align=<%=alignment%>><%=value%></div>

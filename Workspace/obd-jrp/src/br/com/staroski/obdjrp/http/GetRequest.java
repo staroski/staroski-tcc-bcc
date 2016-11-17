@@ -30,7 +30,11 @@ final class GetRequest {
 		StringBuilder text = new StringBuilder(url);
 		int count = params.size();
 		if (count > 0) {
-			text.append("?");
+			if (url.indexOf('?') != -1) { // já tem um parametro na propria url?
+				text.append("&");
+			} else {
+				text.append("?");
+			}
 			for (int i = 0; i < count; i++) {
 				if (i > 0) {
 					text.append("&");

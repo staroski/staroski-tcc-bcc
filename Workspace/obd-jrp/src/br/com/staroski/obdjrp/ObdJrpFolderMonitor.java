@@ -138,7 +138,7 @@ public final class ObdJrpFolderMonitor {
 	private boolean upload(File file) {
 		System.out.printf("uploading file \"%s\"%n", file.getAbsolutePath());
 		try {
-			String url = ObdJrpProperties.get().webServer() + "/send-data";
+			String url = ObdJrpProperties.get().webServer() + "/exec?UploadData";
 			boolean accepted = Http.sendPostRequest(url, file);
 			System.out.printf("file %s by server%n", accepted ? "accepted" : "rejected");
 			return accepted;

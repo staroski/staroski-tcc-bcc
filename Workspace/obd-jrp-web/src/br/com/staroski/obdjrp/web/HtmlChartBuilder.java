@@ -18,7 +18,7 @@ public final class HtmlChartBuilder {
 	private static final SimpleDateFormat dateWriter = new SimpleDateFormat("'new Date('yyyy', 'MM', 'dd', 'HH', 'mm', 'ss', 'SSS')'");
 
 	public static String createPage(String vehicle) {
-		File dir = new File(ObdJrpServlet.getDataDir(), vehicle);
+		File dir = new File(ObdJrpWeb.getDataDir(), vehicle);
 		CSV csv = CSV.createSingleCSV(dir);
 		if (csv.isEmpty()) {
 			return "There is no data for vehicle " + vehicle;
