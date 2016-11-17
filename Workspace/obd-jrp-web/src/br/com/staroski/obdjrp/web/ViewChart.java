@@ -1,20 +1,12 @@
 package br.com.staroski.obdjrp.web;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import br.com.staroski.obdjrp.data.Scan;
-import br.com.staroski.obdjrp.utils.CSV;
 import br.com.staroski.obdjrp.utils.Conversions;
 
 final class ViewChart implements Command {
@@ -23,7 +15,7 @@ final class ViewChart implements Command {
 	public String execute(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		String vehicleId = request.getParameter("vehicle");
 		String pid = request.getParameter("pid");
-		String chart = request.getParameter("data");
+		String chart = request.getParameter("chart");
 		if (vehicleId == null || vehicleId.isEmpty()) {
 			return null;
 		}
@@ -32,11 +24,10 @@ final class ViewChart implements Command {
 		}
 
 		Scan lastScan = ObdJrpWeb.getLastScan(vehicleId);
-		CSV csv = createCSV(vehicleId, pid);
-		JsonChartBuilder chartBuilder = new JsonChartBuilder(csv);
+		ChartBuilder chartBuilder = new ChartBuilder(vehicleId, pid);
 
 		if (chart != null && !chart.isEmpty()) {
-			String data = chartBuilder.createJsonChartData(Integer.parseInt(chart));
+			String data = chartBuilder.createChartData(Integer.parseInt(chart));
 			response.getWriter().write(data);
 			return null;
 		}
@@ -48,21 +39,4 @@ final class ViewChart implements Command {
 		return "vehicle-chart.jsp";
 	}
 
-	private CSV createCSV(String vehicleId, String pid) throws IOException {
-		File dir = ObdJrpWeb.getScanDir(vehicleId);
-		List<File> files = new ArrayList<>();
-		files.addAll(Arrays.asList(dir.listFiles(ObdJrpWeb.SCAN_FILES)));
-		Collections.sort(files, ObdJrpWeb.OLD_FILE_FIRST);
-		List<Scan> scans = new ArrayList<>();
-		for (File file : files) {
-			try {
-				FileInputStream input = new FileInputStream(file);
-				scans.add(Scan.readFrom(input));
-				input.close();
-			} catch (FileNotFoundException e) {
-				// ignorar
-			}
-		}
-		return CSV.createSingleCSV(scans, pid);
-	}
 }
