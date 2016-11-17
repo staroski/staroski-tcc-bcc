@@ -22,18 +22,29 @@ final class ViewChart implements Command {
 	@Override
 	public String execute(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		String vehicleId = request.getParameter("vehicle");
+		String pid = request.getParameter("pid");
+		String chart = request.getParameter("data");
 		if (vehicleId == null || vehicleId.isEmpty()) {
 			return null;
 		}
-		String pid = request.getParameter("pid");
 		if (pid == null || pid.isEmpty()) {
 			return null;
 		}
+
 		Scan lastScan = ObdJrpWeb.getLastScan(vehicleId);
+		CSV csv = createCSV(vehicleId, pid);
+		JsonChartBuilder chartBuilder = new JsonChartBuilder(csv);
+
+		if (chart != null && !chart.isEmpty()) {
+			String data = chartBuilder.createJsonChartData(Integer.parseInt(chart));
+			response.getWriter().write(data);
+			return null;
+		}
+
 		request.setAttribute("vehicle", vehicleId);
 		request.setAttribute("vehicle_description", new String(Conversions.hexasToBytes(vehicleId)));
 		request.setAttribute("scan_time", lastScan.getTime());
-		request.setAttribute("chart_builder", new HtmlChartBuilder(createCSV(vehicleId, pid)));
+		request.setAttribute("chart_builder", chartBuilder);
 		return "vehicle-chart.jsp";
 	}
 
