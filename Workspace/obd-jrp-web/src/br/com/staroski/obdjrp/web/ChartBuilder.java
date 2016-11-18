@@ -32,7 +32,7 @@ public final class ChartBuilder {
 		this.csv = createCSV();
 	}
 
-	public String createChartData(int number) {
+	public String createChartData(int header) {
 		StringBuilder json = new StringBuilder();
 		json.append("{\n");
 		json.append("  \"cols\": [{\"label\": \"Moment\", \"type\": \"datetime\"},{\"label\": \"Value\",  \"type\": \"number\"}],\n");
@@ -40,7 +40,7 @@ public final class ChartBuilder {
 		for (int line = 0, lines = csv.getLines(); line < lines; line++) {
 			try {
 				String moment = String.format("Date(%d)", dateReader.parse(csv.getValueAt(line, 0)).getTime());
-				String value = csv.getValueAt(line, number).replace(',', '.');
+				String value = csv.getValueAt(line, header).replace(',', '.');
 				if (line > 0) {
 					json.append(",\n         ");
 				}
@@ -78,28 +78,42 @@ public final class ChartBuilder {
 		StringBuilder lines = new StringBuilder();
 		lines.append(String.format("google.charts.setOnLoadCallback(load_page_data);\n"));
 		lines.append(String.format("function load_page_data(){\n"));
-		for (int number = 1, size = csv.getHeaders(); number < size; number++) {
-			lines.append(String.format("    $.ajax({\n", number));
-			lines.append(String.format("        url: 'exec?cmd=ViewChart&vehicle=%s&pid=%s&chart=%d',\n", vehicleId, pid, number));
-			lines.append(String.format("        success: function (data) {\n"));
-			lines.append(String.format("            %s%03d(data);\n", DRAW_CHART_PREFIX, number, number));
-			lines.append(String.format("        },\n"));
-			lines.append(String.format("        error: function (error) {\n"));
-			lines.append(String.format("            alert('Error:' + error);\n"));
-			lines.append(String.format("        }\n"));
-			lines.append(String.format("    });\n"));
+		int csv_headers = csv.getHeaders();
+		lines.append(String.format("    $.ajax({\n"));
+		lines.append(String.format("        url: 'exec?cmd=ViewChart&vehicle=%s&pid=%s&chart=%s',\n", vehicleId, pid, getChartParam(csv_headers)));
+		lines.append(String.format("        success: function (data) {\n"));
+		lines.append(String.format("                var json = eval( '(' + data + ')' );\n"));
+		for (int csv_header = 1; csv_header < csv_headers; csv_header++) {
+			lines.append(String.format("                %s%03d(json.items[%d]);\n", DRAW_CHART_PREFIX, csv_header, csv_header - 1));
 		}
+		lines.append(String.format("        },\n"));
+		lines.append(String.format("        error: function (error) {\n"));
+		lines.append(String.format("            alert('Error:' + error);\n"));
+		lines.append(String.format("        }\n"));
+		lines.append(String.format("    });\n"));
 		lines.append(String.format("}\n"));
 		return lines.toString();
 	}
 
+	private Object getChartParam(int csv_headers) {
+		StringBuilder params = new StringBuilder();
+		for (int i = 1; i < csv_headers; i++) {
+			if (i > 1) {
+				params.append(',');
+			}
+			params.append(i);
+		}
+		return params.toString();
+	}
+
 	private String createChartFunctionDeclarations() {
 		StringBuilder lines = new StringBuilder();
-		for (int number = 1, size = csv.getHeaders(); number < size; number++) {
-			lines.append(String.format("function %s%03d(chart_data) {\n", DRAW_CHART_PREFIX, number));
+		int csv_headers = csv.getHeaders();
+		for (int csv_header = 1; csv_header < csv_headers; csv_header++) {
+			lines.append(String.format("function %s%03d(chart_data) {\n", DRAW_CHART_PREFIX, csv_header));
 			lines.append(String.format("    var data = new google.visualization.DataTable(chart_data);\n"));
 			lines.append(String.format("    var options = {\n"));
-			lines.append(String.format("        title: '%s',\n", csv.getHeader(number)));
+			lines.append(String.format("        title: '%s',\n", csv.getHeader(csv_header)));
 			lines.append(String.format("        curveType: 'function',\n"));
 			lines.append(String.format("        legend: { position: 'none' },\n"));
 			lines.append(String.format("        enableInteractivity: true,\n"));
@@ -119,7 +133,7 @@ public final class ChartBuilder {
 			lines.append(String.format("            }\n"));
 			lines.append(String.format("        }\n"));
 			lines.append(String.format("    };\n"));
-			lines.append(String.format("    var chart = new google.visualization.LineChart(document.getElementById('%s%03d'));\n", DIV_CHART_ID_PREFIX, number));
+			lines.append(String.format("    var chart = new google.visualization.LineChart(document.getElementById('%s%03d'));\n", DIV_CHART_ID_PREFIX, csv_header));
 			lines.append(String.format("    chart.draw(data, options);\n"));
 			lines.append(String.format("}\n"));
 		}

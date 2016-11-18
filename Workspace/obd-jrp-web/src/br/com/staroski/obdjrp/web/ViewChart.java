@@ -27,8 +27,18 @@ final class ViewChart implements Command {
 		ChartBuilder chartBuilder = new ChartBuilder(vehicleId, pid);
 
 		if (chart != null && !chart.isEmpty()) {
-			String data = chartBuilder.createChartData(Integer.parseInt(chart));
-			response.getWriter().write(data);
+			String[] charts = chart.split(",");
+			StringBuilder builder = new StringBuilder();
+			builder.append("{ \"items\":[");
+			for (int i = 0; i < charts.length; i++) {
+				if (i > 0) {
+					builder.append(",\n");
+				}
+				String data = chartBuilder.createChartData(Integer.parseInt(charts[i]));
+				builder.append(data);
+			}
+			builder.append("]}");
+			response.getWriter().write(builder.toString());
 			return null;
 		}
 
