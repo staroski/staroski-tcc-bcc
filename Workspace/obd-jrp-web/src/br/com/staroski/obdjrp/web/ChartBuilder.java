@@ -91,6 +91,7 @@ public final class ChartBuilder {
 		lines.append(String.format("            alert('Error:' + error);\n"));
 		lines.append(String.format("        }\n"));
 		lines.append(String.format("    });\n"));
+		lines.append(String.format("    setTimeout(load_page_data, 1000);\n"));
 		lines.append(String.format("}\n"));
 		return lines.toString();
 	}

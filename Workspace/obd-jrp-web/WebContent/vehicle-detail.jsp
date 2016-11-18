@@ -7,6 +7,8 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta http-equiv="refresh" content="1">
+
 <link rel="stylesheet" href="styles.css">
 <title>OBD-JRP</title>
 </head>
@@ -23,11 +25,6 @@
 	%>
 	<div id="title" align="center">
 		<h1><%=vehicle_description%></h1>
-	</div>
-	<div align="center">
-		<p>
-			Scanned in
-			<%=formatted_scan_time%></p>
 	</div>
 	<div id="scan-data" align="center">
 		<div class="divTable">

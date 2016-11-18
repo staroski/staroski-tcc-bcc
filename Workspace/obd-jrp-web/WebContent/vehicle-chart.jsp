@@ -21,11 +21,6 @@
 		<h1><%=vehicle_description%></h1>
 	</div>
 	<div align="center">
-		<p>
-			Scanned in
-			<%=formatted_scan_time%></p>
-	</div>
-	<div align="center">
 		<%=chart_builder.createTagDiv()%>
 	</div>
 </body>
