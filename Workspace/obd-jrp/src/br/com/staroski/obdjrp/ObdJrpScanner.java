@@ -12,7 +12,6 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 import br.com.staroski.obdjrp.data.Data;
-import br.com.staroski.obdjrp.data.Package;
 import br.com.staroski.obdjrp.data.Scan;
 import br.com.staroski.obdjrp.elm.ELM327;
 import br.com.staroski.obdjrp.elm.ELM327Error;
@@ -81,7 +80,6 @@ public final class ObdJrpScanner {
 
 		this.eventMulticaster = new EventMulticaster();
 		this.scanLoop = new ScanLoop(this);
-		addListener(new FileHandler());
 	}
 
 	public void addListener(ObdJrpListener listener) {
@@ -175,16 +173,8 @@ public final class ObdJrpScanner {
 		eventMulticaster.onError(error);
 	}
 
-	void notifyFinishPackage(Package dataPackage) {
-		eventMulticaster.onFinishPackage(dataPackage);
-	}
-
 	void notifyScanned(Scan scannedData) {
 		eventMulticaster.onScanned(scannedData);
-	}
-
-	void notifyStartPackage(Package dataPackage) {
-		eventMulticaster.onStartPackage(dataPackage);
 	}
 
 	Scan scan() throws IOException, ELM327Error {

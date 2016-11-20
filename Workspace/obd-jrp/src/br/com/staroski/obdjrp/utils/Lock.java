@@ -14,7 +14,7 @@ public final class Lock {
 				LOCK.wait(timeout);
 			}
 		} catch (InterruptedException e) {
-			throw new RuntimeException(getClass().getSimpleName() + " interrupted!", e);
+			throw new RuntimeException("Lock interrupted!", e);
 		}
 	}
 

@@ -51,7 +51,7 @@ public final class ObdJrpFolderMonitor {
 			public void run() {
 				stop();
 			}
-		}, ObdJrpFolderMonitor.class.getSimpleName() + "_ShutdownHook"));
+		}, "FolderMonitor_ShutdownHook"));
 	}
 
 	public void start() {
@@ -61,9 +61,9 @@ public final class ObdJrpFolderMonitor {
 
 				@Override
 				public void run() {
-					execute();
+					checkDataFolder();
 				}
-			}, ObdJrpFolderMonitor.class.getSimpleName() + "_ScanThread");
+			}, "ObdJrp_FolderMonitor");
 			scanThread.start();
 		}
 	}
@@ -88,16 +88,7 @@ public final class ObdJrpFolderMonitor {
 		begin = System.currentTimeMillis();
 	}
 
-	private void end() {
-		long elapsed = System.currentTimeMillis() - begin;
-		if (elapsed < FIVE_MINUTES) {
-			long timeToWait = FIVE_MINUTES - elapsed;
-			System.out.printf("retrying in %d seconds%n", (timeToWait / 1000));
-			LOCK.lock(timeToWait);
-		}
-	}
-
-	private void execute() {
+	private void checkDataFolder() {
 		do {
 			try {
 				begin();
@@ -120,6 +111,15 @@ public final class ObdJrpFolderMonitor {
 						error.getMessage());
 			}
 		} while (scanning);
+	}
+
+	private void end() {
+		long elapsed = System.currentTimeMillis() - begin;
+		if (elapsed < FIVE_MINUTES) {
+			long timeToWait = FIVE_MINUTES - elapsed;
+			System.out.printf("retrying in %d seconds%n", (timeToWait / 1000));
+			LOCK.lock(timeToWait);
+		}
 	}
 
 	private Queue<File> getFiles() {

@@ -71,7 +71,7 @@ public final class ObdJrpScanData extends ObdJrpApp {
 				stopScanning();
 				startScanning();
 			}
-		}, getClass().getSimpleName() + "_Restarting").start();
+		}, "Scanner_Restarter").start();
 	}
 
 	private void startScanning() {

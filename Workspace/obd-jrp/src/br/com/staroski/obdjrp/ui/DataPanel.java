@@ -13,8 +13,8 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.table.AbstractTableModel;
 
 import br.com.staroski.obdjrp.ObdJrpListener;
+import br.com.staroski.obdjrp.ObdJrpProperties;
 import br.com.staroski.obdjrp.data.Data;
-import br.com.staroski.obdjrp.data.Package;
 import br.com.staroski.obdjrp.data.Parsed;
 import br.com.staroski.obdjrp.data.Parsing;
 import br.com.staroski.obdjrp.data.Scan;
@@ -99,7 +99,8 @@ final class DataPanel extends JPanel implements ObdJrpListener {
 		setLayout(new BorderLayout(5, 5));
 		setOpaque(false);
 
-		labelVehicle = new JLabel("Vehicle:");
+		labelVehicle = new JLabel("Vehicle:" + ObdJrpProperties.get().vehicle());
+
 		add(labelVehicle, BorderLayout.NORTH);
 
 		table = new JTable(new OBD2DataModel());
@@ -122,17 +123,9 @@ final class DataPanel extends JPanel implements ObdJrpListener {
 	}
 
 	@Override
-	public void onFinishPackage(Package dataPackage) {}
-
-	@Override
 	public void onScanned(Scan scannedData) {
 		dataList = scannedData.getData();
 		OBD2DataModel model = (OBD2DataModel) table.getModel();
 		model.update();
-	}
-
-	@Override
-	public void onStartPackage(Package dataPackage) {
-		labelVehicle.setText("Vehicle: " + dataPackage.getVehicle());
 	}
 }

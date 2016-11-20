@@ -31,13 +31,13 @@ final class Disconnector implements Runnable {
 	private final Queue<ELM327> elm327list = new LinkedList<>();
 
 	private Disconnector() {
-		Runtime.getRuntime().addShutdownHook(new Thread(this, getClass().getSimpleName() + "_ShutdownHook"));
+		Runtime.getRuntime().addShutdownHook(new Thread(this, "ELM327_Disconnector_ShutdownHook"));
 	}
 
 	@Override
 	public void run() {
-		String adapter = ELM327.class.getSimpleName();
-		System.out.printf("disconnecting %s pending connections...  ", adapter);
+		final String adapter = "ELM327";
+		System.out.printf("disconnecting %s pending connections...%n", adapter);
 		int count = 0;
 		synchronized (this) {
 			while (!elm327list.isEmpty()) {

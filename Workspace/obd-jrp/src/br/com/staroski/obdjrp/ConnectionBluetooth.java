@@ -10,7 +10,7 @@ import javax.microedition.io.OutputConnection;
 
 import br.com.staroski.obdjrp.bluetooth.Bluetooth;
 
-final class ObdJrpConnectionBluetooth implements ObdJrpConnection {
+final class ConnectionBluetooth implements ObdJrpConnection {
 
 	private final String device;
 	private final String service;
@@ -20,7 +20,7 @@ final class ObdJrpConnectionBluetooth implements ObdJrpConnection {
 	private InputStream input;
 	private OutputStream output;
 
-	ObdJrpConnectionBluetooth(ObdJrpProperties properties) throws IOException {
+	ConnectionBluetooth(ObdJrpProperties properties) throws IOException {
 		device = properties.checkProperty(ObdJrpProperties.BLUETOOTH_DEVICE);
 		service = properties.checkProperty(ObdJrpProperties.BLUETOOTH_SERVICE);
 	}

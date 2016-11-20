@@ -83,7 +83,7 @@ public final class ELM327 {
 		this.logger = checkParam(PrintStream.class, logger);
 		Disconnector.add(this);
 
-		new Thread(new InputReader(), getClass().getSimpleName() + "_Reader").start();
+		new Thread(new InputReader(), "ELM327_InputReader").start();
 	}
 
 	public void disconnect() {

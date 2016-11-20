@@ -72,9 +72,9 @@ public final class ObdJrpProperties {
 		properties.load(file);
 		String connectionType = checkProperty(CONNECTION_TYPE);
 		if (BLUETOOTH.equalsIgnoreCase(connectionType)) {
-			connection = new ObdJrpConnectionBluetooth(this);
+			connection = new ConnectionBluetooth(this);
 		} else if (SOCKET.equalsIgnoreCase(connectionType)) {
-			connection = new ObdJrpConnectionSocket(this);
+			connection = new ConnectionSocket(this);
 		} else {
 			String message = String.format("No support for %s of type %s", CONNECTION_TYPE, connectionType);
 			throw new IllegalStateException(message);

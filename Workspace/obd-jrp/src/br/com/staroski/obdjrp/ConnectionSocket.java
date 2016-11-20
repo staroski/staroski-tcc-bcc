@@ -5,7 +5,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
 
-final class ObdJrpConnectionSocket implements ObdJrpConnection {
+final class ConnectionSocket implements ObdJrpConnection {
 
 	private final String address;
 	private final int port;
@@ -15,7 +15,7 @@ final class ObdJrpConnectionSocket implements ObdJrpConnection {
 	private InputStream input;
 	private OutputStream output;
 
-	ObdJrpConnectionSocket(ObdJrpProperties props) throws IOException {
+	ConnectionSocket(ObdJrpProperties props) throws IOException {
 		address = props.checkProperty(ObdJrpProperties.SOCKET_ADDRESS);
 		port = Integer.parseInt(props.checkProperty(ObdJrpProperties.SOCKET_PORT));
 	}

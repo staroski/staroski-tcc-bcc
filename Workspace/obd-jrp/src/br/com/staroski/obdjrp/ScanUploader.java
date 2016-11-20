@@ -3,16 +3,30 @@ package br.com.staroski.obdjrp;
 import java.io.ByteArrayOutputStream;
 
 import br.com.staroski.obdjrp.data.Scan;
+import br.com.staroski.obdjrp.elm.ELM327Error;
 import br.com.staroski.obdjrp.http.Http;
 import br.com.staroski.obdjrp.utils.Conversions;
 
 final class ScanUploader extends ObdJrpAdapter {
 
-	String url = ObdJrpProperties.get().webServer() + "/send-scan";
+	private final PackagePersister persister;
+
+	ScanUploader() {
+		this.persister = new PackagePersister();
+	}
+
+	@Override
+	public void onError(ELM327Error error) {
+		persister.persist();
+	}
 
 	@Override
 	public void onScanned(Scan scan) {
-		upload(scan);
+		if (upload(scan)) {
+			persister.persist();
+		} else {
+			persister.add(scan);
+		}
 	}
 
 	private boolean upload(Scan dataScan) {

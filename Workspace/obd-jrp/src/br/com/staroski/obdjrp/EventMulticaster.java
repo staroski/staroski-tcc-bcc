@@ -3,7 +3,6 @@ package br.com.staroski.obdjrp;
 import java.util.ArrayList;
 import java.util.List;
 
-import br.com.staroski.obdjrp.data.Package;
 import br.com.staroski.obdjrp.data.Scan;
 import br.com.staroski.obdjrp.elm.ELM327Error;
 
@@ -23,23 +22,9 @@ final class EventMulticaster implements ObdJrpListener {
 	}
 
 	@Override
-	public void onFinishPackage(Package dataPackage) {
-		for (ObdJrpListener listener : listeners) {
-			listener.onFinishPackage(dataPackage);
-		}
-	}
-
-	@Override
 	public void onScanned(Scan scannedData) {
 		for (ObdJrpListener listener : listeners) {
 			listener.onScanned(scannedData);
-		}
-	}
-
-	@Override
-	public void onStartPackage(Package dataPackage) {
-		for (ObdJrpListener listener : listeners) {
-			listener.onStartPackage(dataPackage);
 		}
 	}
 
