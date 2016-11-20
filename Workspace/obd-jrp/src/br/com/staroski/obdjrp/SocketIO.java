@@ -5,7 +5,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
 
-final class ConnectionSocket implements ObdJrpConnection {
+final class SocketIO implements IO {
 
 	private final String address;
 	private final int port;
@@ -15,13 +15,13 @@ final class ConnectionSocket implements ObdJrpConnection {
 	private InputStream input;
 	private OutputStream output;
 
-	ConnectionSocket(ObdJrpProperties props) throws IOException {
-		address = props.checkProperty(ObdJrpProperties.SOCKET_ADDRESS);
-		port = Integer.parseInt(props.checkProperty(ObdJrpProperties.SOCKET_PORT));
+	SocketIO(Config props) throws IOException {
+		address = props.checkProperty(Config.SOCKET_ADDRESS);
+		port = Integer.parseInt(props.checkProperty(Config.SOCKET_PORT));
 	}
 
 	@Override
-	public ObdJrpConnection close() {
+	public IO close() {
 		if (open) {
 			try {
 				input.close();
@@ -51,7 +51,7 @@ final class ConnectionSocket implements ObdJrpConnection {
 	}
 
 	@Override
-	public ObdJrpConnection open() throws IOException {
+	public IO open() throws IOException {
 		if (!open) {
 			socket = new Socket(address, port);
 			input = socket.getInputStream();
@@ -64,7 +64,7 @@ final class ConnectionSocket implements ObdJrpConnection {
 	@Override
 	public String toString() {
 		return String.format("%s address: \"%s\" port: \"%d\"", //
-				ObdJrpProperties.SOCKET, //
+				Config.SOCKET, //
 				address, //
 				port);
 	}

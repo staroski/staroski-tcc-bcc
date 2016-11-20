@@ -9,8 +9,9 @@ import java.util.Queue;
 
 import br.com.staroski.obdjrp.http.Http;
 import br.com.staroski.obdjrp.utils.Lock;
+import br.com.staroski.obdjrp.utils.Print;
 
-public final class ObdJrpFolderMonitor {
+public final class DataMonitor {
 
 	private static final int FIVE_MINUTES = 300000;
 
@@ -44,7 +45,7 @@ public final class ObdJrpFolderMonitor {
 	private boolean scanning;
 	private Thread scanThread;
 
-	public ObdJrpFolderMonitor() {
+	public DataMonitor() {
 		Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
 
 			@Override
@@ -81,35 +82,33 @@ public final class ObdJrpFolderMonitor {
 	}
 
 	private void begin() {
-		ObdJrpProperties props = ObdJrpProperties.get();
-		String server = props.webServer();
-		String folder = props.dataDir().getAbsolutePath();
+		String server = Config.get().webServer();
+		String folder = Config.get().dataDir().getAbsolutePath();
 		System.out.printf("trying to upload data%n  from: \"%s\"%n    to: %s%n", folder, server);
 		begin = System.currentTimeMillis();
 	}
 
 	private void checkDataFolder() {
 		do {
-			try {
-				begin();
-				Queue<File> files = getFiles();
-				while (scanning) {
-					if (files.isEmpty()) {
-						System.out.println("no data to upload!");
-						break;
-					}
-					File file = files.poll();
+			begin();
+			Queue<File> files = getFiles();
+			if (files.isEmpty()) {
+				System.out.println("no data to upload!");
+				continue;
+			}
+			for (File file : files) {
+				try {
 					if (upload(file)) {
 						file.delete();
 					}
+				} catch (Throwable error) {
+					Print.message(error);
 				}
-				end();
-			} catch (Throwable error) {
-				System.out.printf("%s:%s%n", //
-						ObdJrpFolderMonitor.class.getSimpleName(), //
-						error.getClass().getSimpleName(), //
-						error.getMessage());
+				if (!scanning) {
+					return;
+				}
 			}
+			end();
 		} while (scanning);
 	}
 
@@ -124,7 +123,7 @@ public final class ObdJrpFolderMonitor {
 
 	private Queue<File> getFiles() {
 		Queue<File> files = new LinkedList<>();
-		ObdJrpProperties props = ObdJrpProperties.get();
+		Config props = Config.get();
 		File rootFolder = props.dataDir();
 		File[] subFolders = rootFolder.listFiles(DIRS_ONLY);
 		for (File folder : subFolders) {
@@ -138,14 +137,12 @@ public final class ObdJrpFolderMonitor {
 	private boolean upload(File file) {
 		System.out.printf("uploading file \"%s\"%n", file.getAbsolutePath());
 		try {
-			String url = ObdJrpProperties.get().webServer() + "/exec?UploadData";
+			String url = Config.get().webServer() + "/exec?UploadData";
 			boolean accepted = Http.sendPostRequest(url, file);
 			System.out.printf("file %s by server%n", accepted ? "accepted" : "rejected");
 			return accepted;
 		} catch (Exception error) {
-			System.out.printf("%s: %s%n", //
-					error.getClass().getSimpleName(), //
-					error.getMessage());
+			Print.message(error);
 			return false;
 		}
 	}

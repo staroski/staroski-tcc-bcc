@@ -10,15 +10,15 @@ import java.util.Properties;
 import br.com.staroski.obdjrp.data.Package;
 import br.com.staroski.obdjrp.utils.Conversions;
 
-public final class ObdJrpProperties {
+public final class Config {
 
 	private static final class Holder {
 
-		public static final ObdJrpProperties INSTANCE;
+		public static final Config INSTANCE;
 
 		static {
 			try {
-				INSTANCE = new ObdJrpProperties();
+				INSTANCE = new Config();
 			} catch (IOException e) {
 				throw new RuntimeException("Could not load " + FILE_NAME, e);
 			}
@@ -54,7 +54,7 @@ public final class ObdJrpProperties {
 
 	static final String BLUETOOTH_DEVICE = "bluetooth_device";
 
-	public static ObdJrpProperties get() {
+	public static Config get() {
 		return Holder.INSTANCE;
 	}
 
@@ -62,19 +62,19 @@ public final class ObdJrpProperties {
 		return Conversions.isEmpty(value) ? false : "yes".equalsIgnoreCase(value) || "true".equalsIgnoreCase(value);
 	}
 
-	private final ObdJrpConnection connection;
+	private final IO connection;
 
 	private final Properties properties;
 
-	private ObdJrpProperties() throws IOException {
-		InputStream file = ObdJrpProperties.class.getResourceAsStream("/" + FILE_NAME);
+	private Config() throws IOException {
+		InputStream file = Config.class.getResourceAsStream("/" + FILE_NAME);
 		properties = new Properties();
 		properties.load(file);
 		String connectionType = checkProperty(CONNECTION_TYPE);
 		if (BLUETOOTH.equalsIgnoreCase(connectionType)) {
-			connection = new ConnectionBluetooth(this);
+			connection = new BluetoothIO(this);
 		} else if (SOCKET.equalsIgnoreCase(connectionType)) {
-			connection = new ConnectionSocket(this);
+			connection = new SocketIO(this);
 		} else {
 			String message = String.format("No support for %s of type %s", CONNECTION_TYPE, connectionType);
 			throw new IllegalStateException(message);
@@ -89,7 +89,7 @@ public final class ObdJrpProperties {
 		return getProperty(BLUETOOTH_SERVICE);
 	}
 
-	public ObdJrpConnection connection() {
+	public IO connection() {
 		return connection;
 	}
 

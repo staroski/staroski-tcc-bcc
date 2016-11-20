@@ -17,7 +17,7 @@ import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import br.com.staroski.obdjrp.ObdJrpProperties;
+import br.com.staroski.obdjrp.Config;
 import br.com.staroski.obdjrp.data.Data;
 import br.com.staroski.obdjrp.data.Package;
 import br.com.staroski.obdjrp.data.Scan;
@@ -37,14 +37,14 @@ public final class XmlHelper {
 			obd2Element.setAttributeNode(vinAttr);
 
 			Attr timeAttr = document.createAttribute("time");
-			timeAttr.setValue(ObdJrpProperties.get().formatted(new Date(dataPackage.getTime())));
+			timeAttr.setValue(Config.get().formatted(new Date(dataPackage.getTime())));
 			obd2Element.setAttributeNode(timeAttr);
 
 			for (Scan scanned : dataPackage.getScans()) {
 				Element scanElement = document.createElement("scan");
 
 				Attr scanTimeAttr = document.createAttribute("time");
-				scanTimeAttr.setValue(ObdJrpProperties.get().formatted(new Date(scanned.getTime())));
+				scanTimeAttr.setValue(Config.get().formatted(new Date(scanned.getTime())));
 				scanElement.setAttributeNode(scanTimeAttr);
 
 				for (Data data : scanned.getData()) {

@@ -11,7 +11,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import br.com.staroski.obdjrp.ObdJrpProperties;
+import br.com.staroski.obdjrp.Config;
 import br.com.staroski.obdjrp.data.Scan;
 import br.com.staroski.obdjrp.utils.CSV;
 
@@ -20,7 +20,7 @@ public final class ChartBuilder {
 	private static final String DIV_CHART_ID_PREFIX = "chart_";
 	private static final String DRAW_CHART_PREFIX = "drawChart_";
 
-	private static final SimpleDateFormat dateReader = ObdJrpProperties.DATE_FORMAT;
+	private static final SimpleDateFormat dateReader = Config.DATE_FORMAT;
 
 	private String vehicleId;
 	private final String pid;

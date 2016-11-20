@@ -16,21 +16,19 @@ import br.com.staroski.obdjrp.data.Scan;
 import br.com.staroski.obdjrp.elm.ELM327;
 import br.com.staroski.obdjrp.elm.ELM327Error;
 import br.com.staroski.obdjrp.utils.Conversions;
+import br.com.staroski.obdjrp.utils.Print;
 
-public final class ObdJrpScanner {
+public final class Scanner {
 
-	private static final int MAX_READ_TRIES = 10;
-
-	private static final String MODE_1 = "01"; // SHOW CURRENT DATA
-
-	private static final String PROMPT = ">";
-
-	private static final Pattern SUPPORTED_PIDS = Pattern.compile("[0-9A-F]{12}");
+	private static final String OBD2_MODE_1 = "01";
+	private static final String PROMPT_SYMBOL = ">";
+	private static final int READ_TRYOUTS = 10;
+	private static final Pattern PID_BITMASK = Pattern.compile("[0-9A-F]{12}");
 
 	private static PrintStream createLogStream() throws IOException {
-		if (ObdJrpProperties.get().loggingELM327()) {
-			String instant = ObdJrpProperties.get().formatted(new Date());
-			File file = new File(ObdJrpProperties.get().dataDir(), "ELM327_" + instant + ".log");
+		if (Config.get().loggingELM327()) {
+			String instant = Config.get().formatted(new Date());
+			File file = new File(Config.get().dataDir(), "ELM327_" + instant + ".log");
 			return new PrintStream(file);
 		}
 		return System.out;
@@ -43,7 +41,7 @@ public final class ObdJrpScanner {
 		if (offset != -1) {
 			text = text.substring(offset).trim();
 		}
-		offset = text.indexOf(PROMPT);
+		offset = text.indexOf(PROMPT_SYMBOL);
 		if (offset != -1) {
 			text = text.substring(0, offset).trim();
 		}
@@ -55,7 +53,7 @@ public final class ObdJrpScanner {
 		return response + pid;
 	}
 
-	private static ELM327 startupELM327(ObdJrpConnection connection) throws IOException, ELM327Error {
+	private static ELM327 startupELM327(IO connection) throws IOException, ELM327Error {
 		PrintStream log = createLogStream();
 		ELM327 elm327 = new ELM327(connection, log);
 		elm327.execute("ATZ"); // reset
@@ -74,7 +72,7 @@ public final class ObdJrpScanner {
 
 	private final List<String> supportedPIDs;
 
-	public ObdJrpScanner(ObdJrpConnection connection) throws IOException, ELM327Error {
+	public Scanner(IO connection) throws IOException, ELM327Error {
 		elm327 = startupELM327(connection);
 		supportedPIDs = loadSupportedPIDs();
 
@@ -82,24 +80,24 @@ public final class ObdJrpScanner {
 		this.scanLoop = new ScanLoop(this);
 	}
 
-	public void addListener(ObdJrpListener listener) {
+	public void addListener(ScannerListener listener) {
 		eventMulticaster.addListener(listener);
 	}
 
-	public void removeListener(ObdJrpListener listener) {
+	public void removeListener(ScannerListener listener) {
 		eventMulticaster.removeListener(listener);
 	}
 
-	public void startScanning() {
+	public void start() {
 		scanLoop.start();
 	}
 
-	public void stopScanning() {
+	public void stop() {
 		scanLoop.stop();
 		elm327.disconnect();
 	}
 
-	private String execute(String mode, String pid) throws IOException {
+	private String ask(String mode, String pid) throws IOException {
 		String response = elm327.execute(mode + pid).trim();
 		return formatResponse(mode, pid, response);
 	}
@@ -126,6 +124,9 @@ public final class ObdJrpScanner {
 			supportedPIDs.addAll(validPIDs);
 		}
 		supportedPIDs.removeAll(reservedPIDs);
+		if (supportedPIDs.isEmpty()) {
+			throw new UnsupportedOperationException("Vehicle doesn't provide any OBD2 PID!");
+		}
 		return supportedPIDs;
 	}
 
@@ -146,11 +147,11 @@ public final class ObdJrpScanner {
 	}
 
 	private String readPIDsBitmask(String pid) throws IOException, ELM327Error {
-		final String header = responseHeader(MODE_1, pid);
+		final String header = responseHeader(OBD2_MODE_1, pid);
 		String bitmask = null;
-		for (int i = 0; i < MAX_READ_TRIES; i++) {
-			bitmask = execute(MODE_1, pid);
-			if (!SUPPORTED_PIDS.matcher(bitmask).find()) {
+		for (int i = 0; i < READ_TRYOUTS; i++) {
+			bitmask = ask(OBD2_MODE_1, pid);
+			if (!PID_BITMASK.matcher(bitmask).find()) {
 				continue;
 			}
 			if (!bitmask.startsWith(header)) {
@@ -183,20 +184,18 @@ public final class ObdJrpScanner {
 		List<ELM327Error> errors = new ArrayList<>();
 		for (String pid : supportedPIDs) {
 			try {
-				String response = execute(MODE_1, pid);
+				String response = ask(OBD2_MODE_1, pid);
 				if (!isEmpty(response)) {
-					String header = responseHeader(MODE_1, pid);
+					String header = responseHeader(OBD2_MODE_1, pid);
 					response = removeHeader(response, header);
 					dataList.add(new Data(pid, response));
 				}
 			} catch (ELM327Error error) {
-				System.out.printf("%s: %s%n", //
-						error.getClass().getSimpleName(), //
-						error.getMessage());
 				errors.add(error);
+				Print.message(error);
 			}
 		}
-		if (!errors.isEmpty() && errors.size() == supportedPIDs.size()) {
+		if (errors.size() == supportedPIDs.size()) {
 			throw errors.get(0);
 		}
 		return scan;

@@ -4,9 +4,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-public interface ObdJrpConnection {
+public interface IO {
 
-	public ObdJrpConnection close();
+	public IO close();
 
 	public InputStream getInput();
 
@@ -14,5 +14,5 @@ public interface ObdJrpConnection {
 
 	public boolean isOpen();
 
-	public ObdJrpConnection open() throws IOException;
+	public IO open() throws IOException;
 }

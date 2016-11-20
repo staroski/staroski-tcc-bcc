@@ -10,23 +10,25 @@ import javax.microedition.io.OutputConnection;
 
 import br.com.staroski.obdjrp.bluetooth.Bluetooth;
 
-final class ConnectionBluetooth implements ObdJrpConnection {
+final class BluetoothIO implements IO {
 
 	private final String device;
 	private final String service;
 
-	private boolean open;
 	private Connection connection;
+
 	private InputStream input;
 	private OutputStream output;
 
-	ConnectionBluetooth(ObdJrpProperties properties) throws IOException {
-		device = properties.checkProperty(ObdJrpProperties.BLUETOOTH_DEVICE);
-		service = properties.checkProperty(ObdJrpProperties.BLUETOOTH_SERVICE);
+	private boolean open;
+
+	BluetoothIO(Config properties) throws IOException {
+		device = properties.checkProperty(Config.BLUETOOTH_DEVICE);
+		service = properties.checkProperty(Config.BLUETOOTH_SERVICE);
 	}
 
 	@Override
-	public ObdJrpConnection close() {
+	public IO close() {
 		if (open) {
 			try {
 				input.close();
@@ -56,7 +58,7 @@ final class ConnectionBluetooth implements ObdJrpConnection {
 	}
 
 	@Override
-	public ObdJrpConnection open() throws IOException {
+	public IO open() throws IOException {
 		if (!open) {
 			connection = Bluetooth.connect(device, service);
 			input = ((InputConnection) connection).openInputStream();
@@ -69,7 +71,7 @@ final class ConnectionBluetooth implements ObdJrpConnection {
 	@Override
 	public String toString() {
 		return String.format("%s device: \"%s\" service: \"%s\"", //
-				ObdJrpProperties.BLUETOOTH, //
+				Config.BLUETOOTH, //
 				device, //
 				service);
 	}

@@ -12,15 +12,16 @@ import javax.swing.JTable;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.AbstractTableModel;
 
-import br.com.staroski.obdjrp.ObdJrpListener;
-import br.com.staroski.obdjrp.ObdJrpProperties;
+import br.com.staroski.obdjrp.Config;
+import br.com.staroski.obdjrp.ScannerListener;
 import br.com.staroski.obdjrp.data.Data;
 import br.com.staroski.obdjrp.data.Parsed;
 import br.com.staroski.obdjrp.data.Parsing;
 import br.com.staroski.obdjrp.data.Scan;
 import br.com.staroski.obdjrp.elm.ELM327Error;
+import br.com.staroski.obdjrp.utils.Print;
 
-final class DataPanel extends JPanel implements ObdJrpListener {
+final class DataPanel extends JPanel implements ScannerListener {
 
 	private class OBD2DataModel extends AbstractTableModel {
 
@@ -90,7 +91,7 @@ final class DataPanel extends JPanel implements ObdJrpListener {
 	private List<Data> dataList = new LinkedList<>();
 
 	public DataPanel() {
-		setName(getClass().getSimpleName());
+		setName("DataPanel");
 		setBorder(new EmptyBorder(10, 10, 10, 10));
 		setMaximumSize(new Dimension(480, 320));
 		setMinimumSize(new Dimension(480, 320));
@@ -99,7 +100,7 @@ final class DataPanel extends JPanel implements ObdJrpListener {
 		setLayout(new BorderLayout(5, 5));
 		setOpaque(false);
 
-		labelVehicle = new JLabel("Vehicle:" + ObdJrpProperties.get().vehicle());
+		labelVehicle = new JLabel("Vehicle:" + Config.get().vehicle());
 
 		add(labelVehicle, BorderLayout.NORTH);
 
@@ -116,10 +117,7 @@ final class DataPanel extends JPanel implements ObdJrpListener {
 
 	@Override
 	public void onError(ELM327Error error) {
-		String mesage = String.format("%s: %s", //
-				error.getClass().getSimpleName(), //
-				error.getMessage());
-		labelVehicle.setText(mesage);
+		labelVehicle.setText(Print.message(error));
 	}
 
 	@Override

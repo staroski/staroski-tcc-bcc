@@ -4,16 +4,17 @@ import java.io.IOException;
 
 import br.com.staroski.obdjrp.data.Scan;
 import br.com.staroski.obdjrp.elm.ELM327Error;
+import br.com.staroski.obdjrp.utils.Print;
 import br.com.staroski.obdjrp.utils.Timer;
 
 final class ScanLoop {
 
-	private final ObdJrpScanner scanner;
+	private final Scanner scanner;
 
 	private boolean scanning;
 	private Thread loop;
 
-	public ScanLoop(ObdJrpScanner scanner) {
+	public ScanLoop(Scanner scanner) {
 		this.scanner = scanner;
 		scanner.addListener(new ScanUploader());
 	}
@@ -31,9 +32,7 @@ final class ScanLoop {
 					scanData();
 				} catch (Throwable error) {
 					scanning = false;
-					System.out.printf("%s: %s%n", //
-							error.getClass().getSimpleName(), //
-							error.getMessage());
+					Print.message(error);
 					scanner.notifyError(ELM327Error.wrap(error));
 				}
 			}
@@ -67,9 +66,7 @@ final class ScanLoop {
 				scanner.notifyScanned(scan);
 			} catch (ELM327Error error) {
 				scanning = false;
-				System.out.printf("%s: %s%n", //
-						error.getClass().getSimpleName(), //
-						error.getMessage());
+				Print.message(error);
 				scanner.notifyError(error);
 			}
 		}

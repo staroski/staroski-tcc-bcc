@@ -9,6 +9,7 @@ import java.util.List;
 
 import br.com.staroski.obdjrp.data.Package;
 import br.com.staroski.obdjrp.data.Scan;
+import br.com.staroski.obdjrp.utils.Print;
 import br.com.staroski.obdjrp.utils.XmlHelper;
 
 final class PackagePersister {
@@ -27,7 +28,7 @@ final class PackagePersister {
 	}
 
 	public void add(Scan scan) {
-		final int limit = ObdJrpProperties.get().dataMaxScans();
+		final int limit = Config.get().dataMaxScans();
 		List<Scan> scannedData = dataPackage.getScans();
 		System.out.printf("adding data %d of %d to data package...%n", scannedData.size() + 1, limit);
 		scannedData.add(scan);
@@ -42,24 +43,22 @@ final class PackagePersister {
 			return;
 		}
 		System.out.println("trying to persist data package...");
-		ObdJrpProperties props = ObdJrpProperties.get();
+		Config props = Config.get();
 		try {
 			if (props.savingPackageAsXml()) {
 				persistXml(dataPackage);
 			}
 			persistObd(dataPackage);
 			System.out.println("data package persisted!");
-		} catch (IOException e) {
-			System.out.printf("%s: %s%n", //
-					e.getClass().getSimpleName(), //
-					e.getMessage());
+		} catch (IOException error) {
+			Print.message(error);
 		} finally {
 			startNewPackage();
 		}
 	}
 
 	private File getDataDir(Package dataPackage) {
-		ObdJrpProperties props = ObdJrpProperties.get();
+		Config props = Config.get();
 		File folder = props.dataDir();
 		File file = new File(folder, dataPackage.getVehicle());
 		if (!file.exists()) {
@@ -70,7 +69,7 @@ final class PackagePersister {
 
 	private File getFile(Package dataPackage, String extension) throws IOException {
 		File file = getDataDir(dataPackage);
-		String name = ObdJrpProperties.get().formatted(new Date(dataPackage.getTime()));
+		String name = Config.get().formatted(new Date(dataPackage.getTime()));
 		file = new File(file, name + extension);
 		file.createNewFile();
 		return file;
@@ -97,7 +96,7 @@ final class PackagePersister {
 	}
 
 	private void startNewPackage() {
-		final String vehicle = ObdJrpProperties.get().vehicle();
+		final String vehicle = Config.get().vehicle();
 		dataPackage = new Package(vehicle, System.currentTimeMillis());
 	}
 }

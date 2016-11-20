@@ -15,7 +15,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import br.com.staroski.obdjrp.ObdJrpProperties;
+import br.com.staroski.obdjrp.Config;
 import br.com.staroski.obdjrp.data.Scan;
 import br.com.staroski.obdjrp.utils.Conversions;
 
@@ -41,7 +41,7 @@ final class SendData implements Command {
 
 	private File getFile(String vehicleId, Scan scan, String extension) throws IOException {
 		File dir = ObdJrpWeb.getScanDir(vehicleId);
-		String name = ObdJrpProperties.get().formatted(new Date(scan.getTime()));
+		String name = Config.get().formatted(new Date(scan.getTime()));
 		File file = new File(dir, name + extension);
 		file.createNewFile();
 		return file;

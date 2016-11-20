@@ -9,7 +9,7 @@ import java.util.List;
 import javax.imageio.ImageIO;
 import javax.swing.JFrame;
 
-import br.com.staroski.obdjrp.ObdJrpListener;
+import br.com.staroski.obdjrp.ScannerListener;
 
 public final class ScannerWindow extends JFrame {
 
@@ -27,7 +27,7 @@ public final class ScannerWindow extends JFrame {
 		pack();
 	}
 
-	public ObdJrpListener getObdJrpListener() {
+	public ScannerListener getObdJrpListener() {
 		return dataPanel;
 	}
 

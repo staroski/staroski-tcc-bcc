@@ -9,7 +9,7 @@ import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
-import br.com.staroski.obdjrp.ObdJrpProperties;
+import br.com.staroski.obdjrp.Config;
 import br.com.staroski.obdjrp.utils.CSV;
 
 public final class Scan {
@@ -63,7 +63,7 @@ public final class Scan {
 
 	public String createCsvLine() {
 		StringBuilder line = new StringBuilder();
-		line.append(ObdJrpProperties.get().formatted(new Date(getTime())));
+		line.append(Config.get().formatted(new Date(getTime())));
 		for (Data data : getData()) {
 			Parsed parsed = Parsing.parse(data);
 			if (!parsed.isUnknown()) {
@@ -75,7 +75,7 @@ public final class Scan {
 
 	public String createCsvLine(String pid) {
 		StringBuilder line = new StringBuilder();
-		line.append(ObdJrpProperties.get().formatted(new Date(getTime())));
+		line.append(Config.get().formatted(new Date(getTime())));
 		for (Data data : getData()) {
 			if (!pid.equalsIgnoreCase(data.getPID())) {
 				continue;

@@ -13,7 +13,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.Part;
 
-import br.com.staroski.obdjrp.ObdJrpProperties;
+import br.com.staroski.obdjrp.Config;
 import br.com.staroski.obdjrp.data.Package;
 import br.com.staroski.obdjrp.utils.CSV;
 import br.com.staroski.obdjrp.utils.Conversions;
@@ -37,7 +37,7 @@ final class UploadData implements Command {
 		String vehicle = dataPackage.getVehicle();
 		String vehicle_id = Conversions.bytesToHexas(vehicle.getBytes());
 		File file = ObdJrpWeb.getVehicleDir(vehicle_id);
-		String name = ObdJrpProperties.get().formatted(new Date(dataPackage.getTime()));
+		String name = Config.get().formatted(new Date(dataPackage.getTime()));
 		file = new File(file, name + extension);
 		file.createNewFile();
 		return file;

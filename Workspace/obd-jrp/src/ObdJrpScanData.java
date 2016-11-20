@@ -4,13 +4,14 @@ import java.io.IOException;
 
 import javax.swing.UIManager;
 
-import br.com.staroski.obdjrp.ObdJrpAdapter;
-import br.com.staroski.obdjrp.ObdJrpConnection;
-import br.com.staroski.obdjrp.ObdJrpListener;
-import br.com.staroski.obdjrp.ObdJrpProperties;
-import br.com.staroski.obdjrp.ObdJrpScanner;
+import br.com.staroski.obdjrp.Config;
+import br.com.staroski.obdjrp.IO;
+import br.com.staroski.obdjrp.Scanner;
+import br.com.staroski.obdjrp.ScannerListener;
+import br.com.staroski.obdjrp.data.Scan;
 import br.com.staroski.obdjrp.elm.ELM327Error;
 import br.com.staroski.obdjrp.ui.ScannerWindow;
+import br.com.staroski.obdjrp.utils.Print;
 
 public final class ObdJrpScanData extends ObdJrpApp {
 
@@ -24,15 +25,18 @@ public final class ObdJrpScanData extends ObdJrpApp {
 		}
 	}
 
-	private ObdJrpScanner scanner;
+	private Scanner scanner;
 	private ScannerWindow scannerWindow;
 
-	private final ObdJrpListener errorListener = new ObdJrpAdapter() {
+	private final ScannerListener errorListener = new ScannerListener() {
 
 		@Override
 		public void onError(ELM327Error error) {
 			restartAfterError(error);
 		}
+
+		@Override
+		public void onScanned(Scan scannedData) {}
 	};
 
 	private ObdJrpScanData() throws IOException {
@@ -75,23 +79,21 @@ public final class ObdJrpScanData extends ObdJrpApp {
 	}
 
 	private void startScanning() {
-		final ObdJrpProperties props = ObdJrpProperties.get();
-		final ObdJrpConnection connection = props.connection();
+		final Config props = Config.get();
+		final IO connection = props.connection();
 		final ScannerWindow window = getScannerWindow();
-		final ObdJrpListener windowListener = window.getObdJrpListener();
+		final ScannerListener windowListener = window.getObdJrpListener();
 		window.setVisible(true);
 		while (!connection.isOpen()) {
 			System.out.println("trying to connect with " + connection);
 			try {
-				scanner = new ObdJrpScanner(connection.open());
+				scanner = new Scanner(connection.open());
 				scanner.addListener(errorListener);
 				scanner.addListener(windowListener);
-				scanner.startScanning();
+				scanner.start();
 				System.out.println("successfull connected!");
 			} catch (IOException | ELM327Error error) {
-				System.out.printf("%s: %s%n", //
-						error.getClass().getSimpleName(), //
-						error.getMessage());
+				Print.message(error);
 				if (scanner != null) {
 					scanner.removeListener(errorListener);
 					scanner.removeListener(windowListener);
@@ -103,7 +105,7 @@ public final class ObdJrpScanData extends ObdJrpApp {
 
 	private void stopScanning() {
 		if (scanner != null) {
-			scanner.stopScanning();
+			scanner.stop();
 			System.out.println("stopped scanning!");
 		}
 	}

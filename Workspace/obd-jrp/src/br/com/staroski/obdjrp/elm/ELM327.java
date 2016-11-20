@@ -6,7 +6,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintStream;
 
-import br.com.staroski.obdjrp.ObdJrpConnection;
+import br.com.staroski.obdjrp.IO;
 import br.com.staroski.obdjrp.utils.Lock;
 
 public final class ELM327 {
@@ -33,9 +33,10 @@ public final class ELM327 {
 		}
 	}
 
-	public static final char PROMPT = '>';
+	private static final int TIMEOUT = 1000;
 
-	public static final char RETURN = '\r';
+	private static final char PROMPT = '>';
+	private static final char RETURN = '\r';
 
 	private static String checkError(String response) throws ELM327Error {
 		ELM327Error error = ELM327Error.findError(response);
@@ -52,34 +53,21 @@ public final class ELM327 {
 		return instance;
 	}
 
-	private static String prepareCommand(String command) {
-		command = command.trim();
-		if (command.charAt(command.length() - 1) != RETURN) {
-			return command + RETURN;
-		}
-		return command;
-	}
-
-	private static String prepareResponse(byte[] bytes) {
-		String text = new String(bytes);
-		text = text.trim();
-		return text;
-	}
-
 	private Throwable readError;
 
 	private final Lock LOCK = new Lock();
+
 	private final ByteArrayOutputStream buffer = new ByteArrayOutputStream(1024);
 
 	private final PrintStream logger;
-	private final ObdJrpConnection connection;
+	private final IO connection;
 
-	public ELM327(ObdJrpConnection connection) throws IOException {
+	public ELM327(IO connection) throws IOException {
 		this(connection, System.out);
 	}
 
-	public ELM327(ObdJrpConnection connection, PrintStream logger) throws IOException {
-		this.connection = checkParam(ObdJrpConnection.class, connection);
+	public ELM327(IO connection, PrintStream logger) throws IOException {
+		this.connection = checkParam(IO.class, connection);
 		this.logger = checkParam(PrintStream.class, logger);
 		Disconnector.add(this);
 
@@ -93,14 +81,10 @@ public final class ELM327 {
 
 	public String execute(String command) throws ELM327Error {
 		command = prepareCommand(command);
-		log("command:%n\"%s\"%n", command);
-
 		byte[] bytes = command.getBytes();
-		messageWrite(bytes);
-		bytes = messageRead();
-
+		writeMessage(bytes);
+		bytes = readMessage();
 		String response = prepareResponse(bytes);
-		log("response:%n\"%s\"%n%n", response);
 		return checkError(response);
 	}
 
@@ -108,8 +92,24 @@ public final class ELM327 {
 		logger.printf(format, value.replaceAll("\r", "\\\\r"));
 	}
 
-	private byte[] messageRead() throws ELM327Error {
-		LOCK.lock(1000);
+	private String prepareCommand(String command) {
+		command = command.trim();
+		if (command.charAt(command.length() - 1) != RETURN) {
+			command = command + RETURN;
+		}
+		log("command:%n\"%s\"%n", command);
+		return command;
+	}
+
+	private String prepareResponse(byte[] bytes) {
+		String text = new String(bytes);
+		text = text.trim();
+		log("response:%n\"%s\"%n%n", text);
+		return text;
+	}
+
+	private byte[] readMessage() throws ELM327Error {
+		LOCK.lock(TIMEOUT);
 		if (readError != null) {
 			try {
 				throw ELM327Error.wrap(readError);
@@ -120,7 +120,7 @@ public final class ELM327 {
 		return buffer.toByteArray();
 	}
 
-	private void messageWrite(byte[] command) throws ELM327Error {
+	private void writeMessage(byte[] command) throws ELM327Error {
 		try {
 			synchronized (connection) {
 				buffer.reset();

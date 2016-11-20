@@ -3,7 +3,7 @@ package br.com.staroski.obdjrp.data;
 import java.util.HashMap;
 import java.util.Map;
 
-import br.com.staroski.obdjrp.ObdJrpProperties;
+import br.com.staroski.obdjrp.Config;
 
 @SuppressWarnings("unchecked")
 public final class Parsing {
@@ -17,7 +17,7 @@ public final class Parsing {
 		String pid = data.getPID();
 		Parser parser = PARSERS.get(pid);
 		if (parser == null) {
-			ObdJrpProperties properties = ObdJrpProperties.get();
+			Config properties = Config.get();
 			String className = properties.parser(pid);
 			if (className == null) {
 				return Parsed.EMPTY;

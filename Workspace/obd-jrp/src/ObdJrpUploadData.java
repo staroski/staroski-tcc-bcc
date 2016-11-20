@@ -1,6 +1,7 @@
 import java.io.IOException;
 
-import br.com.staroski.obdjrp.ObdJrpFolderMonitor;
+import br.com.staroski.obdjrp.DataMonitor;
+import br.com.staroski.obdjrp.utils.Print;
 
 public final class ObdJrpUploadData extends ObdJrpApp {
 
@@ -20,12 +21,9 @@ public final class ObdJrpUploadData extends ObdJrpApp {
 
 	private void execute() {
 		try {
-			new ObdJrpFolderMonitor().start();
+			new DataMonitor().start();
 		} catch (Exception error) {
-			System.out.printf("%s aborted!%n%s:%s%n", //
-					ObdJrpFolderMonitor.class.getSimpleName(), //
-					error.getClass().getSimpleName(), //
-					error.getMessage());
+			Print.message(error);
 		}
 	}
 }

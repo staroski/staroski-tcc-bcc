@@ -6,9 +6,9 @@ import java.util.List;
 import br.com.staroski.obdjrp.data.Scan;
 import br.com.staroski.obdjrp.elm.ELM327Error;
 
-final class EventMulticaster implements ObdJrpListener {
+final class EventMulticaster implements ScannerListener {
 
-	private final List<ObdJrpListener> listeners;
+	private final List<ScannerListener> listeners;
 
 	EventMulticaster() {
 		listeners = new ArrayList<>();
@@ -16,23 +16,23 @@ final class EventMulticaster implements ObdJrpListener {
 
 	@Override
 	public void onError(ELM327Error error) {
-		for (ObdJrpListener listener : listeners) {
+		for (ScannerListener listener : listeners) {
 			listener.onError(error);
 		}
 	}
 
 	@Override
 	public void onScanned(Scan scannedData) {
-		for (ObdJrpListener listener : listeners) {
+		for (ScannerListener listener : listeners) {
 			listener.onScanned(scannedData);
 		}
 	}
 
-	void addListener(ObdJrpListener listener) {
+	void addListener(ScannerListener listener) {
 		listeners.add(listener);
 	}
 
-	void removeListener(ObdJrpListener listener) {
+	void removeListener(ScannerListener listener) {
 		listeners.remove(listener);
 	}
 }

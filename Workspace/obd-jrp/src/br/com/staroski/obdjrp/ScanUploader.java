@@ -6,8 +6,9 @@ import br.com.staroski.obdjrp.data.Scan;
 import br.com.staroski.obdjrp.elm.ELM327Error;
 import br.com.staroski.obdjrp.http.Http;
 import br.com.staroski.obdjrp.utils.Conversions;
+import br.com.staroski.obdjrp.utils.Print;
 
-final class ScanUploader extends ObdJrpAdapter {
+final class ScanUploader implements ScannerListener {
 
 	private final PackagePersister persister;
 
@@ -29,9 +30,7 @@ final class ScanUploader extends ObdJrpAdapter {
 				try {
 					tryUpload(scan);
 				} catch (Exception error) {
-					System.out.printf("%s: %s%n", //
-							error.getClass().getSimpleName(), //
-							error.getMessage());
+					Print.message(error);
 				}
 			}
 		}, "ScanUploader_Thread");
@@ -49,8 +48,8 @@ final class ScanUploader extends ObdJrpAdapter {
 	private boolean upload(Scan dataScan) {
 		System.out.printf("sending scan to server%n");
 		try {
-			String url = ObdJrpProperties.get().webServer() + "/exec?cmd=SendData";
-			byte[] bytes = ObdJrpProperties.get().vehicle().getBytes();
+			String url = Config.get().webServer() + "/exec?cmd=SendData";
+			byte[] bytes = Config.get().vehicle().getBytes();
 			String vehicle = Conversions.bytesToHexas(bytes);
 			bytes = dataScan.writeTo(new ByteArrayOutputStream()).toByteArray();
 			String scan = Conversions.bytesToHexas(bytes);
@@ -62,9 +61,7 @@ final class ScanUploader extends ObdJrpAdapter {
 			System.out.printf("scan %s by server%n", accepted ? "accepted" : "rejected");
 			return accepted;
 		} catch (Exception error) {
-			System.out.printf("%s: %s%n", //
-					error.getClass().getSimpleName(), //
-					error.getMessage());
+			Print.message(error);
 			return false;
 		}
 	}
