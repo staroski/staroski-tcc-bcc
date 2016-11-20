@@ -5,12 +5,13 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
+import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import java.util.List;
 
 public final class Http {
 
-	private static final int CONNECT_TIMEOUT = 5000; // 5 seconds
+	private static final int TIMEOUT = 5000; // 5 seconds
 
 	public static boolean sendGetRequest(String url, String[][] params) throws IOException {
 		GetRequest get = new GetRequest(url);
@@ -31,20 +32,25 @@ public final class Http {
 	}
 
 	static List<String> readResponse(HttpURLConnection httpConn) throws IOException {
-		httpConn.setConnectTimeout(CONNECT_TIMEOUT);
-		List<String> response = new ArrayList<>();
-		int status = httpConn.getResponseCode();
-		if (status == HttpURLConnection.HTTP_OK) {
-			BufferedReader reader = new BufferedReader(new InputStreamReader(httpConn.getInputStream()));
-			String line = null;
-			while ((line = reader.readLine()) != null) {
-				response.add(line);
+		final List<String> response = new ArrayList<>();
+		try {
+			httpConn.setConnectTimeout(TIMEOUT);
+			httpConn.setReadTimeout(TIMEOUT);
+			int status = httpConn.getResponseCode();
+			if (status == HttpURLConnection.HTTP_OK) {
+				BufferedReader reader = new BufferedReader(new InputStreamReader(httpConn.getInputStream()));
+				String line = null;
+				while ((line = reader.readLine()) != null) {
+					response.add(line);
+				}
+				reader.close();
+				httpConn.disconnect();
+				return response;
+			} else {
+				throw new IOException("Server returned non-OK status: " + status);
 			}
-			reader.close();
-			httpConn.disconnect();
+		} catch (SocketTimeoutException timeout) {
 			return response;
-		} else {
-			throw new IOException("Server returned non-OK status: " + status);
 		}
 	}
 
