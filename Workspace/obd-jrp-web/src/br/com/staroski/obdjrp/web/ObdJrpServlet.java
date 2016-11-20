@@ -38,10 +38,11 @@ public final class ObdJrpServlet extends HttpServlet {
 	}
 
 	private void process(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		String forward = getCommand(request).execute(request, response);
-		if (forward != null) {
+		Command command = getCommand(request);
+		String result = command.execute(request, response);
+		if (result != null) {
 			response.setHeader("Cache-Control", "no-cache");
-			request.getRequestDispatcher(forward).forward(request, response);
+			request.getRequestDispatcher(result).forward(request, response);
 		}
 	}
 
