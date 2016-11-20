@@ -21,7 +21,24 @@ final class ScanUploader extends ObdJrpAdapter {
 	}
 
 	@Override
-	public void onScanned(Scan scan) {
+	public void onScanned(final Scan scan) {
+		Thread thread = new Thread(new Runnable() {
+
+			@Override
+			public void run() {
+				try {
+					tryUpload(scan);
+				} catch (Exception error) {
+					System.out.printf("%s: %s%n", //
+							error.getClass().getSimpleName(), //
+							error.getMessage());
+				}
+			}
+		}, "ScanUploader_Thread");
+		thread.start();
+	}
+
+	private void tryUpload(Scan scan) {
 		if (upload(scan)) {
 			persister.persist();
 		} else {

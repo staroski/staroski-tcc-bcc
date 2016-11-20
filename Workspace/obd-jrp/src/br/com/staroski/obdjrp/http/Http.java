@@ -10,6 +10,8 @@ import java.util.List;
 
 public final class Http {
 
+	private static final int CONNECT_TIMEOUT = 5000; // 5 seconds
+
 	public static boolean sendGetRequest(String url, String[][] params) throws IOException {
 		GetRequest get = new GetRequest(url);
 		for (String[] param : params) {
@@ -29,6 +31,7 @@ public final class Http {
 	}
 
 	static List<String> readResponse(HttpURLConnection httpConn) throws IOException {
+		httpConn.setConnectTimeout(CONNECT_TIMEOUT);
 		List<String> response = new ArrayList<>();
 		int status = httpConn.getResponseCode();
 		if (status == HttpURLConnection.HTTP_OK) {
