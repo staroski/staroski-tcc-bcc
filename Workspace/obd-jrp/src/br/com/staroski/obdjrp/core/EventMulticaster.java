@@ -1,4 +1,4 @@
-package br.com.staroski.obdjrp;
+package br.com.staroski.obdjrp.core;
 
 import java.util.ArrayList;
 import java.util.List;

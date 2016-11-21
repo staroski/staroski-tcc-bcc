@@ -11,7 +11,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import br.com.staroski.obdjrp.Config;
+import br.com.staroski.obdjrp.core.Config;
 import br.com.staroski.obdjrp.data.Scan;
 import br.com.staroski.obdjrp.utils.CSV;
 

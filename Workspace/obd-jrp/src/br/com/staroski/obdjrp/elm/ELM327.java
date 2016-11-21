@@ -6,7 +6,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintStream;
 
-import br.com.staroski.obdjrp.IO;
+import br.com.staroski.obdjrp.core.IO;
 import br.com.staroski.obdjrp.utils.Lock;
 
 public final class ELM327 {

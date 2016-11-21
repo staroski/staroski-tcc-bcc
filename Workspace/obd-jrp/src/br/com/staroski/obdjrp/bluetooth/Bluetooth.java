@@ -42,6 +42,8 @@ public final class Bluetooth {
 		}
 	}
 
+	private static final DeviceDiscovery DEVICE_LISTENER = new DeviceDiscovery();
+
 	// listener para descoberta de servicos
 	private static class ServiceDiscovery extends DiscoveryAdapter {
 
@@ -78,7 +80,6 @@ public final class Bluetooth {
 		}
 	}
 
-	private static final DeviceDiscovery DEVICE_LISTENER = new DeviceDiscovery();
 	private static final ServiceDiscovery SERVICE_LISTENER = new ServiceDiscovery();
 
 	// Atributo correspondente ao nome do servico
@@ -140,11 +141,10 @@ public final class Bluetooth {
 
 	public static List<RemoteDevice> listDevices() throws IOException {
 		synchronized (LOCK) {
-			DiscoveryAgent discoveryAgent = LocalDevice.getLocalDevice().getDiscoveryAgent();
-			discoveryAgent.cancelInquiry(DEVICE_LISTENER);
+			DiscoveryAgent agent = LocalDevice.getLocalDevice().getDiscoveryAgent();
+			agent.cancelInquiry(DEVICE_LISTENER);
 			DEVICE_LISTENER.reset();
-			boolean started = discoveryAgent.startInquiry(DiscoveryAgent.GIAC, DEVICE_LISTENER);
-			if (started) {
+			if (agent.startInquiry(DiscoveryAgent.GIAC, DEVICE_LISTENER)) {
 				LOCK.lock();
 			}
 		}
@@ -155,12 +155,12 @@ public final class Bluetooth {
 		synchronized (LOCK) {
 			int[] attributes = new int[] { Bluetooth.NAME };
 			UUID[] uuids = new UUID[] { Bluetooth.SPP };
-			DiscoveryAgent discoveryAgent = LocalDevice.getLocalDevice().getDiscoveryAgent();
-			discoveryAgent.cancelServiceSearch(SERVICE_LISTENER.getTransactionID());
+			DiscoveryAgent agent = LocalDevice.getLocalDevice().getDiscoveryAgent();
+			agent.cancelServiceSearch(SERVICE_LISTENER.getTransactionID());
 			SERVICE_LISTENER.reset();
-			int transactionID = discoveryAgent.searchServices(attributes, uuids, device, SERVICE_LISTENER);
-			SERVICE_LISTENER.setTransactionID(transactionID);
-			if (transactionID > 0) {
+			int id = agent.searchServices(attributes, uuids, device, SERVICE_LISTENER);
+			SERVICE_LISTENER.setTransactionID(id);
+			if (id > 0) {
 				LOCK.lock();
 			}
 		}

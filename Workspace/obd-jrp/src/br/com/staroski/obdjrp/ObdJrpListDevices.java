@@ -1,3 +1,5 @@
+package br.com.staroski.obdjrp;
+
 import java.io.IOException;
 import java.util.List;
 
@@ -10,8 +12,8 @@ public final class ObdJrpListDevices extends ObdJrpApp {
 
 	public static void main(String[] args) {
 		try {
-			ObdJrpListDevices deviceSearch = new ObdJrpListDevices();
-			deviceSearch.execute();
+			ObdJrpListDevices program = new ObdJrpListDevices();
+			program.execute();
 		} catch (Throwable t) {
 			t.printStackTrace();
 			System.exit(-1);
@@ -23,15 +25,18 @@ public final class ObdJrpListDevices extends ObdJrpApp {
 	}
 
 	private void execute() throws IOException {
-		List<RemoteDevice> remoteDevices = Bluetooth.listDevices();
-		for (RemoteDevice remoteDevice : remoteDevices) {
-			System.out.printf("device \"%s\" - \"%s\" {", remoteDevice.getBluetoothAddress(), remoteDevice.getFriendlyName(false));
-			printServices(Bluetooth.listServices(remoteDevice));
+		List<RemoteDevice> devices = Bluetooth.listDevices();
+		for (RemoteDevice device : devices) {
+			String address = device.getBluetoothAddress();
+			String name = device.getFriendlyName(false);
+			System.out.printf("device \"%s\" - \"%s\" {", address, name);
+			printServices(device);
 			System.out.printf("}%n%n");
 		}
 	}
 
-	private void printServices(List<ServiceRecord> services) {
+	private void printServices(RemoteDevice device) throws IOException {
+		List<ServiceRecord> services = Bluetooth.listServices(device);
 		for (ServiceRecord service : services) {
 			System.out.printf("%n\t\"%s\"%n", Bluetooth.getServiceName(service));
 		}

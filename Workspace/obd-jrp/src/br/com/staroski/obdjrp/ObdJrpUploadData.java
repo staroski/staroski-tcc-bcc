@@ -1,6 +1,7 @@
+package br.com.staroski.obdjrp;
 import java.io.IOException;
 
-import br.com.staroski.obdjrp.DataMonitor;
+import br.com.staroski.obdjrp.core.DataMonitor;
 import br.com.staroski.obdjrp.utils.Print;
 
 public final class ObdJrpUploadData extends ObdJrpApp {

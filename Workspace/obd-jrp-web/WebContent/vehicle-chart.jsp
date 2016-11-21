@@ -1,4 +1,4 @@
-<%@page import="br.com.staroski.obdjrp.web.ChartBuilder"%>
+<%@page import="br.com.staroski.obdjrp.core.web.ChartBuilder"%>
 <%@page import="java.util.Date"%>
 <%@page import="java.text.SimpleDateFormat"%>
 <%@page contentType="text/html"%>

@@ -13,7 +13,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.Part;
 
-import br.com.staroski.obdjrp.Config;
+import br.com.staroski.obdjrp.core.Config;
 import br.com.staroski.obdjrp.data.Package;
 import br.com.staroski.obdjrp.utils.CSV;
 import br.com.staroski.obdjrp.utils.Conversions;

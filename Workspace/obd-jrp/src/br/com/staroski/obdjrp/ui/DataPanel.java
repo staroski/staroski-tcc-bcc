@@ -12,8 +12,8 @@ import javax.swing.JTable;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.AbstractTableModel;
 
-import br.com.staroski.obdjrp.Config;
-import br.com.staroski.obdjrp.ScannerListener;
+import br.com.staroski.obdjrp.core.Config;
+import br.com.staroski.obdjrp.core.ScannerListener;
 import br.com.staroski.obdjrp.data.Data;
 import br.com.staroski.obdjrp.data.Parsed;
 import br.com.staroski.obdjrp.data.Parsing;

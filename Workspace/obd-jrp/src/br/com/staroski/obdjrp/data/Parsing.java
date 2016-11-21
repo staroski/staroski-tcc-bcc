@@ -3,7 +3,7 @@ package br.com.staroski.obdjrp.data;
 import java.util.HashMap;
 import java.util.Map;
 
-import br.com.staroski.obdjrp.Config;
+import br.com.staroski.obdjrp.core.Config;
 
 @SuppressWarnings("unchecked")
 public final class Parsing {

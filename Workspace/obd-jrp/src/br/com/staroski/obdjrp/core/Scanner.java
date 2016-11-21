@@ -1,4 +1,4 @@
-package br.com.staroski.obdjrp;
+package br.com.staroski.obdjrp.core;
 
 import static br.com.staroski.obdjrp.utils.Conversions.isEmpty;
 

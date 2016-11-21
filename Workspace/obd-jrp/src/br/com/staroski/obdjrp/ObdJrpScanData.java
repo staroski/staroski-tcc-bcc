@@ -1,13 +1,14 @@
+package br.com.staroski.obdjrp;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.IOException;
 
 import javax.swing.UIManager;
 
-import br.com.staroski.obdjrp.Config;
-import br.com.staroski.obdjrp.IO;
-import br.com.staroski.obdjrp.Scanner;
-import br.com.staroski.obdjrp.ScannerListener;
+import br.com.staroski.obdjrp.core.Config;
+import br.com.staroski.obdjrp.core.IO;
+import br.com.staroski.obdjrp.core.Scanner;
+import br.com.staroski.obdjrp.core.ScannerListener;
 import br.com.staroski.obdjrp.data.Scan;
 import br.com.staroski.obdjrp.elm.ELM327Error;
 import br.com.staroski.obdjrp.ui.ScannerWindow;

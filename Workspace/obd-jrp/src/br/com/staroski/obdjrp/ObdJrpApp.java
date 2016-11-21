@@ -1,9 +1,10 @@
+package br.com.staroski.obdjrp;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.Date;
 
-import br.com.staroski.obdjrp.Config;
+import br.com.staroski.obdjrp.core.Config;
 import br.com.staroski.obdjrp.utils.LinkedPrintStream;
 
 abstract class ObdJrpApp {

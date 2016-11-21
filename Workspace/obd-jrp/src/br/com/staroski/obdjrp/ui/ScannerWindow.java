@@ -9,7 +9,7 @@ import java.util.List;
 import javax.imageio.ImageIO;
 import javax.swing.JFrame;
 
-import br.com.staroski.obdjrp.ScannerListener;
+import br.com.staroski.obdjrp.core.ScannerListener;
 
 public final class ScannerWindow extends JFrame {
 

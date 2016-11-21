@@ -1,4 +1,4 @@
-<%@page import="br.com.staroski.obdjrp.web.HtmlChartBuilder"%>
+<%@page import="br.com.staroski.obdjrp.core.web.HtmlChartBuilder"%>
 <%@page import="java.util.List"%>
 <%@page contentType="text/html"%>
 <%@page pageEncoding="UTF-8"%>

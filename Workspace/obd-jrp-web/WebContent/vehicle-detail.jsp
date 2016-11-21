@@ -1,6 +1,6 @@
 <%@page import="java.util.Date"%>
 <%@page import="java.text.SimpleDateFormat"%>
-<%@page import="br.com.staroski.obdjrp.web.ScanTableModel"%>
+<%@page import="br.com.staroski.obdjrp.core.web.ScanTableModel"%>
 <%@page contentType="text/html"%>
 <%@page pageEncoding="UTF-8"%>
 <!DOCTYPE HTML PUBLIC>
