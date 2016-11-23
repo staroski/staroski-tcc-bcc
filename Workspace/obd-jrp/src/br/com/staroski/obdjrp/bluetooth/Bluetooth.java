@@ -14,11 +14,14 @@ import javax.bluetooth.UUID;
 import javax.microedition.io.Connection;
 import javax.microedition.io.Connector;
 
+import br.com.staroski.obdjrp.utils.Conversions;
 import br.com.staroski.obdjrp.utils.Lock;
 
 public final class Bluetooth {
 
 	// listener para descoberta de dispositivos
+	private static final DeviceDiscovery DEVICE_LISTENER = new DeviceDiscovery();
+
 	private static class DeviceDiscovery extends DiscoveryAdapter {
 
 		private final List<RemoteDevice> devices = new LinkedList<>();
@@ -42,9 +45,9 @@ public final class Bluetooth {
 		}
 	}
 
-	private static final DeviceDiscovery DEVICE_LISTENER = new DeviceDiscovery();
-
 	// listener para descoberta de servicos
+	private static final ServiceDiscovery SERVICE_LISTENER = new ServiceDiscovery();
+
 	private static class ServiceDiscovery extends DiscoveryAdapter {
 
 		private final List<ServiceRecord> services = new LinkedList<>();
@@ -80,13 +83,13 @@ public final class Bluetooth {
 		}
 	}
 
-	private static final ServiceDiscovery SERVICE_LISTENER = new ServiceDiscovery();
-
 	// Atributo correspondente ao nome do servico
 	private static final short NAME = 0x0100;
 
+	private static final String SDP_BASE_UUID_MASK = "0000xxxx00001000800000805F9B34FB";
+
 	// UUID do SPP
-	private static final UUID SPP = BaseUUID.merge16bits((short) 0x1101);
+	private static final UUID SPP = merge16bits((short) 0x1101);
 
 	// objeto utilizado para sincronizacao
 	private static final Lock LOCK = new Lock();
@@ -165,6 +168,19 @@ public final class Bluetooth {
 			}
 		}
 		return SERVICE_LISTENER.getServices();
+	}
+
+	/**
+	 * A 16-bit Attribute UUID replaces the x’s in the following:
+	 * 
+	 * <pre>
+	 * 00000000-0000-1000-8000-00805F9B34FB // BASE UUID
+	 * 0000xxxx-0000-1000-8000-00805F9B34FB
+	 * </pre>
+	 */
+	public static UUID merge16bits(short uuid) {
+		String merged = SDP_BASE_UUID_MASK.replace("xxxx", Conversions.decimalToHexa(uuid, 16));
+		return new UUID(merged, false);
 	}
 
 	private Bluetooth() {}

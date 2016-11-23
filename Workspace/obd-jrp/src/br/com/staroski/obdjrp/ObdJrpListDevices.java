@@ -8,7 +8,7 @@ import javax.bluetooth.ServiceRecord;
 
 import br.com.staroski.obdjrp.bluetooth.Bluetooth;
 
-public final class ObdJrpListDevices extends ObdJrpApp {
+public final class ObdJrpListDevices extends ObdJrpApp {	
 
 	public static void main(String[] args) {
 		try {

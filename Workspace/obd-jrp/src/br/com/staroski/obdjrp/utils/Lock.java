@@ -9,12 +9,12 @@ public final class Lock {
 	}
 
 	public void lock(long timeout) {
-		try {
-			synchronized (LOCK) {
+		synchronized (LOCK) {
+			try {
 				LOCK.wait(timeout);
+			} catch (InterruptedException e) {
+				throw new RuntimeException("Lock interrupted!", e);
 			}
-		} catch (InterruptedException e) {
-			throw new RuntimeException("Lock interrupted!", e);
 		}
 	}
 
