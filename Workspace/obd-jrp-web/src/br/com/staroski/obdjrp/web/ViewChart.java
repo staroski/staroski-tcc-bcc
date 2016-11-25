@@ -7,7 +7,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import br.com.staroski.obdjrp.data.Scan;
-import br.com.staroski.obdjrp.utils.Conversions;
 
 final class ViewChart implements Command {
 
@@ -43,7 +42,7 @@ final class ViewChart implements Command {
 		}
 
 		request.setAttribute("vehicle", vehicleId);
-		request.setAttribute("vehicle_description", new String(Conversions.hexasToBytes(vehicleId)));
+		request.setAttribute("pid", pid);
 		request.setAttribute("scan_time", lastScan.getTime());
 		request.setAttribute("chart_builder", chartBuilder);
 		return "vehicle-chart.jsp";

@@ -86,25 +86,11 @@ public final class ChartBuilder {
 		for (int csv_header = 1; csv_header < csv_headers; csv_header++) {
 			lines.append(String.format("                %s%03d(json.items[%d]);\n", DRAW_CHART_PREFIX, csv_header, csv_header - 1));
 		}
-		lines.append(String.format("        },\n"));
-		lines.append(String.format("        error: function (error) {\n"));
-		lines.append(String.format("            alert('Error:' + error);\n"));
 		lines.append(String.format("        }\n"));
 		lines.append(String.format("    });\n"));
 		lines.append(String.format("    setTimeout(load_page_data, 1000);\n"));
 		lines.append(String.format("}\n"));
 		return lines.toString();
-	}
-
-	private Object getChartParam(int csv_headers) {
-		StringBuilder params = new StringBuilder();
-		for (int i = 1; i < csv_headers; i++) {
-			if (i > 1) {
-				params.append(',');
-			}
-			params.append(i);
-		}
-		return params.toString();
 	}
 
 	private String createChartFunctionDeclarations() {
@@ -145,9 +131,14 @@ public final class ChartBuilder {
 		File dir = ObdJrpWeb.getScanDir(vehicleId);
 		List<File> files = new ArrayList<>();
 		files.addAll(Arrays.asList(dir.listFiles(ObdJrpWeb.SCAN_FILES)));
-		Collections.sort(files, ObdJrpWeb.OLD_FILE_FIRST);
+		Collections.sort(files, ObdJrpWeb.NEW_FILE_FIRST);
 		List<Scan> scans = new ArrayList<>();
+		int count = 0;
 		for (File file : files) {
+			if (count > ObdJrpWeb.CHART_SCAN_SIZE) {
+				break;
+			}
+			count++;
 			try {
 				FileInputStream input = new FileInputStream(file);
 				scans.add(Scan.readFrom(input));
@@ -157,5 +148,16 @@ public final class ChartBuilder {
 			}
 		}
 		return CSV.createSingleCSV(scans, pid);
+	}
+
+	private Object getChartParam(int csv_headers) {
+		StringBuilder params = new StringBuilder();
+		for (int i = 1; i < csv_headers; i++) {
+			if (i > 1) {
+				params.append(',');
+			}
+			params.append(i);
+		}
+		return params.toString();
 	}
 }

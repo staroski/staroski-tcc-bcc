@@ -1,4 +1,5 @@
 package br.com.staroski.obdjrp;
+
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.IOException;
@@ -18,8 +19,8 @@ public final class ObdJrpScanData extends ObdJrpApp {
 
 	public static void main(String[] args) {
 		try {
-			ObdJrpScanData scanner = new ObdJrpScanData();
-			scanner.startScanning();
+			ObdJrpScanData program = new ObdJrpScanData();
+			program.execute();
 		} catch (Throwable t) {
 			t.printStackTrace();
 			System.exit(-1);
@@ -37,51 +38,15 @@ public final class ObdJrpScanData extends ObdJrpApp {
 		}
 
 		@Override
-		public void onScanned(Scan scannedData) {}
+		public void onScanned(Scan scannedData) { /* ignora */ }
 	};
 
 	private ObdJrpScanData() throws IOException {
 		super("scan-data");
 	}
 
-	private ScannerWindow getScannerWindow() {
-		if (scannerWindow != null) {
-			return scannerWindow;
-		}
-		try {
-			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-		} catch (Throwable t) {
-			t.printStackTrace();
-		}
-		scannerWindow = new ScannerWindow();
-		scannerWindow.setResizable(false);
-		scannerWindow.setLocationRelativeTo(null);
-
-		scannerWindow.addWindowListener(new WindowAdapter() {
-			@Override
-			public void windowClosing(WindowEvent we) {
-				stopScanning();
-				System.out.println("shutting down...");
-				System.exit(0);
-			}
-		});
-		return scannerWindow;
-	}
-
-	private void restartAfterError(final ELM327Error error) {
-		new Thread(new Runnable() {
-
-			@Override
-			public void run() {
-				stopScanning();
-				startScanning();
-			}
-		}, "Scanner_Restarter").start();
-	}
-
-	private void startScanning() {
-		final Config props = Config.get();
-		final IO connection = props.connection();
+	private void execute() {
+		final IO connection = Config.get().connection();
 		final ScannerWindow window = getScannerWindow();
 		final ScannerListener windowListener = window.getObdJrpListener();
 		window.setVisible(true);
@@ -104,7 +69,42 @@ public final class ObdJrpScanData extends ObdJrpApp {
 		}
 	}
 
-	private void stopScanning() {
+	private ScannerWindow getScannerWindow() {
+		if (scannerWindow != null) {
+			return scannerWindow;
+		}
+		try {
+			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+		} catch (Throwable t) {
+			t.printStackTrace();
+		}
+		scannerWindow = new ScannerWindow();
+		scannerWindow.setResizable(false);
+		scannerWindow.setLocationRelativeTo(null);
+
+		scannerWindow.addWindowListener(new WindowAdapter() {
+			@Override
+			public void windowClosing(WindowEvent we) {
+				stop();
+				System.out.println("shutting down...");
+				System.exit(0);
+			}
+		});
+		return scannerWindow;
+	}
+
+	private void restartAfterError(final ELM327Error error) {
+		new Thread(new Runnable() {
+
+			@Override
+			public void run() {
+				stop();
+				execute();
+			}
+		}, "Scanner_Restarter").start();
+	}
+
+	private void stop() {
 		if (scanner != null) {
 			scanner.stop();
 			System.out.println("stopped scanning!");

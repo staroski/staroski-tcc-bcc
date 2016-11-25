@@ -46,20 +46,20 @@ final class UploadData implements Command {
 	private boolean saveDataPackage(Package dataPackage) {
 		try {
 			File obdFile = getFile(dataPackage, ".obd");
-			System.out.printf("Gravando \"%s\"...", obdFile.getAbsolutePath());
+			System.out.printf("Saving \"%s\"...%n", obdFile.getAbsolutePath());
 			FileOutputStream obdOutput = new FileOutputStream(obdFile);
 			dataPackage.writeTo(obdOutput);
 			obdOutput.close();
 			obdFile.setLastModified(dataPackage.getTime());
-			System.out.println("  OK!");
+			System.out.println("OK!");
 
 			File csvFile = getFile(dataPackage, ".csv");
-			System.out.printf("Gravando \"%s\"...", csvFile.getAbsolutePath());
+			System.out.printf("Saving \"%s\"...%n", csvFile.getAbsolutePath());
 			FileOutputStream csvOutput = new FileOutputStream(csvFile);
 			CSV.writeTo(csvOutput, dataPackage);
 			csvOutput.close();
 			csvFile.setLastModified(dataPackage.getTime());
-			System.out.println("  OK!");
+			System.out.println("OK!");
 
 			return true;
 		} catch (IOException e) {

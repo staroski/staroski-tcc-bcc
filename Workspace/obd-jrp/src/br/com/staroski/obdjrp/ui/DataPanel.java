@@ -100,7 +100,7 @@ final class DataPanel extends JPanel implements ScannerListener {
 		setLayout(new BorderLayout(5, 5));
 		setOpaque(false);
 
-		labelVehicle = new JLabel("Vehicle:" + Config.get().vehicle());
+		labelVehicle = new JLabel("Vehicle: " + Config.get().vehicle());
 
 		add(labelVehicle, BorderLayout.NORTH);
 

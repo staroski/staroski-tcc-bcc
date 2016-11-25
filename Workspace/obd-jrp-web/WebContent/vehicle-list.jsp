@@ -8,14 +8,16 @@
 <title>OBD-JRP</title>
 </head>
 <body>
-	<div id="title" align="center"><h1>Vehicles</h1></div>
+	<div id="title" align="center">
+		<h1>Vehicles</h1>
+	</div>
 	<%
-		List<String[]> vehicles = (List<String[]>) request.getAttribute("vehicles");
+		List<String> vehicles = (List<String>) request.getAttribute("vehicles");
 	%>
 	<div id="vehicle-list" align="center">
 		<%
-			for (String[] vehicle : vehicles) {
-				out.println(String.format("<p><a href=\"exec?cmd=ReadData&vehicle=%s\">%s</a></p>", vehicle[0], vehicle[1]));
+			for (String vehicle : vehicles) {
+				out.println(String.format("<p><a href=\"exec?cmd=ReadData&vehicle=%s\">%s</a></p>", vehicle, vehicle));
 			}
 		%>
 	</div>

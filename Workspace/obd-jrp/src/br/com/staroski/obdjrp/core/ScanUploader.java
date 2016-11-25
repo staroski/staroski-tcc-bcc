@@ -49,9 +49,8 @@ final class ScanUploader implements ScannerListener {
 		System.out.printf("sending scan to server%n");
 		try {
 			String url = Config.get().webServer() + "/exec?cmd=SendData";
-			byte[] bytes = Config.get().vehicle().getBytes();
-			String vehicle = Conversions.bytesToHexas(bytes);
-			bytes = dataScan.writeTo(new ByteArrayOutputStream()).toByteArray();
+			String vehicle = Config.get().vehicle();
+			byte[] bytes = dataScan.writeTo(new ByteArrayOutputStream()).toByteArray();
 			String scan = Conversions.bytesToHexas(bytes);
 			String[][] params = new String[][] { //
 					new String[] { "vehicle", vehicle }, //

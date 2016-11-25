@@ -12,7 +12,7 @@ public interface Command {
 
 		@Override
 		public String execute(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-			return null;
+			return "index.jsp";
 		}
 	};
 

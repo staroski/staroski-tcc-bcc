@@ -4,9 +4,8 @@
 <%@page contentType="text/html"%>
 <%@page pageEncoding="UTF-8"%>
 <%
-	final String vehicle_description = (String) request.getAttribute("vehicle_description");
-	final Date scan_time = new Date((Long) request.getAttribute("scan_time"));
-	final String formatted_scan_time = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss:SSS").format(scan_time);
+	final String vehicle = (String) request.getAttribute("vehicle");
+	final String pid = (String) request.getAttribute("pid");
 	final ChartBuilder chart_builder = (ChartBuilder) request.getAttribute("chart_builder");
 %>
 <!DOCTYPE HTML PUBLIC>
@@ -18,8 +17,18 @@
 </head>
 <body>
 	<div id="title" align="center">
-		<h1><%=vehicle_description%></h1>
+		<h1>Vehicle</h1>
+		<h2><%=vehicle%></h2>
 	</div>
+	<form action="exec">
+		<input type="hidden" name="cmd" value="ReadData" />
+		<input type="hidden" name="vehicle" value="<%=vehicle%>" />
+		<input type="hidden" name="history" value="yes" />
+		<input type="hidden" name="pid" value="<%=pid%>" />
+		<div align="center">
+			<input type="submit" value="View History" />
+		</div>
+	</form>
 	<div align="center">
 		<%=chart_builder.createTagDiv()%>
 	</div>

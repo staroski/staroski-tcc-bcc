@@ -5,11 +5,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.Date;
-import java.util.List;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -28,7 +24,7 @@ final class SendData implements Command {
 			String vehicleId = request.getParameter("vehicle");
 			byte[] scanBytes = Conversions.hexasToBytes(request.getParameter("scan"));
 			saveScan(vehicleId, Scan.readFrom(new ByteArrayInputStream(scanBytes)));
-			organizeScanDir(vehicleId);
+			ObdJrpWeb.organizeScanDir(vehicleId);
 			out.println("OK");
 		} catch (Exception error) {
 			System.out.printf("%s: %s%n", //
@@ -47,26 +43,10 @@ final class SendData implements Command {
 		return file;
 	}
 
-	private void organizeScanDir(String vehicleId) {
-		File dir = ObdJrpWeb.getScanDir(vehicleId);
-		List<File> files = new ArrayList<>();
-		files.addAll(Arrays.asList(dir.listFiles(ObdJrpWeb.SCAN_FILES)));
-		Collections.sort(files, ObdJrpWeb.OLD_FILE_FIRST);
-		while (files.size() > ObdJrpWeb.SCANS_SIZE) {
-			File scanFile = files.remove(0);
-			System.out.printf("Apagando \"%s\"...%n", scanFile.getAbsolutePath());
-			if (scanFile.delete()) {
-				System.out.println("OK");
-			} else {
-				System.out.println("ERRO");
-			}
-		}
-	}
-
 	private boolean saveScan(String vehicleId, Scan scan) {
 		try {
 			File scanFile = getFile(vehicleId, scan, ".scan");
-			System.out.printf("Gravando \"%s\"...%n", scanFile.getAbsolutePath());
+			System.out.printf("Saving \"%s\"...%n", scanFile.getAbsolutePath());
 			FileOutputStream scanOutput = new FileOutputStream(scanFile);
 			scan.writeTo(scanOutput);
 			scanOutput.close();
