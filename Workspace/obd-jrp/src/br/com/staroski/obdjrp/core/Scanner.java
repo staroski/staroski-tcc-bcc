@@ -67,7 +67,7 @@ public final class Scanner {
 	private final EventMulticaster eventMulticaster;
 
 	private final ELM327 elm327;
-
+	
 	private final ScanLoop scanLoop;
 
 	private final List<String> supportedPIDs;

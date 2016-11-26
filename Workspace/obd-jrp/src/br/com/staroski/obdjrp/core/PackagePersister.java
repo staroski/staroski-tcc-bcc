@@ -30,7 +30,9 @@ final class PackagePersister {
 	public void add(Scan scan) {
 		final int limit = Config.get().dataMaxScans();
 		List<Scan> scannedData = dataPackage.getScans();
-		System.out.printf("adding data %d of %d to data package...%n", scannedData.size() + 1, limit);
+		System.out.printf("adding data %d of %d to data package...%n",
+				          scannedData.size() + 1,
+				          limit);
 		scannedData.add(scan);
 		if (scannedData.size() == limit) {
 			System.out.printf("data package filled!%n");

@@ -31,7 +31,12 @@ public final class Parsing {
 			}
 			PARSERS.put(pid, parser);
 		}
-		return parser.parse(data);
+		try {
+			return parser.parse(data);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return Parsed.EMPTY;
+		}
 	}
 
 	private Parsing() {}

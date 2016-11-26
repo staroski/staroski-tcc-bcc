@@ -35,14 +35,6 @@ final class SendData implements Command {
 		return null;
 	}
 
-	private File getFile(String vehicleId, Scan scan, String extension) throws IOException {
-		File dir = ObdJrpWeb.getScanDir(vehicleId);
-		String name = Config.get().formatted(new Date(scan.getTime()));
-		File file = new File(dir, name + extension);
-		file.createNewFile();
-		return file;
-	}
-
 	private boolean saveScan(String vehicleId, Scan scan) {
 		try {
 			File scanFile = getFile(vehicleId, scan, ".scan");
@@ -58,5 +50,13 @@ final class SendData implements Command {
 			e.printStackTrace();
 			return false;
 		}
+	}
+	
+	private File getFile(String vehicleId, Scan scan, String extension) throws IOException {
+		File dir = ObdJrpWeb.getScanDir(vehicleId);
+		String name = Config.get().formatted(new Date(scan.getTime()));
+		File file = new File(dir, name + extension);
+		file.createNewFile();
+		return file;
 	}
 }

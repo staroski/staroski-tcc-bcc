@@ -62,7 +62,7 @@ public final class DataMonitor {
 
 				@Override
 				public void run() {
-					checkDataFolder();
+					execute();
 				}
 			}, "ObdJrp_FolderMonitor");
 			scanThread.start();
@@ -88,12 +88,13 @@ public final class DataMonitor {
 		begin = System.currentTimeMillis();
 	}
 
-	private void checkDataFolder() {
+	private void execute() {
 		do {
 			begin();
 			Queue<File> files = getFiles();
 			if (files.isEmpty()) {
 				System.out.println("no data to upload!");
+				end();
 				continue;
 			}
 			for (File file : files) {

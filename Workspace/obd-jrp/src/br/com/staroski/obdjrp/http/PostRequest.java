@@ -23,13 +23,13 @@ final class PostRequest {
 
 	PostRequest(String requestURL) throws IOException {
 		boundary = "===" + System.currentTimeMillis() + "===";
-
 		URL url = new URL(requestURL);
 		httpConn = (HttpURLConnection) url.openConnection();
 		httpConn.setUseCaches(false);
 		httpConn.setDoOutput(true);
 		httpConn.setDoInput(true);
-		httpConn.setRequestProperty("Content-Type", "multipart/form-data; boundary=" + boundary);
+		httpConn.setRequestProperty("Content-Type", "multipart/form-data; boundary="
+		                          + boundary);
 		httpConn.setRequestProperty("User-Agent", "CodeJava Agent");
 		httpConn.setRequestProperty("Test", "Bonjour");
 		outputStream = httpConn.getOutputStream();
@@ -39,12 +39,14 @@ final class PostRequest {
 	public void addFilePart(String fieldName, File uploadFile) throws IOException {
 		String fileName = uploadFile.getName();
 		writer.append("--" + boundary).append(LINE_FEED);
-		writer.append("Content-Disposition: form-data; name=\"" + fieldName + "\"; filename=\"" + fileName + "\"").append(LINE_FEED);
-		writer.append("Content-Type: " + URLConnection.guessContentTypeFromName(fileName)).append(LINE_FEED);
+		writer.append("Content-Disposition: form-data; name=\""
+		            + fieldName + "\"; filename=\""
+				    + fileName + "\"").append(LINE_FEED);
+		writer.append("Content-Type: " + URLConnection.guessContentTypeFromName(fileName))
+		      .append(LINE_FEED);
 		writer.append("Content-Transfer-Encoding: binary").append(LINE_FEED);
 		writer.append(LINE_FEED);
 		writer.flush();
-
 		FileInputStream inputStream = new FileInputStream(uploadFile);
 		byte[] buffer = new byte[4096];
 		int bytesRead = -1;
@@ -53,22 +55,7 @@ final class PostRequest {
 		}
 		outputStream.flush();
 		inputStream.close();
-
 		writer.append(LINE_FEED);
-		writer.flush();
-	}
-
-	public void addFormField(String name, String value) {
-		writer.append("--" + boundary).append(LINE_FEED);
-		writer.append("Content-Disposition: form-data; name=\"" + name + "\"").append(LINE_FEED);
-		writer.append("Content-Type: text/plain; charset=" + charset).append(LINE_FEED);
-		writer.append(LINE_FEED);
-		writer.append(value).append(LINE_FEED);
-		writer.flush();
-	}
-
-	public void addHeaderField(String name, String value) {
-		writer.append(name + ": " + value).append(LINE_FEED);
 		writer.flush();
 	}
 

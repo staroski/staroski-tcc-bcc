@@ -33,6 +33,17 @@ final class UploadData implements Command {
 		return null;
 	}
 
+	private boolean savePart(Part part) {
+		try {
+			InputStream input = part.getInputStream();
+			Package dataPackage = Package.readFrom(input);
+			return saveDataPackage(dataPackage);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return false;
+		}
+	}
+	
 	private File getFile(Package dataPackage, String extension) throws IOException {
 		String vehicle = dataPackage.getVehicle();
 		String vehicle_id = Conversions.bytesToHexas(vehicle.getBytes());
@@ -64,17 +75,6 @@ final class UploadData implements Command {
 			return true;
 		} catch (IOException e) {
 			System.out.println("  ERRO!");
-			e.printStackTrace();
-			return false;
-		}
-	}
-
-	private boolean savePart(Part part) {
-		try {
-			InputStream input = part.getInputStream();
-			Package dataPackage = Package.readFrom(input);
-			return saveDataPackage(dataPackage);
-		} catch (Exception e) {
 			e.printStackTrace();
 			return false;
 		}

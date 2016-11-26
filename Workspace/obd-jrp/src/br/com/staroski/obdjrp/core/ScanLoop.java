@@ -29,7 +29,7 @@ final class ScanLoop {
 			@Override
 			public void run() {
 				try {
-					scanData();
+					execute();
 				} catch (Throwable error) {
 					scanning = false;
 					Print.message(error);
@@ -54,7 +54,7 @@ final class ScanLoop {
 		}
 	}
 
-	private void scanData() throws IOException {
+	private void execute() throws IOException {
 		while (scanning) {
 			try {
 				System.out.printf("scanning data...%n");
@@ -62,7 +62,8 @@ final class ScanLoop {
 				Scan scan = scanner.scan();
 				int pids = scan.getData().size();
 				long time = timer.elapsed();
-				System.out.printf("%d PIDs read%ndata scanned in %dms%n", pids, time);
+				System.out.printf("%d PIDs read%n", pids);
+				System.out.printf("data scanned in %dms%n", time);
 				scanner.notifyScanned(scan);
 			} catch (ELM327Error error) {
 				scanning = false;
