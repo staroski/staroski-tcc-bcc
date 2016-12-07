@@ -7,33 +7,8 @@ import java.io.OutputStream;
 import java.io.PrintStream;
 
 import br.com.staroski.obdjrp.core.IO;
-import br.com.staroski.obdjrp.utils.Lock;
 
 public final class ELM327 {
-
-	private final class InputReader implements Runnable {
-
-		@Override
-		public void run() {
-			final InputStream in = connection.getInput();
-			try {
-				int read = -1;
-				while (connection.isOpen()) {
-					if ((read = in.read()) != -1) {
-						buffer.write(read);
-						if (read == PROMPT) {
-							LOCK.unlock();
-						}
-					}
-				}
-			} catch (Throwable error) {
-				readError = error;
-				LOCK.unlock();
-			}
-		}
-	}
-
-	private static final int TIMEOUT = 1000;
 
 	private static final char PROMPT = '>';
 	private static final char RETURN = '\r';
@@ -53,11 +28,7 @@ public final class ELM327 {
 		return instance;
 	}
 
-	private Throwable readError;
-
-	private final Lock LOCK = new Lock();
-
-	private final ByteArrayOutputStream buffer = new ByteArrayOutputStream(1024);
+	private final ByteArrayOutputStream buffer = new ByteArrayOutputStream(8192);
 
 	private final PrintStream logger;
 	private final IO connection;
@@ -70,8 +41,6 @@ public final class ELM327 {
 		this.connection = checkParam(IO.class, connection);
 		this.logger = checkParam(PrintStream.class, logger);
 		Disconnector.add(this);
-
-		new Thread(new InputReader(), "ELM327_InputReader").start();
 	}
 
 	public void disconnect() {
@@ -109,13 +78,22 @@ public final class ELM327 {
 	}
 
 	private byte[] readMessage() throws ELM327Error {
-		LOCK.lock(TIMEOUT);
-		if (readError != null) {
-			try {
-				throw ELM327Error.wrap(readError);
-			} finally {
-				readError = null;
+		final InputStream in = connection.getInput();
+		try {
+			buffer.reset();
+			int read = -1;
+			while (connection.isOpen()) {
+				if ((read = in.read()) != -1) {
+					buffer.write(read);
+					if (read == PROMPT) {
+						break;
+					}
+				}
 			}
+		} catch (ELM327Error elm327Error) {
+			throw elm327Error;
+		} catch (Throwable error) {
+			throw ELM327Error.wrap(error);
 		}
 		return buffer.toByteArray();
 	}
