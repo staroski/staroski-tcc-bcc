@@ -65,7 +65,8 @@ final class ObdJrpWeb {
 	}
 
 	public static File getDataDir() {
-		File file = new File("T:\\obd-jrp-web\\obd-jrp-data");
+		String tomcat = System.getenv("CATALINA_HOME");
+		File file = new File(tomcat + "\\webapps\\obd-jrp-web\\obd-jrp-data");
 		if (!file.exists()) {
 			file.mkdirs();
 		}
