@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import br.com.staroski.obdjrp.data.Scan;
 import br.com.staroski.obdjrp.elm.ELM327Error;
+import br.com.staroski.obdjrp.utils.Lock;
 import br.com.staroski.obdjrp.utils.Print;
 import br.com.staroski.obdjrp.utils.Timer;
 
@@ -37,6 +38,7 @@ final class ScanLoop {
 				}
 			}
 		}, "ObdJrp_ScanLoop");
+		loop.setDaemon(true);
 		loop.start();
 	}
 
@@ -45,13 +47,7 @@ final class ScanLoop {
 			return;
 		}
 		scanning = false;
-		if (loop != null && loop.isAlive()) {
-			try {
-				loop.join();
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-		}
+		new Lock().lock(1000);
 	}
 
 	private void execute() throws IOException {
