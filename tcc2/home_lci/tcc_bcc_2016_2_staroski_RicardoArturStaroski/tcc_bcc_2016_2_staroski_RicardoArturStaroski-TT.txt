@@ -1,0 +1,37 @@
+/**
+ * FIRMWARE
+ */
+Edite os seguintes arquivos:
+	fontes\client\compile.bat
+	fontes\client\obdjrp-scanner.bat
+	fontes\client\obdjrp-uploader.bat
+
+Em cada um deles altere a propriedade:
+	JAVA_HOME=<caminho completo da pasta de um JDK 1.8 de 32 bits>
+
+Execute o compile.bat*
+Os programas do firmware estarão prontos:
+	obdjrp-scanner.bat	executa o leitor da interface ELM327
+	obdjrp-uploader.bat	executa o uploader de dados pendentes
+
+	*para executar no raspberry, é necessário ajustar o conteúdo dos .bat respeitando os caminhos e separadores do linux
+
+
+/**
+ * SERVIDOR
+ */
+Edite os seguintes arquivos:
+	fontes\client\compile.bat
+	fontes\client\shutdown.bat
+	fontes\client\startup.bat
+
+Em cada um deles altere as propriedades:
+	JAVA_HOME=<caminho completo da pasta de um JDK 1.8 de 32 bits>
+	CATALINA_HOME<caminho completo da instalação do TomCat>*
+
+	*No ambiente do TomCat é necessário existir a pasta do webapp obd-jrp-web e respectivo conteúdo web
+
+Execute o compile.bat
+O servidor está pronto:
+	startup.bat	levanta o servidor
+	shutdown.bat	derruba o servidor
