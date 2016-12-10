@@ -1,7 +1,12 @@
-# README #
+### RICARDO ARTUR STAROSKI ###
 
-OBD-JRP: Monitoramento Veicular com Java e Raspberry Pi
+### OBD-JRP: Monitoramento Veicular com Java e Raspberry Pi ###
 
-### What is this repository for? ###
+Trabalho de Conclusão de Curso apresentado ao curso de graduação em Ciência da Computação do Centro de Ciências Exatas e Naturais da Universidade Regional de Blumenau como requisito parcial para a obtenção do grau de Bacharel em Ciência da Computação.
+### Prof. Miguel Alexandre Wisintainer - Orientador ###
 
-* Ricardo Artur Staroski's undergraduate thesis
+### RESUMO ###
+O presente trabalho tem por finalidade avaliar a viabilidade do desenvolvimento, em Java, de um protótipo de software embarcado em uma placa Raspberry Pi para monitorar os sensores de um veículo, através de comunicação com uma interface ELM327 Bluetooth conectada à porta On Board Diagnostic (OBD2) e disponibilizar estas informações em uma página web. O protótipo é dividido em duas partes distintas, o firmware instalado em um veículo e o servidor que disponibiliza páginas web para o monitoramento do veículo. O firmware e servidor são especificados utilizando o paradigma de orientação à objetos, utilizando diagramas da Unified Modeling Language (UML). A execução do protótipo ocorre de forma autônoma ao ser conectado em um adaptador USB automotivo. O protótipo é desenvolvido utilizando padrões de projeto de software. O resultado de sua construção é um dispositivo que permite o monitoramento via web e em tempo real do veículo.
+
+### ABSTRACT ###
+The present work has the purpose of evaluating the feasibility of developing, in Java, a software prototype embedded in a Raspberry Pi card to monitor the sensors of a vehicle by communicating with an ELM327 Bluetooth interface connected to the On Board Diagnostic (OBD2) port and making the information available on a web page. The prototype is divided into two distinct parts, the firmware installed in a vehicle and the server that provides web pages for monitoring the vehicle. The firmware and server are specified using the object orientation paradigm, along with Unified Modeling Language (UML). The prototype runs autonomously when plugged into an automotive USB adapter. The prototype is developed using software design standards. The result of its construction is a device that allows real-time web monitoring of the vehicle.
